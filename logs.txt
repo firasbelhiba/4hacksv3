@@ -1,0 +1,961 @@
+> 4hacks@0.1.0 dev
+> next dev --port 3000
+
+  ▲ Next.js 14.2.32
+  - Local:        http://localhost:3000
+  - Environments: .env.local, .env
+
+ ✓ Starting...
+ ✓ Ready in 3.9s
+ ○ Compiling /api/auth/[...nextauth] ...
+ ✓ Compiled /api/auth/[...nextauth] in 2.3s (356 modules)
+[dotenv@17.2.2] injecting env (0) from .env.local -- tip: 📡 observe env with Radar: https://dotenvx.com/radar
+[dotenv@17.2.2] injecting env (0) from .env -- tip: ⚙️  load multiple .env files with { path: ['.env.local', '.env'] }
+[dotenv@17.2.2] injecting env (0) from .env.local -- tip: ⚙️  load multiple .env files with { path: ['.env.local', '.env'] }
+[dotenv@17.2.2] injecting env (0) from .env -- tip: 📡 version env with Radar: https://dotenvx.com/radar
+[next-auth][warn][DEBUG_ENABLED]
+https://next-auth.js.org/warnings#debug_enabled
+ GET /api/auth/session 200 in 6315ms
+ ○ Compiling /src/middleware ...
+ GET /api/auth/session 200 in 124ms
+[dotenv@17.2.2] injecting env (0) from .env.local -- tip: ⚙️  suppress all logs with { quiet: true }
+[dotenv@17.2.2] injecting env (0) from .env -- tip: 📡 version env with Radar: https://dotenvx.com/radar
+ ✓ Compiled /src/middleware in 3.6s (174 modules)
+ ○ Compiling /api/projects/[id]/code-quality ...
+ ✓ Compiled /api/projects/[id]/code-quality in 1530ms (463 modules)
+[dotenv@17.2.2] injecting env (0) from .env.local -- tip: ⚙️  load multiple .env files with { path: ['.env.local', '.env'] }
+[dotenv@17.2.2] injecting env (0) from .env -- tip: 📡 auto-backup env with Radar: https://dotenvx.com/radar
+Together AI service initialized with API key: fdc09e5c...
+[dotenv@17.2.2] injecting env (0) from .env.local -- tip: ⚙️  suppress all logs with { quiet: true }
+[dotenv@17.2.2] injecting env (0) from .env -- tip: 🛠️  run anywhere with `dotenvx run -- yourcommand`
+Together AI service initialized with API key: fdc09e5c...
+[next-auth][warn][DEBUG_ENABLED]
+https://next-auth.js.org/warnings#debug_enabled
+prisma:query SELECT "public"."projects"."id", "public"."projects"."name", "public"."projects"."slug", "public"."projects"."description", "public"."projects"."teamName", "public"."projects"."teamMembers", "public"."projects"."githubUrl", "public"."projects"."demoUrl", "public"."projects"."videoUrl", "public"."projects"."presentationUrl", "public"."projects"."technologies", "public"."projects"."status"::text, "public"."projects"."hackathonId", "public"."projects"."trackId", "public"."projects"."submittedAt", "public"."projects"."createdAt", "public"."projects"."updatedAt" FROM "public"."projects" LEFT JOIN "public"."hackathons" AS "j0" ON ("j0"."id") = ("public"."projects"."hackathonId") WHERE ("public"."projects"."id" = $1 AND ("j0"."createdById" = $2 AND ("j0"."id" IS NOT NULL))) LIMIT $3 OFFSET $4
+prisma:query SELECT "public"."hackathons"."id", "public"."hackathons"."name" FROM "public"."hackathons" WHERE "public"."hackathons"."id" IN ($1) OFFSET $2
+prisma:query SELECT "public"."tracks"."id", "public"."tracks"."name" FROM "public"."tracks" WHERE "public"."tracks"."id" IN ($1) OFFSET $2
+prisma:query SELECT "public"."code_quality_reports"."id", "public"."code_quality_reports"."projectId", "public"."code_quality_reports"."repositoryUrl", "public"."code_quality_reports"."status"::text, "public"."code_quality_reports"."overallScore", "public"."code_quality_reports"."technicalScore", "public"."code_quality_reports"."maintainabilityScore", "public"."code_quality_reports"."securityScore", "public"."code_quality_reports"."documentationScore", "public"."code_quality_reports"."testCoverageScore", "public"."code_quality_reports"."performanceScore", "public"."code_quality_reports"."richnessScore", "public"."code_quality_reports"."codeSmellsCount", "public"."code_quality_reports"."bugsCount", "public"."code_quality_reports"."vulnerabilitiesCount", "public"."code_quality_reports"."duplicatedLinesCount", "public"."code_quality_reports"."totalLinesAnalyzed", "public"."code_quality_reports"."fileAnalysis", "public"."code_quality_reports"."recommendations", "public"."code_quality_reports"."strengths", "public"."code_quality_reports"."improvements", "public"."code_quality_reports"."errorMessage", "public"."code_quality_reports"."analysisErrors", "public"."code_quality_reports"."partialAnalysis", "public"."code_quality_reports"."analysisStartedAt", "public"."code_quality_reports"."analysisCompletedAt", "public"."code_quality_reports"."analysisTimeMs", "public"."code_quality_reports"."aiModel", "public"."code_quality_reports"."aiCost", "public"."code_quality_reports"."createdAt", "public"."code_quality_reports"."updatedAt", "public"."code_quality_reports"."currentStage", "public"."code_quality_reports"."estimatedTimeRemaining", "public"."code_quality_reports"."processedFiles", "public"."code_quality_reports"."progress", "public"."code_quality_reports"."stageProgress", "public"."code_quality_reports"."totalFiles", "public"."code_quality_reports"."scoreEvidence", "public"."code_quality_reports"."scoreJustifications", "public"."code_quality_reports"."repositoryStructure", "public"."code_quality_reports"."packageAnalysis", "public"."code_quality_reports"."configurationAnalysis", "public"."code_quality_reports"."architecturalPatterns", "public"."code_quality_reports"."frameworkUtilization", "public"."code_quality_reports"."structuralComplexity" FROM "public"."code_quality_reports" WHERE ("public"."code_quality_reports"."projectId" = $1 AND "public"."code_quality_reports"."status" IN (CAST($2::text AS "public"."ReportStatus"),CAST($3::text AS "public"."ReportStatus"))) LIMIT $4 OFFSET $5
+prisma:query INSERT INTO "public"."code_quality_reports" ("id","projectId","repositoryUrl","status","fileAnalysis","recommendations","analysisErrors","partialAnalysis","createdAt","updatedAt","progress","stageProgress","scoreEvidence","scoreJustifications","repositoryStructure","packageAnalysis","configurationAnalysis","architecturalPatterns","frameworkUtilization","structuralComplexity") VALUES ($1,$2,$3,CAST($4::text AS "public"."ReportStatus"),$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20) RETURNING "public"."code_quality_reports"."id", "public"."code_quality_reports"."projectId", "public"."code_quality_reports"."repositoryUrl", "public"."code_quality_reports"."status"::text, "public"."code_quality_reports"."overallScore", "public"."code_quality_reports"."technicalScore", "public"."code_quality_reports"."maintainabilityScore", "public"."code_quality_reports"."securityScore", "public"."code_quality_reports"."documentationScore", "public"."code_quality_reports"."testCoverageScore", "public"."code_quality_reports"."performanceScore", "public"."code_quality_reports"."richnessScore", "public"."code_quality_reports"."codeSmellsCount", "public"."code_quality_reports"."bugsCount", "public"."code_quality_reports"."vulnerabilitiesCount", "public"."code_quality_reports"."duplicatedLinesCount", "public"."code_quality_reports"."totalLinesAnalyzed", "public"."code_quality_reports"."fileAnalysis", "public"."code_quality_reports"."recommendations", "public"."code_quality_reports"."strengths", "public"."code_quality_reports"."improvements", "public"."code_quality_reports"."errorMessage", "public"."code_quality_reports"."analysisErrors", "public"."code_quality_reports"."partialAnalysis", "public"."code_quality_reports"."analysisStartedAt", "public"."code_quality_reports"."analysisCompletedAt", "public"."code_quality_reports"."analysisTimeMs", "public"."code_quality_reports"."aiModel", "public"."code_quality_reports"."aiCost", "public"."code_quality_reports"."createdAt", "public"."code_quality_reports"."updatedAt", "public"."code_quality_reports"."currentStage", "public"."code_quality_reports"."estimatedTimeRemaining", "public"."code_quality_reports"."processedFiles", "public"."code_quality_reports"."progress", "public"."code_quality_reports"."stageProgress", "public"."code_quality_reports"."totalFiles", "public"."code_quality_reports"."scoreEvidence", "public"."code_quality_reports"."scoreJustifications", "public"."code_quality_reports"."repositoryStructure", "public"."code_quality_reports"."packageAnalysis", "public"."code_quality_reports"."configurationAnalysis", "public"."code_quality_reports"."architecturalPatterns", "public"."code_quality_reports"."frameworkUtilization", "public"."code_quality_reports"."structuralComplexity"
+ POST /api/projects/cmfuwhcf90001f40sgkpqizhv/code-quality 201 in 6451ms
+prisma:query UPDATE "public"."code_quality_reports" SET "status" = CAST($1::text AS "public"."ReportStatus"), "progress" = $2, "currentStage" = $3, "stageProgress" = $4, "analysisStartedAt" = $5, "updatedAt" = $6 WHERE ("public"."code_quality_reports"."id" = $7 AND 1=1) RETURNING "public"."code_quality_reports"."id", "public"."code_quality_reports"."projectId", "public"."code_quality_reports"."repositoryUrl", "public"."code_quality_reports"."status"::text, "public"."code_quality_reports"."overallScore", "public"."code_quality_reports"."technicalScore", "public"."code_quality_reports"."maintainabilityScore", "public"."code_quality_reports"."securityScore", "public"."code_quality_reports"."documentationScore", "public"."code_quality_reports"."testCoverageScore", "public"."code_quality_reports"."performanceScore", "public"."code_quality_reports"."richnessScore", "public"."code_quality_reports"."codeSmellsCount", "public"."code_quality_reports"."bugsCount", "public"."code_quality_reports"."vulnerabilitiesCount", "public"."code_quality_reports"."duplicatedLinesCount", "public"."code_quality_reports"."totalLinesAnalyzed", "public"."code_quality_reports"."fileAnalysis", "public"."code_quality_reports"."recommendations", "public"."code_quality_reports"."strengths", "public"."code_quality_reports"."improvements", "public"."code_quality_reports"."errorMessage", "public"."code_quality_reports"."analysisErrors", "public"."code_quality_reports"."partialAnalysis", "public"."code_quality_reports"."analysisStartedAt", "public"."code_quality_reports"."analysisCompletedAt", "public"."code_quality_reports"."analysisTimeMs", "public"."code_quality_reports"."aiModel", "public"."code_quality_reports"."aiCost", "public"."code_quality_reports"."createdAt", "public"."code_quality_reports"."updatedAt", "public"."code_quality_reports"."currentStage", "public"."code_quality_reports"."estimatedTimeRemaining", "public"."code_quality_reports"."processedFiles", "public"."code_quality_reports"."progress", "public"."code_quality_reports"."stageProgress", "public"."code_quality_reports"."totalFiles", "public"."code_quality_reports"."scoreEvidence", "public"."code_quality_reports"."scoreJustifications", "public"."code_quality_reports"."repositoryStructure", "public"."code_quality_reports"."packageAnalysis", "public"."code_quality_reports"."configurationAnalysis", "public"."code_quality_reports"."architecturalPatterns", "public"."code_quality_reports"."frameworkUtilization", "public"."code_quality_reports"."structuralComplexity"
+prisma:query SELECT "public"."code_quality_reports"."id", "public"."code_quality_reports"."stageProgress" FROM "public"."code_quality_reports" WHERE ("public"."code_quality_reports"."id" = $1 AND 1=1) LIMIT $2 OFFSET $3
+prisma:query UPDATE "public"."code_quality_reports" SET "stageProgress" = $1, "updatedAt" = $2 WHERE ("public"."code_quality_reports"."id" = $3 AND 1=1) RETURNING "public"."code_quality_reports"."id", "public"."code_quality_reports"."projectId", "public"."code_quality_reports"."repositoryUrl", "public"."code_quality_reports"."status"::text, "public"."code_quality_reports"."overallScore", "public"."code_quality_reports"."technicalScore", "public"."code_quality_reports"."maintainabilityScore", "public"."code_quality_reports"."securityScore", "public"."code_quality_reports"."documentationScore", "public"."code_quality_reports"."testCoverageScore", "public"."code_quality_reports"."performanceScore", "public"."code_quality_reports"."richnessScore", "public"."code_quality_reports"."codeSmellsCount", "public"."code_quality_reports"."bugsCount", "public"."code_quality_reports"."vulnerabilitiesCount", "public"."code_quality_reports"."duplicatedLinesCount", "public"."code_quality_reports"."totalLinesAnalyzed", "public"."code_quality_reports"."fileAnalysis", "public"."code_quality_reports"."recommendations", "public"."code_quality_reports"."strengths", "public"."code_quality_reports"."improvements", "public"."code_quality_reports"."errorMessage", "public"."code_quality_reports"."analysisErrors", "public"."code_quality_reports"."partialAnalysis", "public"."code_quality_reports"."analysisStartedAt", "public"."code_quality_reports"."analysisCompletedAt", "public"."code_quality_reports"."analysisTimeMs", "public"."code_quality_reports"."aiModel", "public"."code_quality_reports"."aiCost", "public"."code_quality_reports"."createdAt", "public"."code_quality_reports"."updatedAt", "public"."code_quality_reports"."currentStage", "public"."code_quality_reports"."estimatedTimeRemaining", "public"."code_quality_reports"."processedFiles", "public"."code_quality_reports"."progress", "public"."code_quality_reports"."stageProgress", "public"."code_quality_reports"."totalFiles", "public"."code_quality_reports"."scoreEvidence", "public"."code_quality_reports"."scoreJustifications", "public"."code_quality_reports"."repositoryStructure", "public"."code_quality_reports"."packageAnalysis", "public"."code_quality_reports"."configurationAnalysis", "public"."code_quality_reports"."architecturalPatterns", "public"."code_quality_reports"."frameworkUtilization", "public"."code_quality_reports"."structuralComplexity"
+Starting analysis for shemmyhubb/FootTime-hub
+📂 getAllFiles starting - path: "", maxFiles: 1000
+📁 Directory "" contains 15 items
+❌ Skipped non-code file: .gitignore
+✅ Added file: README.md (priority: 60)
+📂 Added directory to stack: app
+📂 Added directory to stack: components
+❌ Skipped non-code file: eslint.config.mjs
+📂 Added directory to stack: hooks
+📂 Added directory to stack: lib
+✅ Added file: next.config.ts (priority: 75)
+✅ Added file: package-lock.json (priority: 50)
+✅ Added file: package.json (priority: 75)
+❌ Skipped non-code file: postcss.config.mjs
+🚫 Skipped directory: public
+📂 Added directory to stack: src
+📂 Added directory to stack: styles
+✅ Added file: tsconfig.json (priority: 75)
+📁 Directory "styles" contains 1 items
+✅ Added file: styles/globals.css (priority: 50)
+📁 Directory "src" contains 1 items
+📂 Added directory to stack: src/app
+ ✓ Compiled /api/projects/[id]/code-quality/[reportId]/progress in 310ms (465 modules)
+📁 Directory "src/app" contains 4 items
+❌ Skipped non-code file: src/app/favicon.ico
+✅ Added file: src/app/globals.css (priority: 50)
+✅ Added file: src/app/layout.tsx (priority: 95)
+✅ Added file: src/app/page.tsx (priority: 95)
+[dotenv@17.2.2] injecting env (0) from .env.local -- tip: ⚙️  enable debug logging with { debug: true }
+[dotenv@17.2.2] injecting env (0) from .env -- tip: 📡 auto-backup env with Radar: https://dotenvx.com/radar
+📁 Directory "lib" contains 2 items
+✅ Added file: lib/README.md (priority: 20)
+📁 Directory "hooks" contains 2 items
+📁 Directory "components" contains 4 items
+📂 Added directory to stack: components/charts
+📂 Added directory to stack: components/forms
+📂 Added directory to stack: components/layout
+📂 Added directory to stack: components/ui
+📁 Directory "components/ui" contains 2 items
+📁 Directory "components/layout" contains 3 items
+[dotenv@17.2.2] injecting env (0) from .env.local -- tip: ⚙️  enable debug logging with { debug: true }
+[dotenv@17.2.2] injecting env (0) from .env -- tip: 🔐 encrypt with Dotenvx: https://dotenvx.com
+[next-auth][warn][DEBUG_ENABLED]
+https://next-auth.js.org/warnings#debug_enabled
+📁 Directory "components/forms" contains 1 items
+📁 Directory "components/charts" contains 1 items
+prisma:query SELECT "public"."projects"."id", "public"."projects"."name", "public"."projects"."slug", "public"."projects"."description", "public"."projects"."teamName", "public"."projects"."teamMembers", "public"."projects"."githubUrl", "public"."projects"."demoUrl", "public"."projects"."videoUrl", "public"."projects"."presentationUrl", "public"."projects"."technologies", "public"."projects"."status"::text, "public"."projects"."hackathonId", "public"."projects"."trackId", "public"."projects"."submittedAt", "public"."projects"."createdAt", "public"."projects"."updatedAt" FROM "public"."projects" WHERE ("public"."projects"."id" = $1 AND 1=1) LIMIT $2 OFFSET $3
+📁 Directory "app" contains 7 items
+📂 Added directory to stack: app/auth
+📂 Added directory to stack: app/dashboard
+📂 Added directory to stack: app/matches
+📂 Added directory to stack: app/profile
+📂 Added directory to stack: app/teams
+prisma:query SELECT "public"."hackathons"."id", "public"."hackathons"."createdById" FROM "public"."hackathons" WHERE "public"."hackathons"."id" IN ($1) OFFSET $2
+📁 Directory "app/teams" contains 1 items
+📁 Directory "app/profile" contains 1 items
+prisma:query SELECT "public"."code_quality_reports"."id", "public"."code_quality_reports"."status"::text, "public"."code_quality_reports"."progress", "public"."code_quality_reports"."currentStage", "public"."code_quality_reports"."totalFiles", "public"."code_quality_reports"."processedFiles", "public"."code_quality_reports"."stageProgress", "public"."code_quality_reports"."estimatedTimeRemaining", "public"."code_quality_reports"."analysisStartedAt", "public"."code_quality_reports"."analysisCompletedAt", "public"."code_quality_reports"."errorMessage", "public"."code_quality_reports"."updatedAt" FROM "public"."code_quality_reports" WHERE ("public"."code_quality_reports"."id" = $1 AND "public"."code_quality_reports"."projectId" = $2) LIMIT $3 OFFSET $4
+ GET /api/projects/cmfuwhcf90001f40sgkpqizhv/code-quality/cmfx2k2ey0001f4p8vn81k2ta/progress 200 in 2463ms
+📁 Directory "app/matches" contains 1 items
+📁 Directory "app/dashboard" contains 1 items
+prisma:query SELECT "public"."projects"."id", "public"."projects"."name", "public"."projects"."slug", "public"."projects"."description", "public"."projects"."teamName", "public"."projects"."teamMembers", "public"."projects"."githubUrl", "public"."projects"."demoUrl", "public"."projects"."videoUrl", "public"."projects"."presentationUrl", "public"."projects"."technologies", "public"."projects"."status"::text, "public"."projects"."hackathonId", "public"."projects"."trackId", "public"."projects"."submittedAt", "public"."projects"."createdAt", "public"."projects"."updatedAt" FROM "public"."projects" WHERE ("public"."projects"."id" = $1 AND 1=1) LIMIT $2 OFFSET $3
+📁 Directory "app/auth" contains 1 items
+📊 getAllFiles complete: found 27 files after processing 17 directories
+prisma:query SELECT "public"."hackathons"."id", "public"."hackathons"."createdById" FROM "public"."hackathons" WHERE "public"."hackathons"."id" IN ($1) OFFSET $2
+prisma:query SELECT "public"."code_quality_reports"."id", "public"."code_quality_reports"."status"::text, "public"."code_quality_reports"."progress", "public"."code_quality_reports"."currentStage", "public"."code_quality_reports"."totalFiles", "public"."code_quality_reports"."processedFiles", "public"."code_quality_reports"."stageProgress", "public"."code_quality_reports"."estimatedTimeRemaining", "public"."code_quality_reports"."analysisStartedAt", "public"."code_quality_reports"."analysisCompletedAt", "public"."code_quality_reports"."errorMessage", "public"."code_quality_reports"."updatedAt" FROM "public"."code_quality_reports" WHERE ("public"."code_quality_reports"."id" = $1 AND "public"."code_quality_reports"."projectId" = $2) LIMIT $3 OFFSET $4
+ GET /api/projects/cmfuwhcf90001f40sgkpqizhv/code-quality/cmfx2k2ey0001f4p8vn81k2ta/progress 200 in 543ms
+[dotenv@17.2.2] injecting env (0) from .env.local -- tip: ⚙️  override existing env vars with { override: true }
+[dotenv@17.2.2] injecting env (0) from .env -- tip: ⚙️  override existing env vars with { override: true }
+prisma:query SELECT "public"."projects"."id", "public"."projects"."name", "public"."projects"."slug", "public"."projects"."description", "public"."projects"."teamName", "public"."projects"."teamMembers", "public"."projects"."githubUrl", "public"."projects"."demoUrl", "public"."projects"."videoUrl", "public"."projects"."presentationUrl", "public"."projects"."technologies", "public"."projects"."status"::text, "public"."projects"."hackathonId", "public"."projects"."trackId", "public"."projects"."submittedAt", "public"."projects"."createdAt", "public"."projects"."updatedAt" FROM "public"."projects" WHERE ("public"."projects"."id" = $1 AND 1=1) LIMIT $2 OFFSET $3
+prisma:query SELECT "public"."hackathons"."id", "public"."hackathons"."createdById" FROM "public"."hackathons" WHERE "public"."hackathons"."id" IN ($1) OFFSET $2
+⚠️  File styles/globals.css has no content (empty file) - skipping
+prisma:query SELECT "public"."code_quality_reports"."id", "public"."code_quality_reports"."status"::text, "public"."code_quality_reports"."progress", "public"."code_quality_reports"."currentStage", "public"."code_quality_reports"."totalFiles", "public"."code_quality_reports"."processedFiles", "public"."code_quality_reports"."stageProgress", "public"."code_quality_reports"."estimatedTimeRemaining", "public"."code_quality_reports"."analysisStartedAt", "public"."code_quality_reports"."analysisCompletedAt", "public"."code_quality_reports"."errorMessage", "public"."code_quality_reports"."updatedAt" FROM "public"."code_quality_reports" WHERE ("public"."code_quality_reports"."id" = $1 AND "public"."code_quality_reports"."projectId" = $2) LIMIT $3 OFFSET $4
+ GET /api/projects/cmfuwhcf90001f40sgkpqizhv/code-quality/cmfx2k2ey0001f4p8vn81k2ta/progress 200 in 532ms
+[dotenv@17.2.2] injecting env (0) from .env.local -- tip: 🔐 prevent committing .env to code: https://dotenvx.com/precommit
+[dotenv@17.2.2] injecting env (0) from .env -- tip: 📡 auto-backup env with Radar: https://dotenvx.com/radar
+⚠️  File lib/utils.ts has no content (empty file) - skipping
+⚠️  File hooks/useAuth.ts has no content (empty file) - skipping
+⚠️  File components/ui/Button.tsx has no content (empty file) - skipping
+prisma:query SELECT "public"."projects"."id", "public"."projects"."name", "public"."projects"."slug", "public"."projects"."description", "public"."projects"."teamName", "public"."projects"."teamMembers", "public"."projects"."githubUrl", "public"."projects"."demoUrl", "public"."projects"."videoUrl", "public"."projects"."presentationUrl", "public"."projects"."technologies", "public"."projects"."status"::text, "public"."projects"."hackathonId", "public"."projects"."trackId", "public"."projects"."submittedAt", "public"."projects"."createdAt", "public"."projects"."updatedAt" FROM "public"."projects" WHERE ("public"."projects"."id" = $1 AND 1=1) LIMIT $2 OFFSET $3
+prisma:query SELECT "public"."hackathons"."id", "public"."hackathons"."createdById" FROM "public"."hackathons" WHERE "public"."hackathons"."id" IN ($1) OFFSET $2
+⚠️  File components/layout/Footer.tsx has no content (empty file) - skipping
+prisma:query SELECT "public"."code_quality_reports"."id", "public"."code_quality_reports"."status"::text, "public"."code_quality_reports"."progress", "public"."code_quality_reports"."currentStage", "public"."code_quality_reports"."totalFiles", "public"."code_quality_reports"."processedFiles", "public"."code_quality_reports"."stageProgress", "public"."code_quality_reports"."estimatedTimeRemaining", "public"."code_quality_reports"."analysisStartedAt", "public"."code_quality_reports"."analysisCompletedAt", "public"."code_quality_reports"."errorMessage", "public"."code_quality_reports"."updatedAt" FROM "public"."code_quality_reports" WHERE ("public"."code_quality_reports"."id" = $1 AND "public"."code_quality_reports"."projectId" = $2) LIMIT $3 OFFSET $4
+ GET /api/projects/cmfuwhcf90001f40sgkpqizhv/code-quality/cmfx2k2ey0001f4p8vn81k2ta/progress 200 in 516ms
+⚠️  File components/layout/Navbar.tsx has no content (empty file) - skipping
+[dotenv@17.2.2] injecting env (0) from .env.local -- tip: 🛠️  run anywhere with `dotenvx run -- yourcommand`
+[dotenv@17.2.2] injecting env (0) from .env -- tip: ⚙️  suppress all logs with { quiet: true }
+⚠️  File app/layout.tsx has no content (empty file) - skipping
+⚠️  File app/page.tsx has no content (empty file) - skipping
+⚠️  File app/teams/page.tsx has no content (empty file) - skipping
+⚠️  File app/profile/page.tsx has no content (empty file) - skipping
+prisma:query SELECT "public"."projects"."id", "public"."projects"."name", "public"."projects"."slug", "public"."projects"."description", "public"."projects"."teamName", "public"."projects"."teamMembers", "public"."projects"."githubUrl", "public"."projects"."demoUrl", "public"."projects"."videoUrl", "public"."projects"."presentationUrl", "public"."projects"."technologies", "public"."projects"."status"::text, "public"."projects"."hackathonId", "public"."projects"."trackId", "public"."projects"."submittedAt", "public"."projects"."createdAt", "public"."projects"."updatedAt" FROM "public"."projects" WHERE ("public"."projects"."id" = $1 AND 1=1) LIMIT $2 OFFSET $3
+ GET /api/auth/session 200 in 68ms
+ GET /api/auth/session 200 in 29ms
+⚠️  File app/matches/page.tsx has no content (empty file) - skipping
+prisma:query SELECT "public"."hackathons"."id", "public"."hackathons"."createdById" FROM "public"."hackathons" WHERE "public"."hackathons"."id" IN ($1) OFFSET $2
+prisma:query SELECT "public"."code_quality_reports"."id", "public"."code_quality_reports"."status"::text, "public"."code_quality_reports"."progress", "public"."code_quality_reports"."currentStage", "public"."code_quality_reports"."totalFiles", "public"."code_quality_reports"."processedFiles", "public"."code_quality_reports"."stageProgress", "public"."code_quality_reports"."estimatedTimeRemaining", "public"."code_quality_reports"."analysisStartedAt", "public"."code_quality_reports"."analysisCompletedAt", "public"."code_quality_reports"."errorMessage", "public"."code_quality_reports"."updatedAt" FROM "public"."code_quality_reports" WHERE ("public"."code_quality_reports"."id" = $1 AND "public"."code_quality_reports"."projectId" = $2) LIMIT $3 OFFSET $4
+ GET /api/projects/cmfuwhcf90001f40sgkpqizhv/code-quality/cmfx2k2ey0001f4p8vn81k2ta/progress 200 in 530ms
+⚠️  File app/dashboard/page.tsx has no content (empty file) - skipping
+⚠️  File app/auth/page.tsx has no content (empty file) - skipping
+[dotenv@17.2.2] injecting env (0) from .env.local -- tip: 📡 observe env with Radar: https://dotenvx.com/radar
+[dotenv@17.2.2] injecting env (0) from .env -- tip: 📡 observe env with Radar: https://dotenvx.com/radar
+[dotenv@17.2.2] injecting env (0) from .env.local -- tip: 🔐 prevent building .env in docker: https://dotenvx.com/prebuild
+[dotenv@17.2.2] injecting env (0) from .env -- tip: ⚙️  override existing env vars with { override: true }
+📂 getAllFiles starting - path: "", maxFiles: 100
+📁 Directory "" contains 15 items
+❌ Skipped non-code file: .gitignore
+✅ Added file: README.md (priority: 60)
+📂 Added directory to stack: app
+📂 Added directory to stack: components
+❌ Skipped non-code file: eslint.config.mjs
+📂 Added directory to stack: hooks
+📂 Added directory to stack: lib
+✅ Added file: next.config.ts (priority: 75)
+✅ Added file: package-lock.json (priority: 50)
+✅ Added file: package.json (priority: 75)
+❌ Skipped non-code file: postcss.config.mjs
+🚫 Skipped directory: public
+📂 Added directory to stack: src
+📂 Added directory to stack: styles
+✅ Added file: tsconfig.json (priority: 75)
+📁 Directory "styles" contains 1 items
+✅ Added file: styles/globals.css (priority: 50)
+📁 Directory "src" contains 1 items
+📂 Added directory to stack: src/app
+📁 Directory "src/app" contains 4 items
+❌ Skipped non-code file: src/app/favicon.ico
+✅ Added file: src/app/globals.css (priority: 50)
+✅ Added file: src/app/layout.tsx (priority: 95)
+✅ Added file: src/app/page.tsx (priority: 95)
+📁 Directory "lib" contains 2 items
+✅ Added file: lib/README.md (priority: 20)
+prisma:query SELECT "public"."projects"."id", "public"."projects"."name", "public"."projects"."slug", "public"."projects"."description", "public"."projects"."teamName", "public"."projects"."teamMembers", "public"."projects"."githubUrl", "public"."projects"."demoUrl", "public"."projects"."videoUrl", "public"."projects"."presentationUrl", "public"."projects"."technologies", "public"."projects"."status"::text, "public"."projects"."hackathonId", "public"."projects"."trackId", "public"."projects"."submittedAt", "public"."projects"."createdAt", "public"."projects"."updatedAt" FROM "public"."projects" WHERE ("public"."projects"."id" = $1 AND 1=1) LIMIT $2 OFFSET $3
+📁 Directory "hooks" contains 2 items
+prisma:query SELECT "public"."hackathons"."id", "public"."hackathons"."createdById" FROM "public"."hackathons" WHERE "public"."hackathons"."id" IN ($1) OFFSET $2
+📁 Directory "components" contains 4 items
+📂 Added directory to stack: components/charts
+📂 Added directory to stack: components/forms
+📂 Added directory to stack: components/layout
+📂 Added directory to stack: components/ui
+prisma:query SELECT "public"."code_quality_reports"."id", "public"."code_quality_reports"."status"::text, "public"."code_quality_reports"."progress", "public"."code_quality_reports"."currentStage", "public"."code_quality_reports"."totalFiles", "public"."code_quality_reports"."processedFiles", "public"."code_quality_reports"."stageProgress", "public"."code_quality_reports"."estimatedTimeRemaining", "public"."code_quality_reports"."analysisStartedAt", "public"."code_quality_reports"."analysisCompletedAt", "public"."code_quality_reports"."errorMessage", "public"."code_quality_reports"."updatedAt" FROM "public"."code_quality_reports" WHERE ("public"."code_quality_reports"."id" = $1 AND "public"."code_quality_reports"."projectId" = $2) LIMIT $3 OFFSET $4
+ GET /api/projects/cmfuwhcf90001f40sgkpqizhv/code-quality/cmfx2k2ey0001f4p8vn81k2ta/progress 200 in 527ms
+📁 Directory "components/ui" contains 2 items
+📁 Directory "components/layout" contains 3 items
+[dotenv@17.2.2] injecting env (0) from .env.local -- tip: 📡 auto-backup env with Radar: https://dotenvx.com/radar
+[dotenv@17.2.2] injecting env (0) from .env -- tip: 🛠️  run anywhere with `dotenvx run -- yourcommand`
+📁 Directory "components/forms" contains 1 items
+📁 Directory "components/charts" contains 1 items
+📁 Directory "app" contains 7 items
+📂 Added directory to stack: app/auth
+📂 Added directory to stack: app/dashboard
+📂 Added directory to stack: app/matches
+📂 Added directory to stack: app/profile
+📂 Added directory to stack: app/teams
+📁 Directory "app/teams" contains 1 items
+📁 Directory "app/profile" contains 1 items
+📁 Directory "app/matches" contains 1 items
+📁 Directory "app/dashboard" contains 1 items
+prisma:query SELECT 1
+📁 Directory "app/auth" contains 1 items
+📊 getAllFiles complete: found 27 files after processing 17 directories
+prisma:query SELECT "public"."projects"."id", "public"."projects"."name", "public"."projects"."slug", "public"."projects"."description", "public"."projects"."teamName", "public"."projects"."teamMembers", "public"."projects"."githubUrl", "public"."projects"."demoUrl", "public"."projects"."videoUrl", "public"."projects"."presentationUrl", "public"."projects"."technologies", "public"."projects"."status"::text, "public"."projects"."hackathonId", "public"."projects"."trackId", "public"."projects"."submittedAt", "public"."projects"."createdAt", "public"."projects"."updatedAt" FROM "public"."projects" WHERE ("public"."projects"."id" = $1 AND 1=1) LIMIT $2 OFFSET $3
+prisma:query SELECT "public"."hackathons"."id", "public"."hackathons"."createdById" FROM "public"."hackathons" WHERE "public"."hackathons"."id" IN ($1) OFFSET $2
+prisma:query SELECT "public"."code_quality_reports"."id", "public"."code_quality_reports"."status"::text, "public"."code_quality_reports"."progress", "public"."code_quality_reports"."currentStage", "public"."code_quality_reports"."totalFiles", "public"."code_quality_reports"."processedFiles", "public"."code_quality_reports"."stageProgress", "public"."code_quality_reports"."estimatedTimeRemaining", "public"."code_quality_reports"."analysisStartedAt", "public"."code_quality_reports"."analysisCompletedAt", "public"."code_quality_reports"."errorMessage", "public"."code_quality_reports"."updatedAt" FROM "public"."code_quality_reports" WHERE ("public"."code_quality_reports"."id" = $1 AND "public"."code_quality_reports"."projectId" = $2) LIMIT $3 OFFSET $4
+ GET /api/projects/cmfuwhcf90001f40sgkpqizhv/code-quality/cmfx2k2ey0001f4p8vn81k2ta/progress 200 in 706ms
+[dotenv@17.2.2] injecting env (0) from .env.local -- tip: 🔐 prevent building .env in docker: https://dotenvx.com/prebuild
+[dotenv@17.2.2] injecting env (0) from .env -- tip: 📡 auto-backup env with Radar: https://dotenvx.com/radar
+⚠️  File styles/globals.css has no content (empty file) - skipping
+prisma:query SELECT "public"."projects"."id", "public"."projects"."name", "public"."projects"."slug", "public"."projects"."description", "public"."projects"."teamName", "public"."projects"."teamMembers", "public"."projects"."githubUrl", "public"."projects"."demoUrl", "public"."projects"."videoUrl", "public"."projects"."presentationUrl", "public"."projects"."technologies", "public"."projects"."status"::text, "public"."projects"."hackathonId", "public"."projects"."trackId", "public"."projects"."submittedAt", "public"."projects"."createdAt", "public"."projects"."updatedAt" FROM "public"."projects" WHERE ("public"."projects"."id" = $1 AND 1=1) LIMIT $2 OFFSET $3
+prisma:query SELECT "public"."hackathons"."id", "public"."hackathons"."createdById" FROM "public"."hackathons" WHERE "public"."hackathons"."id" IN ($1) OFFSET $2
+⚠️  File lib/utils.ts has no content (empty file) - skipping
+prisma:query SELECT "public"."code_quality_reports"."id", "public"."code_quality_reports"."status"::text, "public"."code_quality_reports"."progress", "public"."code_quality_reports"."currentStage", "public"."code_quality_reports"."totalFiles", "public"."code_quality_reports"."processedFiles", "public"."code_quality_reports"."stageProgress", "public"."code_quality_reports"."estimatedTimeRemaining", "public"."code_quality_reports"."analysisStartedAt", "public"."code_quality_reports"."analysisCompletedAt", "public"."code_quality_reports"."errorMessage", "public"."code_quality_reports"."updatedAt" FROM "public"."code_quality_reports" WHERE ("public"."code_quality_reports"."id" = $1 AND "public"."code_quality_reports"."projectId" = $2) LIMIT $3 OFFSET $4
+ GET /api/projects/cmfuwhcf90001f40sgkpqizhv/code-quality/cmfx2k2ey0001f4p8vn81k2ta/progress 200 in 549ms
+[dotenv@17.2.2] injecting env (0) from .env.local -- tip: ⚙️  load multiple .env files with { path: ['.env.local', '.env'] }
+[dotenv@17.2.2] injecting env (0) from .env -- tip: 📡 version env with Radar: https://dotenvx.com/radar
+⚠️  File hooks/useAuth.ts has no content (empty file) - skipping
+⚠️  File components/ui/Button.tsx has no content (empty file) - skipping
+⚠️  File components/layout/Footer.tsx has no content (empty file) - skipping
+⚠️  File components/layout/Navbar.tsx has no content (empty file) - skipping
+prisma:query SELECT "public"."projects"."id", "public"."projects"."name", "public"."projects"."slug", "public"."projects"."description", "public"."projects"."teamName", "public"."projects"."teamMembers", "public"."projects"."githubUrl", "public"."projects"."demoUrl", "public"."projects"."videoUrl", "public"."projects"."presentationUrl", "public"."projects"."technologies", "public"."projects"."status"::text, "public"."projects"."hackathonId", "public"."projects"."trackId", "public"."projects"."submittedAt", "public"."projects"."createdAt", "public"."projects"."updatedAt" FROM "public"."projects" WHERE ("public"."projects"."id" = $1 AND 1=1) LIMIT $2 OFFSET $3
+prisma:query SELECT "public"."hackathons"."id", "public"."hackathons"."createdById" FROM "public"."hackathons" WHERE "public"."hackathons"."id" IN ($1) OFFSET $2
+⚠️  File app/layout.tsx has no content (empty file) - skipping
+prisma:query SELECT "public"."code_quality_reports"."id", "public"."code_quality_reports"."status"::text, "public"."code_quality_reports"."progress", "public"."code_quality_reports"."currentStage", "public"."code_quality_reports"."totalFiles", "public"."code_quality_reports"."processedFiles", "public"."code_quality_reports"."stageProgress", "public"."code_quality_reports"."estimatedTimeRemaining", "public"."code_quality_reports"."analysisStartedAt", "public"."code_quality_reports"."analysisCompletedAt", "public"."code_quality_reports"."errorMessage", "public"."code_quality_reports"."updatedAt" FROM "public"."code_quality_reports" WHERE ("public"."code_quality_reports"."id" = $1 AND "public"."code_quality_reports"."projectId" = $2) LIMIT $3 OFFSET $4
+ GET /api/projects/cmfuwhcf90001f40sgkpqizhv/code-quality/cmfx2k2ey0001f4p8vn81k2ta/progress 200 in 532ms
+⚠️  File app/page.tsx has no content (empty file) - skipping
+⚠️  File app/teams/page.tsx has no content (empty file) - skipping
+[dotenv@17.2.2] injecting env (0) from .env.local -- tip: ⚙️  specify custom .env file path with { path: '/custom/path/.env' }
+[dotenv@17.2.2] injecting env (0) from .env -- tip: ⚙️  write to custom object with { processEnv: myObject }
+⚠️  File app/profile/page.tsx has no content (empty file) - skipping
+⚠️  File app/matches/page.tsx has no content (empty file) - skipping
+⚠️  File app/dashboard/page.tsx has no content (empty file) - skipping
+⚠️  File app/auth/page.tsx has no content (empty file) - skipping
+prisma:query SELECT "public"."code_quality_reports"."id", "public"."code_quality_reports"."stageProgress" FROM "public"."code_quality_reports" WHERE ("public"."code_quality_reports"."id" = $1 AND 1=1) LIMIT $2 OFFSET $3
+prisma:query UPDATE "public"."code_quality_reports" SET "stageProgress" = $1, "updatedAt" = $2 WHERE ("public"."code_quality_reports"."id" = $3 AND 1=1) RETURNING "public"."code_quality_reports"."id", "public"."code_quality_reports"."projectId", "public"."code_quality_reports"."repositoryUrl", "public"."code_quality_reports"."status"::text, "public"."code_quality_reports"."overallScore", "public"."code_quality_reports"."technicalScore", "public"."code_quality_reports"."maintainabilityScore", "public"."code_quality_reports"."securityScore", "public"."code_quality_reports"."documentationScore", "public"."code_quality_reports"."testCoverageScore", "public"."code_quality_reports"."performanceScore", "public"."code_quality_reports"."richnessScore", "public"."code_quality_reports"."codeSmellsCount", "public"."code_quality_reports"."bugsCount", "public"."code_quality_reports"."vulnerabilitiesCount", "public"."code_quality_reports"."duplicatedLinesCount", "public"."code_quality_reports"."totalLinesAnalyzed", "public"."code_quality_reports"."fileAnalysis", "public"."code_quality_reports"."recommendations", "public"."code_quality_reports"."strengths", "public"."code_quality_reports"."improvements", "public"."code_quality_reports"."errorMessage", "public"."code_quality_reports"."analysisErrors", "public"."code_quality_reports"."partialAnalysis", "public"."code_quality_reports"."analysisStartedAt", "public"."code_quality_reports"."analysisCompletedAt", "public"."code_quality_reports"."analysisTimeMs", "public"."code_quality_reports"."aiModel", "public"."code_quality_reports"."aiCost", "public"."code_quality_reports"."createdAt", "public"."code_quality_reports"."updatedAt", "public"."code_quality_reports"."currentStage", "public"."code_quality_reports"."estimatedTimeRemaining", "public"."code_quality_reports"."processedFiles", "public"."code_quality_reports"."progress", "public"."code_quality_reports"."stageProgress", "public"."code_quality_reports"."totalFiles", "public"."code_quality_reports"."scoreEvidence", "public"."code_quality_reports"."scoreJustifications", "public"."code_quality_reports"."repositoryStructure", "public"."code_quality_reports"."packageAnalysis", "public"."code_quality_reports"."configurationAnalysis", "public"."code_quality_reports"."architecturalPatterns", "public"."code_quality_reports"."frameworkUtilization", "public"."code_quality_reports"."structuralComplexity"
+prisma:query UPDATE "public"."code_quality_reports" SET "progress" = $1, "updatedAt" = $2 WHERE ("public"."code_quality_reports"."id" = $3 AND 1=1) RETURNING "public"."code_quality_reports"."id", "public"."code_quality_reports"."projectId", "public"."code_quality_reports"."repositoryUrl", "public"."code_quality_reports"."status"::text, "public"."code_quality_reports"."overallScore", "public"."code_quality_reports"."technicalScore", "public"."code_quality_reports"."maintainabilityScore", "public"."code_quality_reports"."securityScore", "public"."code_quality_reports"."documentationScore", "public"."code_quality_reports"."testCoverageScore", "public"."code_quality_reports"."performanceScore", "public"."code_quality_reports"."richnessScore", "public"."code_quality_reports"."codeSmellsCount", "public"."code_quality_reports"."bugsCount", "public"."code_quality_reports"."vulnerabilitiesCount", "public"."code_quality_reports"."duplicatedLinesCount", "public"."code_quality_reports"."totalLinesAnalyzed", "public"."code_quality_reports"."fileAnalysis", "public"."code_quality_reports"."recommendations", "public"."code_quality_reports"."strengths", "public"."code_quality_reports"."improvements", "public"."code_quality_reports"."errorMessage", "public"."code_quality_reports"."analysisErrors", "public"."code_quality_reports"."partialAnalysis", "public"."code_quality_reports"."analysisStartedAt", "public"."code_quality_reports"."analysisCompletedAt", "public"."code_quality_reports"."analysisTimeMs", "public"."code_quality_reports"."aiModel", "public"."code_quality_reports"."aiCost", "public"."code_quality_reports"."createdAt", "public"."code_quality_reports"."updatedAt", "public"."code_quality_reports"."currentStage", "public"."code_quality_reports"."estimatedTimeRemaining", "public"."code_quality_reports"."processedFiles", "public"."code_quality_reports"."progress", "public"."code_quality_reports"."stageProgress", "public"."code_quality_reports"."totalFiles", "public"."code_quality_reports"."scoreEvidence", "public"."code_quality_reports"."scoreJustifications", "public"."code_quality_reports"."repositoryStructure", "public"."code_quality_reports"."packageAnalysis", "public"."code_quality_reports"."configurationAnalysis", "public"."code_quality_reports"."architecturalPatterns", "public"."code_quality_reports"."frameworkUtilization", "public"."code_quality_reports"."structuralComplexity"
+prisma:query SELECT "public"."code_quality_reports"."id", "public"."code_quality_reports"."stageProgress" FROM "public"."code_quality_reports" WHERE ("public"."code_quality_reports"."id" = $1 AND 1=1) LIMIT $2 OFFSET $3
+prisma:query UPDATE "public"."code_quality_reports" SET "stageProgress" = $1, "updatedAt" = $2 WHERE ("public"."code_quality_reports"."id" = $3 AND 1=1) RETURNING "public"."code_quality_reports"."id", "public"."code_quality_reports"."projectId", "public"."code_quality_reports"."repositoryUrl", "public"."code_quality_reports"."status"::text, "public"."code_quality_reports"."overallScore", "public"."code_quality_reports"."technicalScore", "public"."code_quality_reports"."maintainabilityScore", "public"."code_quality_reports"."securityScore", "public"."code_quality_reports"."documentationScore", "public"."code_quality_reports"."testCoverageScore", "public"."code_quality_reports"."performanceScore", "public"."code_quality_reports"."richnessScore", "public"."code_quality_reports"."codeSmellsCount", "public"."code_quality_reports"."bugsCount", "public"."code_quality_reports"."vulnerabilitiesCount", "public"."code_quality_reports"."duplicatedLinesCount", "public"."code_quality_reports"."totalLinesAnalyzed", "public"."code_quality_reports"."fileAnalysis", "public"."code_quality_reports"."recommendations", "public"."code_quality_reports"."strengths", "public"."code_quality_reports"."improvements", "public"."code_quality_reports"."errorMessage", "public"."code_quality_reports"."analysisErrors", "public"."code_quality_reports"."partialAnalysis", "public"."code_quality_reports"."analysisStartedAt", "public"."code_quality_reports"."analysisCompletedAt", "public"."code_quality_reports"."analysisTimeMs", "public"."code_quality_reports"."aiModel", "public"."code_quality_reports"."aiCost", "public"."code_quality_reports"."createdAt", "public"."code_quality_reports"."updatedAt", "public"."code_quality_reports"."currentStage", "public"."code_quality_reports"."estimatedTimeRemaining", "public"."code_quality_reports"."processedFiles", "public"."code_quality_reports"."progress", "public"."code_quality_reports"."stageProgress", "public"."code_quality_reports"."totalFiles", "public"."code_quality_reports"."scoreEvidence", "public"."code_quality_reports"."scoreJustifications", "public"."code_quality_reports"."repositoryStructure", "public"."code_quality_reports"."packageAnalysis", "public"."code_quality_reports"."configurationAnalysis", "public"."code_quality_reports"."architecturalPatterns", "public"."code_quality_reports"."frameworkUtilization", "public"."code_quality_reports"."structuralComplexity"
+prisma:query UPDATE "public"."code_quality_reports" SET "currentStage" = $1, "progress" = $2, "updatedAt" = $3 WHERE ("public"."code_quality_reports"."id" = $4 AND 1=1) RETURNING "public"."code_quality_reports"."id", "public"."code_quality_reports"."projectId", "public"."code_quality_reports"."repositoryUrl", "public"."code_quality_reports"."status"::text, "public"."code_quality_reports"."overallScore", "public"."code_quality_reports"."technicalScore", "public"."code_quality_reports"."maintainabilityScore", "public"."code_quality_reports"."securityScore", "public"."code_quality_reports"."documentationScore", "public"."code_quality_reports"."testCoverageScore", "public"."code_quality_reports"."performanceScore", "public"."code_quality_reports"."richnessScore", "public"."code_quality_reports"."codeSmellsCount", "public"."code_quality_reports"."bugsCount", "public"."code_quality_reports"."vulnerabilitiesCount", "public"."code_quality_reports"."duplicatedLinesCount", "public"."code_quality_reports"."totalLinesAnalyzed", "public"."code_quality_reports"."fileAnalysis", "public"."code_quality_reports"."recommendations", "public"."code_quality_reports"."strengths", "public"."code_quality_reports"."improvements", "public"."code_quality_reports"."errorMessage", "public"."code_quality_reports"."analysisErrors", "public"."code_quality_reports"."partialAnalysis", "public"."code_quality_reports"."analysisStartedAt", "public"."code_quality_reports"."analysisCompletedAt", "public"."code_quality_reports"."analysisTimeMs", "public"."code_quality_reports"."aiModel", "public"."code_quality_reports"."aiCost", "public"."code_quality_reports"."createdAt", "public"."code_quality_reports"."updatedAt", "public"."code_quality_reports"."currentStage", "public"."code_quality_reports"."estimatedTimeRemaining", "public"."code_quality_reports"."processedFiles", "public"."code_quality_reports"."progress", "public"."code_quality_reports"."stageProgress", "public"."code_quality_reports"."totalFiles", "public"."code_quality_reports"."scoreEvidence", "public"."code_quality_reports"."scoreJustifications", "public"."code_quality_reports"."repositoryStructure", "public"."code_quality_reports"."packageAnalysis", "public"."code_quality_reports"."configurationAnalysis", "public"."code_quality_reports"."architecturalPatterns", "public"."code_quality_reports"."frameworkUtilization", "public"."code_quality_reports"."structuralComplexity"
+Using smart analysis for web-app repository with focus areas: [ 'frontend', 'backend', 'config' ]
+🧠 Smart file analysis starting - maxFiles: 150
+📂 getAllFiles starting - path: "", maxFiles: 1000
+[dotenv@17.2.2] injecting env (0) from .env.local -- tip: ⚙️  enable debug logging with { debug: true }
+[dotenv@17.2.2] injecting env (0) from .env -- tip: 📡 observe env with Radar: https://dotenvx.com/radar
+prisma:query SELECT "public"."projects"."id", "public"."projects"."name", "public"."projects"."slug", "public"."projects"."description", "public"."projects"."teamName", "public"."projects"."teamMembers", "public"."projects"."githubUrl", "public"."projects"."demoUrl", "public"."projects"."videoUrl", "public"."projects"."presentationUrl", "public"."projects"."technologies", "public"."projects"."status"::text, "public"."projects"."hackathonId", "public"."projects"."trackId", "public"."projects"."submittedAt", "public"."projects"."createdAt", "public"."projects"."updatedAt" FROM "public"."projects" WHERE ("public"."projects"."id" = $1 AND 1=1) LIMIT $2 OFFSET $3
+📁 Directory "" contains 15 items
+❌ Skipped non-code file: .gitignore
+✅ Added file: README.md (priority: 60)
+📂 Added directory to stack: app
+📂 Added directory to stack: components
+❌ Skipped non-code file: eslint.config.mjs
+📂 Added directory to stack: hooks
+📂 Added directory to stack: lib
+✅ Added file: next.config.ts (priority: 75)
+✅ Added file: package-lock.json (priority: 50)
+✅ Added file: package.json (priority: 75)
+❌ Skipped non-code file: postcss.config.mjs
+🚫 Skipped directory: public
+📂 Added directory to stack: src
+📂 Added directory to stack: styles
+✅ Added file: tsconfig.json (priority: 75)
+prisma:query SELECT "public"."hackathons"."id", "public"."hackathons"."createdById" FROM "public"."hackathons" WHERE "public"."hackathons"."id" IN ($1) OFFSET $2
+📁 Directory "styles" contains 1 items
+✅ Added file: styles/globals.css (priority: 50)
+📁 Directory "src" contains 1 items
+📂 Added directory to stack: src/app
+prisma:query SELECT "public"."code_quality_reports"."id", "public"."code_quality_reports"."status"::text, "public"."code_quality_reports"."progress", "public"."code_quality_reports"."currentStage", "public"."code_quality_reports"."totalFiles", "public"."code_quality_reports"."processedFiles", "public"."code_quality_reports"."stageProgress", "public"."code_quality_reports"."estimatedTimeRemaining", "public"."code_quality_reports"."analysisStartedAt", "public"."code_quality_reports"."analysisCompletedAt", "public"."code_quality_reports"."errorMessage", "public"."code_quality_reports"."updatedAt" FROM "public"."code_quality_reports" WHERE ("public"."code_quality_reports"."id" = $1 AND "public"."code_quality_reports"."projectId" = $2) LIMIT $3 OFFSET $4
+ GET /api/projects/cmfuwhcf90001f40sgkpqizhv/code-quality/cmfx2k2ey0001f4p8vn81k2ta/progress 200 in 1528ms
+📁 Directory "src/app" contains 4 items
+❌ Skipped non-code file: src/app/favicon.ico
+✅ Added file: src/app/globals.css (priority: 50)
+✅ Added file: src/app/layout.tsx (priority: 95)
+✅ Added file: src/app/page.tsx (priority: 95)
+📁 Directory "lib" contains 2 items
+✅ Added file: lib/README.md (priority: 20)
+📁 Directory "hooks" contains 2 items
+prisma:query SELECT "public"."projects"."id", "public"."projects"."name", "public"."projects"."slug", "public"."projects"."description", "public"."projects"."teamName", "public"."projects"."teamMembers", "public"."projects"."githubUrl", "public"."projects"."demoUrl", "public"."projects"."videoUrl", "public"."projects"."presentationUrl", "public"."projects"."technologies", "public"."projects"."status"::text, "public"."projects"."hackathonId", "public"."projects"."trackId", "public"."projects"."submittedAt", "public"."projects"."createdAt", "public"."projects"."updatedAt" FROM "public"."projects" WHERE ("public"."projects"."id" = $1 AND 1=1) LIMIT $2 OFFSET $3
+📁 Directory "components" contains 4 items
+📂 Added directory to stack: components/charts
+📂 Added directory to stack: components/forms
+📂 Added directory to stack: components/layout
+📂 Added directory to stack: components/ui
+prisma:query SELECT "public"."hackathons"."id", "public"."hackathons"."createdById" FROM "public"."hackathons" WHERE "public"."hackathons"."id" IN ($1) OFFSET $2
+📁 Directory "components/ui" contains 2 items
+prisma:query SELECT "public"."code_quality_reports"."id", "public"."code_quality_reports"."status"::text, "public"."code_quality_reports"."progress", "public"."code_quality_reports"."currentStage", "public"."code_quality_reports"."totalFiles", "public"."code_quality_reports"."processedFiles", "public"."code_quality_reports"."stageProgress", "public"."code_quality_reports"."estimatedTimeRemaining", "public"."code_quality_reports"."analysisStartedAt", "public"."code_quality_reports"."analysisCompletedAt", "public"."code_quality_reports"."errorMessage", "public"."code_quality_reports"."updatedAt" FROM "public"."code_quality_reports" WHERE ("public"."code_quality_reports"."id" = $1 AND "public"."code_quality_reports"."projectId" = $2) LIMIT $3 OFFSET $4
+ GET /api/projects/cmfuwhcf90001f40sgkpqizhv/code-quality/cmfx2k2ey0001f4p8vn81k2ta/progress 200 in 535ms
+📁 Directory "components/layout" contains 3 items
+[dotenv@17.2.2] injecting env (0) from .env.local -- tip: ⚙️  specify custom .env file path with { path: '/custom/path/.env' }
+[dotenv@17.2.2] injecting env (0) from .env -- tip: 📡 observe env with Radar: https://dotenvx.com/radar
+📁 Directory "components/forms" contains 1 items
+📁 Directory "components/charts" contains 1 items
+📁 Directory "app" contains 7 items
+📂 Added directory to stack: app/auth
+📂 Added directory to stack: app/dashboard
+📂 Added directory to stack: app/matches
+📂 Added directory to stack: app/profile
+📂 Added directory to stack: app/teams
+📁 Directory "app/teams" contains 1 items
+📁 Directory "app/profile" contains 1 items
+📁 Directory "app/matches" contains 1 items
+📁 Directory "app/dashboard" contains 1 items
+prisma:query SELECT "public"."projects"."id", "public"."projects"."name", "public"."projects"."slug", "public"."projects"."description", "public"."projects"."teamName", "public"."projects"."teamMembers", "public"."projects"."githubUrl", "public"."projects"."demoUrl", "public"."projects"."videoUrl", "public"."projects"."presentationUrl", "public"."projects"."technologies", "public"."projects"."status"::text, "public"."projects"."hackathonId", "public"."projects"."trackId", "public"."projects"."submittedAt", "public"."projects"."createdAt", "public"."projects"."updatedAt" FROM "public"."projects" WHERE ("public"."projects"."id" = $1 AND 1=1) LIMIT $2 OFFSET $3
+📁 Directory "app/auth" contains 1 items
+📊 getAllFiles complete: found 27 files after processing 17 directories
+prisma:query SELECT "public"."hackathons"."id", "public"."hackathons"."createdById" FROM "public"."hackathons" WHERE "public"."hackathons"."id" IN ($1) OFFSET $2
+prisma:query SELECT "public"."code_quality_reports"."id", "public"."code_quality_reports"."status"::text, "public"."code_quality_reports"."progress", "public"."code_quality_reports"."currentStage", "public"."code_quality_reports"."totalFiles", "public"."code_quality_reports"."processedFiles", "public"."code_quality_reports"."stageProgress", "public"."code_quality_reports"."estimatedTimeRemaining", "public"."code_quality_reports"."analysisStartedAt", "public"."code_quality_reports"."analysisCompletedAt", "public"."code_quality_reports"."errorMessage", "public"."code_quality_reports"."updatedAt" FROM "public"."code_quality_reports" WHERE ("public"."code_quality_reports"."id" = $1 AND "public"."code_quality_reports"."projectId" = $2) LIMIT $3 OFFSET $4
+ GET /api/projects/cmfuwhcf90001f40sgkpqizhv/code-quality/cmfx2k2ey0001f4p8vn81k2ta/progress 200 in 533ms
+[dotenv@17.2.2] injecting env (0) from .env.local -- tip: 📡 auto-backup env with Radar: https://dotenvx.com/radar
+[dotenv@17.2.2] injecting env (0) from .env -- tip: 🔐 prevent building .env in docker: https://dotenvx.com/prebuild
+⚠️  File styles/globals.css has no content (empty file) - skipping
+prisma:query SELECT "public"."projects"."id", "public"."projects"."name", "public"."projects"."slug", "public"."projects"."description", "public"."projects"."teamName", "public"."projects"."teamMembers", "public"."projects"."githubUrl", "public"."projects"."demoUrl", "public"."projects"."videoUrl", "public"."projects"."presentationUrl", "public"."projects"."technologies", "public"."projects"."status"::text, "public"."projects"."hackathonId", "public"."projects"."trackId", "public"."projects"."submittedAt", "public"."projects"."createdAt", "public"."projects"."updatedAt" FROM "public"."projects" WHERE ("public"."projects"."id" = $1 AND 1=1) LIMIT $2 OFFSET $3
+prisma:query SELECT "public"."hackathons"."id", "public"."hackathons"."createdById" FROM "public"."hackathons" WHERE "public"."hackathons"."id" IN ($1) OFFSET $2
+prisma:query SELECT "public"."code_quality_reports"."id", "public"."code_quality_reports"."status"::text, "public"."code_quality_reports"."progress", "public"."code_quality_reports"."currentStage", "public"."code_quality_reports"."totalFiles", "public"."code_quality_reports"."processedFiles", "public"."code_quality_reports"."stageProgress", "public"."code_quality_reports"."estimatedTimeRemaining", "public"."code_quality_reports"."analysisStartedAt", "public"."code_quality_reports"."analysisCompletedAt", "public"."code_quality_reports"."errorMessage", "public"."code_quality_reports"."updatedAt" FROM "public"."code_quality_reports" WHERE ("public"."code_quality_reports"."id" = $1 AND "public"."code_quality_reports"."projectId" = $2) LIMIT $3 OFFSET $4
+ GET /api/projects/cmfuwhcf90001f40sgkpqizhv/code-quality/cmfx2k2ey0001f4p8vn81k2ta/progress 200 in 539ms
+⚠️  File lib/utils.ts has no content (empty file) - skipping
+[dotenv@17.2.2] injecting env (0) from .env.local -- tip: ⚙️  suppress all logs with { quiet: true }
+[dotenv@17.2.2] injecting env (0) from .env -- tip: ⚙️  specify custom .env file path with { path: '/custom/path/.env' }
+⚠️  File hooks/useAuth.ts has no content (empty file) - skipping
+⚠️  File components/ui/Button.tsx has no content (empty file) - skipping
+⚠️  File components/layout/Footer.tsx has no content (empty file) - skipping
+⚠️  File components/layout/Navbar.tsx has no content (empty file) - skipping
+prisma:query SELECT "public"."projects"."id", "public"."projects"."name", "public"."projects"."slug", "public"."projects"."description", "public"."projects"."teamName", "public"."projects"."teamMembers", "public"."projects"."githubUrl", "public"."projects"."demoUrl", "public"."projects"."videoUrl", "public"."projects"."presentationUrl", "public"."projects"."technologies", "public"."projects"."status"::text, "public"."projects"."hackathonId", "public"."projects"."trackId", "public"."projects"."submittedAt", "public"."projects"."createdAt", "public"."projects"."updatedAt" FROM "public"."projects" WHERE ("public"."projects"."id" = $1 AND 1=1) LIMIT $2 OFFSET $3
+prisma:query SELECT "public"."hackathons"."id", "public"."hackathons"."createdById" FROM "public"."hackathons" WHERE "public"."hackathons"."id" IN ($1) OFFSET $2
+⚠️  File app/layout.tsx has no content (empty file) - skipping
+prisma:query SELECT "public"."code_quality_reports"."id", "public"."code_quality_reports"."status"::text, "public"."code_quality_reports"."progress", "public"."code_quality_reports"."currentStage", "public"."code_quality_reports"."totalFiles", "public"."code_quality_reports"."processedFiles", "public"."code_quality_reports"."stageProgress", "public"."code_quality_reports"."estimatedTimeRemaining", "public"."code_quality_reports"."analysisStartedAt", "public"."code_quality_reports"."analysisCompletedAt", "public"."code_quality_reports"."errorMessage", "public"."code_quality_reports"."updatedAt" FROM "public"."code_quality_reports" WHERE ("public"."code_quality_reports"."id" = $1 AND "public"."code_quality_reports"."projectId" = $2) LIMIT $3 OFFSET $4
+ GET /api/projects/cmfuwhcf90001f40sgkpqizhv/code-quality/cmfx2k2ey0001f4p8vn81k2ta/progress 200 in 536ms
+⚠️  File app/page.tsx has no content (empty file) - skipping
+[dotenv@17.2.2] injecting env (0) from .env.local -- tip: ⚙️  load multiple .env files with { path: ['.env.local', '.env'] }
+[dotenv@17.2.2] injecting env (0) from .env -- tip: 📡 auto-backup env with Radar: https://dotenvx.com/radar
+⚠️  File app/teams/page.tsx has no content (empty file) - skipping
+⚠️  File app/profile/page.tsx has no content (empty file) - skipping
+⚠️  File app/matches/page.tsx has no content (empty file) - skipping
+⚠️  File app/dashboard/page.tsx has no content (empty file) - skipping
+ GET /api/auth/session 200 in 58ms
+ GET /api/auth/session 200 in 33ms
+⚠️  File app/auth/page.tsx has no content (empty file) - skipping
+📂 getAllFiles starting - path: "", maxFiles: 100
+prisma:query SELECT "public"."projects"."id", "public"."projects"."name", "public"."projects"."slug", "public"."projects"."description", "public"."projects"."teamName", "public"."projects"."teamMembers", "public"."projects"."githubUrl", "public"."projects"."demoUrl", "public"."projects"."videoUrl", "public"."projects"."presentationUrl", "public"."projects"."technologies", "public"."projects"."status"::text, "public"."projects"."hackathonId", "public"."projects"."trackId", "public"."projects"."submittedAt", "public"."projects"."createdAt", "public"."projects"."updatedAt" FROM "public"."projects" WHERE ("public"."projects"."id" = $1 AND 1=1) LIMIT $2 OFFSET $3
+[dotenv@17.2.2] injecting env (0) from .env.local -- tip: 📡 observe env with Radar: https://dotenvx.com/radar
+[dotenv@17.2.2] injecting env (0) from .env -- tip: ⚙️  enable debug logging with { debug: true }
+📁 Directory "" contains 15 items
+❌ Skipped non-code file: .gitignore
+✅ Added file: README.md (priority: 60)
+📂 Added directory to stack: app
+📂 Added directory to stack: components
+❌ Skipped non-code file: eslint.config.mjs
+📂 Added directory to stack: hooks
+📂 Added directory to stack: lib
+✅ Added file: next.config.ts (priority: 75)
+✅ Added file: package-lock.json (priority: 50)
+✅ Added file: package.json (priority: 75)
+❌ Skipped non-code file: postcss.config.mjs
+🚫 Skipped directory: public
+📂 Added directory to stack: src
+📂 Added directory to stack: styles
+✅ Added file: tsconfig.json (priority: 75)
+prisma:query SELECT "public"."hackathons"."id", "public"."hackathons"."createdById" FROM "public"."hackathons" WHERE "public"."hackathons"."id" IN ($1) OFFSET $2
+📁 Directory "styles" contains 1 items
+✅ Added file: styles/globals.css (priority: 50)
+prisma:query SELECT "public"."code_quality_reports"."id", "public"."code_quality_reports"."status"::text, "public"."code_quality_reports"."progress", "public"."code_quality_reports"."currentStage", "public"."code_quality_reports"."totalFiles", "public"."code_quality_reports"."processedFiles", "public"."code_quality_reports"."stageProgress", "public"."code_quality_reports"."estimatedTimeRemaining", "public"."code_quality_reports"."analysisStartedAt", "public"."code_quality_reports"."analysisCompletedAt", "public"."code_quality_reports"."errorMessage", "public"."code_quality_reports"."updatedAt" FROM "public"."code_quality_reports" WHERE ("public"."code_quality_reports"."id" = $1 AND "public"."code_quality_reports"."projectId" = $2) LIMIT $3 OFFSET $4
+ GET /api/projects/cmfuwhcf90001f40sgkpqizhv/code-quality/cmfx2k2ey0001f4p8vn81k2ta/progress 200 in 528ms
+📁 Directory "src" contains 1 items
+📂 Added directory to stack: src/app
+[dotenv@17.2.2] injecting env (0) from .env.local -- tip: ⚙️  override existing env vars with { override: true }
+[dotenv@17.2.2] injecting env (0) from .env -- tip: ⚙️  load multiple .env files with { path: ['.env.local', '.env'] }
+📁 Directory "src/app" contains 4 items
+❌ Skipped non-code file: src/app/favicon.ico
+✅ Added file: src/app/globals.css (priority: 50)
+✅ Added file: src/app/layout.tsx (priority: 95)
+✅ Added file: src/app/page.tsx (priority: 95)
+📁 Directory "lib" contains 2 items
+✅ Added file: lib/README.md (priority: 20)
+📁 Directory "hooks" contains 2 items
+📁 Directory "components" contains 4 items
+📂 Added directory to stack: components/charts
+📂 Added directory to stack: components/forms
+📂 Added directory to stack: components/layout
+📂 Added directory to stack: components/ui
+📁 Directory "components/ui" contains 2 items
+📁 Directory "components/layout" contains 3 items
+📁 Directory "components/forms" contains 1 items
+📁 Directory "components/charts" contains 1 items
+prisma:query SELECT "public"."projects"."id", "public"."projects"."name", "public"."projects"."slug", "public"."projects"."description", "public"."projects"."teamName", "public"."projects"."teamMembers", "public"."projects"."githubUrl", "public"."projects"."demoUrl", "public"."projects"."videoUrl", "public"."projects"."presentationUrl", "public"."projects"."technologies", "public"."projects"."status"::text, "public"."projects"."hackathonId", "public"."projects"."trackId", "public"."projects"."submittedAt", "public"."projects"."createdAt", "public"."projects"."updatedAt" FROM "public"."projects" WHERE ("public"."projects"."id" = $1 AND 1=1) LIMIT $2 OFFSET $3
+📁 Directory "app" contains 7 items
+📂 Added directory to stack: app/auth
+📂 Added directory to stack: app/dashboard
+📂 Added directory to stack: app/matches
+📂 Added directory to stack: app/profile
+📂 Added directory to stack: app/teams
+prisma:query SELECT "public"."hackathons"."id", "public"."hackathons"."createdById" FROM "public"."hackathons" WHERE "public"."hackathons"."id" IN ($1) OFFSET $2
+📁 Directory "app/teams" contains 1 items
+prisma:query SELECT "public"."code_quality_reports"."id", "public"."code_quality_reports"."status"::text, "public"."code_quality_reports"."progress", "public"."code_quality_reports"."currentStage", "public"."code_quality_reports"."totalFiles", "public"."code_quality_reports"."processedFiles", "public"."code_quality_reports"."stageProgress", "public"."code_quality_reports"."estimatedTimeRemaining", "public"."code_quality_reports"."analysisStartedAt", "public"."code_quality_reports"."analysisCompletedAt", "public"."code_quality_reports"."errorMessage", "public"."code_quality_reports"."updatedAt" FROM "public"."code_quality_reports" WHERE ("public"."code_quality_reports"."id" = $1 AND "public"."code_quality_reports"."projectId" = $2) LIMIT $3 OFFSET $4
+ GET /api/projects/cmfuwhcf90001f40sgkpqizhv/code-quality/cmfx2k2ey0001f4p8vn81k2ta/progress 200 in 524ms
+📁 Directory "app/profile" contains 1 items
+[dotenv@17.2.2] injecting env (0) from .env.local -- tip: 🛠️  run anywhere with `dotenvx run -- yourcommand`
+[dotenv@17.2.2] injecting env (0) from .env -- tip: ⚙️  write to custom object with { processEnv: myObject }
+📁 Directory "app/matches" contains 1 items
+📁 Directory "app/dashboard" contains 1 items
+📁 Directory "app/auth" contains 1 items
+📊 getAllFiles complete: found 27 files after processing 17 directories
+prisma:query SELECT "public"."projects"."id", "public"."projects"."name", "public"."projects"."slug", "public"."projects"."description", "public"."projects"."teamName", "public"."projects"."teamMembers", "public"."projects"."githubUrl", "public"."projects"."demoUrl", "public"."projects"."videoUrl", "public"."projects"."presentationUrl", "public"."projects"."technologies", "public"."projects"."status"::text, "public"."projects"."hackathonId", "public"."projects"."trackId", "public"."projects"."submittedAt", "public"."projects"."createdAt", "public"."projects"."updatedAt" FROM "public"."projects" WHERE ("public"."projects"."id" = $1 AND 1=1) LIMIT $2 OFFSET $3
+prisma:query SELECT "public"."hackathons"."id", "public"."hackathons"."createdById" FROM "public"."hackathons" WHERE "public"."hackathons"."id" IN ($1) OFFSET $2
+⚠️  File styles/globals.css has no content (empty file) - skipping
+prisma:query SELECT "public"."code_quality_reports"."id", "public"."code_quality_reports"."status"::text, "public"."code_quality_reports"."progress", "public"."code_quality_reports"."currentStage", "public"."code_quality_reports"."totalFiles", "public"."code_quality_reports"."processedFiles", "public"."code_quality_reports"."stageProgress", "public"."code_quality_reports"."estimatedTimeRemaining", "public"."code_quality_reports"."analysisStartedAt", "public"."code_quality_reports"."analysisCompletedAt", "public"."code_quality_reports"."errorMessage", "public"."code_quality_reports"."updatedAt" FROM "public"."code_quality_reports" WHERE ("public"."code_quality_reports"."id" = $1 AND "public"."code_quality_reports"."projectId" = $2) LIMIT $3 OFFSET $4
+ GET /api/projects/cmfuwhcf90001f40sgkpqizhv/code-quality/cmfx2k2ey0001f4p8vn81k2ta/progress 200 in 501ms
+[dotenv@17.2.2] injecting env (0) from .env.local -- tip: 📡 auto-backup env with Radar: https://dotenvx.com/radar
+[dotenv@17.2.2] injecting env (0) from .env -- tip: 📡 auto-backup env with Radar: https://dotenvx.com/radar
+⚠️  File lib/utils.ts has no content (empty file) - skipping
+⚠️  File hooks/useAuth.ts has no content (empty file) - skipping
+prisma:query SELECT 1
+⚠️  File components/ui/Button.tsx has no content (empty file) - skipping
+prisma:query SELECT "public"."projects"."id", "public"."projects"."name", "public"."projects"."slug", "public"."projects"."description", "public"."projects"."teamName", "public"."projects"."teamMembers", "public"."projects"."githubUrl", "public"."projects"."demoUrl", "public"."projects"."videoUrl", "public"."projects"."presentationUrl", "public"."projects"."technologies", "public"."projects"."status"::text, "public"."projects"."hackathonId", "public"."projects"."trackId", "public"."projects"."submittedAt", "public"."projects"."createdAt", "public"."projects"."updatedAt" FROM "public"."projects" WHERE ("public"."projects"."id" = $1 AND 1=1) LIMIT $2 OFFSET $3
+prisma:query SELECT "public"."hackathons"."id", "public"."hackathons"."createdById" FROM "public"."hackathons" WHERE "public"."hackathons"."id" IN ($1) OFFSET $2
+⚠️  File components/layout/Footer.tsx has no content (empty file) - skipping
+prisma:query SELECT "public"."code_quality_reports"."id", "public"."code_quality_reports"."status"::text, "public"."code_quality_reports"."progress", "public"."code_quality_reports"."currentStage", "public"."code_quality_reports"."totalFiles", "public"."code_quality_reports"."processedFiles", "public"."code_quality_reports"."stageProgress", "public"."code_quality_reports"."estimatedTimeRemaining", "public"."code_quality_reports"."analysisStartedAt", "public"."code_quality_reports"."analysisCompletedAt", "public"."code_quality_reports"."errorMessage", "public"."code_quality_reports"."updatedAt" FROM "public"."code_quality_reports" WHERE ("public"."code_quality_reports"."id" = $1 AND "public"."code_quality_reports"."projectId" = $2) LIMIT $3 OFFSET $4
+ GET /api/projects/cmfuwhcf90001f40sgkpqizhv/code-quality/cmfx2k2ey0001f4p8vn81k2ta/progress 200 in 680ms
+⚠️  File components/layout/Navbar.tsx has no content (empty file) - skipping
+[dotenv@17.2.2] injecting env (0) from .env.local -- tip: 🔐 prevent committing .env to code: https://dotenvx.com/precommit
+[dotenv@17.2.2] injecting env (0) from .env -- tip: ⚙️  suppress all logs with { quiet: true }
+⚠️  File app/layout.tsx has no content (empty file) - skipping
+⚠️  File app/page.tsx has no content (empty file) - skipping
+⚠️  File app/teams/page.tsx has no content (empty file) - skipping
+⚠️  File app/profile/page.tsx has no content (empty file) - skipping
+prisma:query SELECT "public"."projects"."id", "public"."projects"."name", "public"."projects"."slug", "public"."projects"."description", "public"."projects"."teamName", "public"."projects"."teamMembers", "public"."projects"."githubUrl", "public"."projects"."demoUrl", "public"."projects"."videoUrl", "public"."projects"."presentationUrl", "public"."projects"."technologies", "public"."projects"."status"::text, "public"."projects"."hackathonId", "public"."projects"."trackId", "public"."projects"."submittedAt", "public"."projects"."createdAt", "public"."projects"."updatedAt" FROM "public"."projects" WHERE ("public"."projects"."id" = $1 AND 1=1) LIMIT $2 OFFSET $3
+prisma:query SELECT "public"."hackathons"."id", "public"."hackathons"."createdById" FROM "public"."hackathons" WHERE "public"."hackathons"."id" IN ($1) OFFSET $2
+⚠️  File app/matches/page.tsx has no content (empty file) - skipping
+prisma:query SELECT "public"."code_quality_reports"."id", "public"."code_quality_reports"."status"::text, "public"."code_quality_reports"."progress", "public"."code_quality_reports"."currentStage", "public"."code_quality_reports"."totalFiles", "public"."code_quality_reports"."processedFiles", "public"."code_quality_reports"."stageProgress", "public"."code_quality_reports"."estimatedTimeRemaining", "public"."code_quality_reports"."analysisStartedAt", "public"."code_quality_reports"."analysisCompletedAt", "public"."code_quality_reports"."errorMessage", "public"."code_quality_reports"."updatedAt" FROM "public"."code_quality_reports" WHERE ("public"."code_quality_reports"."id" = $1 AND "public"."code_quality_reports"."projectId" = $2) LIMIT $3 OFFSET $4
+ GET /api/projects/cmfuwhcf90001f40sgkpqizhv/code-quality/cmfx2k2ey0001f4p8vn81k2ta/progress 200 in 536ms
+⚠️  File app/dashboard/page.tsx has no content (empty file) - skipping
+[dotenv@17.2.2] injecting env (0) from .env.local -- tip: 🔐 prevent committing .env to code: https://dotenvx.com/precommit
+[dotenv@17.2.2] injecting env (0) from .env -- tip: ⚙️  load multiple .env files with { path: ['.env.local', '.env'] }
+⚠️  File app/auth/page.tsx has no content (empty file) - skipping
+📊 Repository stats: 27 total files, type: web-app
+📂 Important directories: root, src, lib, app, components
+📂 getAllFiles starting - path: "", maxFiles: 300
+📁 Directory "" contains 15 items
+❌ Skipped non-code file: .gitignore
+✅ Added file: README.md (priority: 60)
+📂 Added directory to stack: app
+📂 Added directory to stack: components
+❌ Skipped non-code file: eslint.config.mjs
+📂 Added directory to stack: hooks
+📂 Added directory to stack: lib
+✅ Added file: next.config.ts (priority: 75)
+✅ Added file: package-lock.json (priority: 50)
+✅ Added file: package.json (priority: 75)
+❌ Skipped non-code file: postcss.config.mjs
+🚫 Skipped directory: public
+📂 Added directory to stack: src
+📂 Added directory to stack: styles
+✅ Added file: tsconfig.json (priority: 75)
+📁 Directory "styles" contains 1 items
+✅ Added file: styles/globals.css (priority: 50)
+📁 Directory "src" contains 1 items
+📂 Added directory to stack: src/app
+📁 Directory "src/app" contains 4 items
+❌ Skipped non-code file: src/app/favicon.ico
+✅ Added file: src/app/globals.css (priority: 50)
+✅ Added file: src/app/layout.tsx (priority: 95)
+✅ Added file: src/app/page.tsx (priority: 95)
+📁 Directory "lib" contains 2 items
+✅ Added file: lib/README.md (priority: 20)
+📁 Directory "hooks" contains 2 items
+prisma:query SELECT "public"."projects"."id", "public"."projects"."name", "public"."projects"."slug", "public"."projects"."description", "public"."projects"."teamName", "public"."projects"."teamMembers", "public"."projects"."githubUrl", "public"."projects"."demoUrl", "public"."projects"."videoUrl", "public"."projects"."presentationUrl", "public"."projects"."technologies", "public"."projects"."status"::text, "public"."projects"."hackathonId", "public"."projects"."trackId", "public"."projects"."submittedAt", "public"."projects"."createdAt", "public"."projects"."updatedAt" FROM "public"."projects" WHERE ("public"."projects"."id" = $1 AND 1=1) LIMIT $2 OFFSET $3
+📁 Directory "components" contains 4 items
+📂 Added directory to stack: components/charts
+📂 Added directory to stack: components/forms
+📂 Added directory to stack: components/layout
+📂 Added directory to stack: components/ui
+prisma:query SELECT "public"."hackathons"."id", "public"."hackathons"."createdById" FROM "public"."hackathons" WHERE "public"."hackathons"."id" IN ($1) OFFSET $2
+📁 Directory "components/ui" contains 2 items
+prisma:query SELECT "public"."code_quality_reports"."id", "public"."code_quality_reports"."status"::text, "public"."code_quality_reports"."progress", "public"."code_quality_reports"."currentStage", "public"."code_quality_reports"."totalFiles", "public"."code_quality_reports"."processedFiles", "public"."code_quality_reports"."stageProgress", "public"."code_quality_reports"."estimatedTimeRemaining", "public"."code_quality_reports"."analysisStartedAt", "public"."code_quality_reports"."analysisCompletedAt", "public"."code_quality_reports"."errorMessage", "public"."code_quality_reports"."updatedAt" FROM "public"."code_quality_reports" WHERE ("public"."code_quality_reports"."id" = $1 AND "public"."code_quality_reports"."projectId" = $2) LIMIT $3 OFFSET $4
+ GET /api/projects/cmfuwhcf90001f40sgkpqizhv/code-quality/cmfx2k2ey0001f4p8vn81k2ta/progress 200 in 524ms
+📁 Directory "components/layout" contains 3 items
+[dotenv@17.2.2] injecting env (0) from .env.local -- tip: 📡 auto-backup env with Radar: https://dotenvx.com/radar
+[dotenv@17.2.2] injecting env (0) from .env -- tip: ⚙️  enable debug logging with { debug: true }
+📁 Directory "components/forms" contains 1 items
+📁 Directory "components/charts" contains 1 items
+📁 Directory "app" contains 7 items
+📂 Added directory to stack: app/auth
+📂 Added directory to stack: app/dashboard
+📂 Added directory to stack: app/matches
+📂 Added directory to stack: app/profile
+📂 Added directory to stack: app/teams
+📁 Directory "app/teams" contains 1 items
+📁 Directory "app/profile" contains 1 items
+📁 Directory "app/matches" contains 1 items
+prisma:query SELECT "public"."projects"."id", "public"."projects"."name", "public"."projects"."slug", "public"."projects"."description", "public"."projects"."teamName", "public"."projects"."teamMembers", "public"."projects"."githubUrl", "public"."projects"."demoUrl", "public"."projects"."videoUrl", "public"."projects"."presentationUrl", "public"."projects"."technologies", "public"."projects"."status"::text, "public"."projects"."hackathonId", "public"."projects"."trackId", "public"."projects"."submittedAt", "public"."projects"."createdAt", "public"."projects"."updatedAt" FROM "public"."projects" WHERE ("public"."projects"."id" = $1 AND 1=1) LIMIT $2 OFFSET $3
+📁 Directory "app/dashboard" contains 1 items
+prisma:query SELECT "public"."hackathons"."id", "public"."hackathons"."createdById" FROM "public"."hackathons" WHERE "public"."hackathons"."id" IN ($1) OFFSET $2
+prisma:query SELECT "public"."code_quality_reports"."id", "public"."code_quality_reports"."status"::text, "public"."code_quality_reports"."progress", "public"."code_quality_reports"."currentStage", "public"."code_quality_reports"."totalFiles", "public"."code_quality_reports"."processedFiles", "public"."code_quality_reports"."stageProgress", "public"."code_quality_reports"."estimatedTimeRemaining", "public"."code_quality_reports"."analysisStartedAt", "public"."code_quality_reports"."analysisCompletedAt", "public"."code_quality_reports"."errorMessage", "public"."code_quality_reports"."updatedAt" FROM "public"."code_quality_reports" WHERE ("public"."code_quality_reports"."id" = $1 AND "public"."code_quality_reports"."projectId" = $2) LIMIT $3 OFFSET $4
+ GET /api/projects/cmfuwhcf90001f40sgkpqizhv/code-quality/cmfx2k2ey0001f4p8vn81k2ta/progress 200 in 554ms
+📁 Directory "app/auth" contains 1 items
+📊 getAllFiles complete: found 27 files after processing 17 directories
+📁 Found 27 files from getAllFiles (limit: 300)
+🎯 Top 10 priority files:
+  1. components/ui/Button.tsx (priority: 100)
+  2. components/layout/Footer.tsx (priority: 100)
+  3. components/layout/Navbar.tsx (priority: 100)
+  4. src/app/layout.tsx (priority: 95)
+  5. src/app/page.tsx (priority: 95)
+  6. lib/utils.ts (priority: 95)
+  7. app/layout.tsx (priority: 95)
+  8. app/page.tsx (priority: 95)
+  9. app/teams/page.tsx (priority: 95)
+  10. app/profile/page.tsx (priority: 95)
+🔄 After deduplication: 16 files (removed 11 duplicates)
+✨ Smart distribution selected: 16 files
+📄 Loaded content for: next.config.ts (133 chars)
+[dotenv@17.2.2] injecting env (0) from .env.local -- tip: ⚙️  override existing env vars with { override: true }
+[dotenv@17.2.2] injecting env (0) from .env -- tip: ⚙️  override existing env vars with { override: true }
+📄 Loaded content for: package.json (584 chars)
+📄 Loaded content for: tsconfig.json (602 chars)
+📄 Loaded content for: src/app/layout.tsx (689 chars)
+📄 Loaded content for: src/app/page.tsx (3988 chars)
+📄 Loaded content for: src/app/globals.css (488 chars)
+⚠️  File lib/utils.ts has no content (empty file) - skipping
+⚠️  Skipped empty/minimal file: lib/utils.ts (0 chars)
+⚠️  File app/layout.tsx has no content (empty file) - skipping
+⚠️  Skipped empty/minimal file: app/layout.tsx (0 chars)
+prisma:query SELECT "public"."projects"."id", "public"."projects"."name", "public"."projects"."slug", "public"."projects"."description", "public"."projects"."teamName", "public"."projects"."teamMembers", "public"."projects"."githubUrl", "public"."projects"."demoUrl", "public"."projects"."videoUrl", "public"."projects"."presentationUrl", "public"."projects"."technologies", "public"."projects"."status"::text, "public"."projects"."hackathonId", "public"."projects"."trackId", "public"."projects"."submittedAt", "public"."projects"."createdAt", "public"."projects"."updatedAt" FROM "public"."projects" WHERE ("public"."projects"."id" = $1 AND 1=1) LIMIT $2 OFFSET $3
+⚠️  File app/page.tsx has no content (empty file) - skipping
+⚠️  Skipped empty/minimal file: app/page.tsx (0 chars)
+prisma:query SELECT "public"."hackathons"."id", "public"."hackathons"."createdById" FROM "public"."hackathons" WHERE "public"."hackathons"."id" IN ($1) OFFSET $2
+⚠️  File components/ui/Button.tsx has no content (empty file) - skipping
+⚠️  Skipped empty/minimal file: components/ui/Button.tsx (0 chars)
+prisma:query SELECT "public"."code_quality_reports"."id", "public"."code_quality_reports"."status"::text, "public"."code_quality_reports"."progress", "public"."code_quality_reports"."currentStage", "public"."code_quality_reports"."totalFiles", "public"."code_quality_reports"."processedFiles", "public"."code_quality_reports"."stageProgress", "public"."code_quality_reports"."estimatedTimeRemaining", "public"."code_quality_reports"."analysisStartedAt", "public"."code_quality_reports"."analysisCompletedAt", "public"."code_quality_reports"."errorMessage", "public"."code_quality_reports"."updatedAt" FROM "public"."code_quality_reports" WHERE ("public"."code_quality_reports"."id" = $1 AND "public"."code_quality_reports"."projectId" = $2) LIMIT $3 OFFSET $4
+ GET /api/projects/cmfuwhcf90001f40sgkpqizhv/code-quality/cmfx2k2ey0001f4p8vn81k2ta/progress 200 in 522ms
+⚠️  File components/layout/Footer.tsx has no content (empty file) - skipping
+⚠️  Skipped empty/minimal file: components/layout/Footer.tsx (0 chars)
+[dotenv@17.2.2] injecting env (0) from .env.local -- tip: 🛠️  run anywhere with `dotenvx run -- yourcommand`
+[dotenv@17.2.2] injecting env (0) from .env -- tip: ⚙️  suppress all logs with { quiet: true }
+⚠️  File components/layout/Navbar.tsx has no content (empty file) - skipping
+⚠️  Skipped empty/minimal file: components/layout/Navbar.tsx (0 chars)
+⚠️  File hooks/useAuth.ts has no content (empty file) - skipping
+⚠️  Skipped empty/minimal file: hooks/useAuth.ts (0 chars)
+📄 Loaded content for: README.md (472 chars)
+📄 Loaded content for: package-lock.json (213122 chars)
+⚠️  File styles/globals.css has no content (empty file) - skipping
+⚠️  Skipped empty/minimal file: styles/globals.css (0 chars)
+🎉 Smart analysis complete: 8 files with content
+prisma:query SELECT "public"."projects"."id", "public"."projects"."name", "public"."projects"."slug", "public"."projects"."description", "public"."projects"."teamName", "public"."projects"."teamMembers", "public"."projects"."githubUrl", "public"."projects"."demoUrl", "public"."projects"."videoUrl", "public"."projects"."presentationUrl", "public"."projects"."technologies", "public"."projects"."status"::text, "public"."projects"."hackathonId", "public"."projects"."trackId", "public"."projects"."submittedAt", "public"."projects"."createdAt", "public"."projects"."updatedAt" FROM "public"."projects" WHERE ("public"."projects"."id" = $1 AND 1=1) LIMIT $2 OFFSET $3
+prisma:query SELECT 1
+prisma:query SELECT "public"."hackathons"."id", "public"."hackathons"."createdById" FROM "public"."hackathons" WHERE "public"."hackathons"."id" IN ($1) OFFSET $2
+prisma:query SELECT "public"."code_quality_reports"."id", "public"."code_quality_reports"."status"::text, "public"."code_quality_reports"."progress", "public"."code_quality_reports"."currentStage", "public"."code_quality_reports"."totalFiles", "public"."code_quality_reports"."processedFiles", "public"."code_quality_reports"."stageProgress", "public"."code_quality_reports"."estimatedTimeRemaining", "public"."code_quality_reports"."analysisStartedAt", "public"."code_quality_reports"."analysisCompletedAt", "public"."code_quality_reports"."errorMessage", "public"."code_quality_reports"."updatedAt" FROM "public"."code_quality_reports" WHERE ("public"."code_quality_reports"."id" = $1 AND "public"."code_quality_reports"."projectId" = $2) LIMIT $3 OFFSET $4
+ GET /api/projects/cmfuwhcf90001f40sgkpqizhv/code-quality/cmfx2k2ey0001f4p8vn81k2ta/progress 200 in 556ms
+prisma:query UPDATE "public"."code_quality_reports" SET "totalFiles" = $1, "processedFiles" = $2, "updatedAt" = $3 WHERE ("public"."code_quality_reports"."id" = $4 AND 1=1) RETURNING "public"."code_quality_reports"."id", "public"."code_quality_reports"."projectId", "public"."code_quality_reports"."repositoryUrl", "public"."code_quality_reports"."status"::text, "public"."code_quality_reports"."overallScore", "public"."code_quality_reports"."technicalScore", "public"."code_quality_reports"."maintainabilityScore", "public"."code_quality_reports"."securityScore", "public"."code_quality_reports"."documentationScore", "public"."code_quality_reports"."testCoverageScore", "public"."code_quality_reports"."performanceScore", "public"."code_quality_reports"."richnessScore", "public"."code_quality_reports"."codeSmellsCount", "public"."code_quality_reports"."bugsCount", "public"."code_quality_reports"."vulnerabilitiesCount", "public"."code_quality_reports"."duplicatedLinesCount", "public"."code_quality_reports"."totalLinesAnalyzed", "public"."code_quality_reports"."fileAnalysis", "public"."code_quality_reports"."recommendations", "public"."code_quality_reports"."strengths", "public"."code_quality_reports"."improvements", "public"."code_quality_reports"."errorMessage", "public"."code_quality_reports"."analysisErrors", "public"."code_quality_reports"."partialAnalysis", "public"."code_quality_reports"."analysisStartedAt", "public"."code_quality_reports"."analysisCompletedAt", "public"."code_quality_reports"."analysisTimeMs", "public"."code_quality_reports"."aiModel", "public"."code_quality_reports"."aiCost", "public"."code_quality_reports"."createdAt", "public"."code_quality_reports"."updatedAt", "public"."code_quality_reports"."currentStage", "public"."code_quality_reports"."estimatedTimeRemaining", "public"."code_quality_reports"."processedFiles", "public"."code_quality_reports"."progress", "public"."code_quality_reports"."stageProgress", "public"."code_quality_reports"."totalFiles", "public"."code_quality_reports"."scoreEvidence", "public"."code_quality_reports"."scoreJustifications", "public"."code_quality_reports"."repositoryStructure", "public"."code_quality_reports"."packageAnalysis", "public"."code_quality_reports"."configurationAnalysis", "public"."code_quality_reports"."architecturalPatterns", "public"."code_quality_reports"."frameworkUtilization", "public"."code_quality_reports"."structuralComplexity"
+prisma:query SELECT "public"."code_quality_reports"."id", "public"."code_quality_reports"."stageProgress" FROM "public"."code_quality_reports" WHERE ("public"."code_quality_reports"."id" = $1 AND 1=1) LIMIT $2 OFFSET $3
+[dotenv@17.2.2] injecting env (0) from .env.local -- tip: 🔐 prevent committing .env to code: https://dotenvx.com/precommit
+[dotenv@17.2.2] injecting env (0) from .env -- tip: ⚙️  specify custom .env file path with { path: '/custom/path/.env' }
+prisma:query UPDATE "public"."code_quality_reports" SET "stageProgress" = $1, "updatedAt" = $2 WHERE ("public"."code_quality_reports"."id" = $3 AND 1=1) RETURNING "public"."code_quality_reports"."id", "public"."code_quality_reports"."projectId", "public"."code_quality_reports"."repositoryUrl", "public"."code_quality_reports"."status"::text, "public"."code_quality_reports"."overallScore", "public"."code_quality_reports"."technicalScore", "public"."code_quality_reports"."maintainabilityScore", "public"."code_quality_reports"."securityScore", "public"."code_quality_reports"."documentationScore", "public"."code_quality_reports"."testCoverageScore", "public"."code_quality_reports"."performanceScore", "public"."code_quality_reports"."richnessScore", "public"."code_quality_reports"."codeSmellsCount", "public"."code_quality_reports"."bugsCount", "public"."code_quality_reports"."vulnerabilitiesCount", "public"."code_quality_reports"."duplicatedLinesCount", "public"."code_quality_reports"."totalLinesAnalyzed", "public"."code_quality_reports"."fileAnalysis", "public"."code_quality_reports"."recommendations", "public"."code_quality_reports"."strengths", "public"."code_quality_reports"."improvements", "public"."code_quality_reports"."errorMessage", "public"."code_quality_reports"."analysisErrors", "public"."code_quality_reports"."partialAnalysis", "public"."code_quality_reports"."analysisStartedAt", "public"."code_quality_reports"."analysisCompletedAt", "public"."code_quality_reports"."analysisTimeMs", "public"."code_quality_reports"."aiModel", "public"."code_quality_reports"."aiCost", "public"."code_quality_reports"."createdAt", "public"."code_quality_reports"."updatedAt", "public"."code_quality_reports"."currentStage", "public"."code_quality_reports"."estimatedTimeRemaining", "public"."code_quality_reports"."processedFiles", "public"."code_quality_reports"."progress", "public"."code_quality_reports"."stageProgress", "public"."code_quality_reports"."totalFiles", "public"."code_quality_reports"."scoreEvidence", "public"."code_quality_reports"."scoreJustifications", "public"."code_quality_reports"."repositoryStructure", "public"."code_quality_reports"."packageAnalysis", "public"."code_quality_reports"."configurationAnalysis", "public"."code_quality_reports"."architecturalPatterns", "public"."code_quality_reports"."frameworkUtilization", "public"."code_quality_reports"."structuralComplexity"
+prisma:query UPDATE "public"."code_quality_reports" SET "progress" = $1, "updatedAt" = $2 WHERE ("public"."code_quality_reports"."id" = $3 AND 1=1) RETURNING "public"."code_quality_reports"."id", "public"."code_quality_reports"."projectId", "public"."code_quality_reports"."repositoryUrl", "public"."code_quality_reports"."status"::text, "public"."code_quality_reports"."overallScore", "public"."code_quality_reports"."technicalScore", "public"."code_quality_reports"."maintainabilityScore", "public"."code_quality_reports"."securityScore", "public"."code_quality_reports"."documentationScore", "public"."code_quality_reports"."testCoverageScore", "public"."code_quality_reports"."performanceScore", "public"."code_quality_reports"."richnessScore", "public"."code_quality_reports"."codeSmellsCount", "public"."code_quality_reports"."bugsCount", "public"."code_quality_reports"."vulnerabilitiesCount", "public"."code_quality_reports"."duplicatedLinesCount", "public"."code_quality_reports"."totalLinesAnalyzed", "public"."code_quality_reports"."fileAnalysis", "public"."code_quality_reports"."recommendations", "public"."code_quality_reports"."strengths", "public"."code_quality_reports"."improvements", "public"."code_quality_reports"."errorMessage", "public"."code_quality_reports"."analysisErrors", "public"."code_quality_reports"."partialAnalysis", "public"."code_quality_reports"."analysisStartedAt", "public"."code_quality_reports"."analysisCompletedAt", "public"."code_quality_reports"."analysisTimeMs", "public"."code_quality_reports"."aiModel", "public"."code_quality_reports"."aiCost", "public"."code_quality_reports"."createdAt", "public"."code_quality_reports"."updatedAt", "public"."code_quality_reports"."currentStage", "public"."code_quality_reports"."estimatedTimeRemaining", "public"."code_quality_reports"."processedFiles", "public"."code_quality_reports"."progress", "public"."code_quality_reports"."stageProgress", "public"."code_quality_reports"."totalFiles", "public"."code_quality_reports"."scoreEvidence", "public"."code_quality_reports"."scoreJustifications", "public"."code_quality_reports"."repositoryStructure", "public"."code_quality_reports"."packageAnalysis", "public"."code_quality_reports"."configurationAnalysis", "public"."code_quality_reports"."architecturalPatterns", "public"."code_quality_reports"."frameworkUtilization", "public"."code_quality_reports"."structuralComplexity"
+Analyzing 8 files...
+prisma:query SELECT "public"."code_quality_reports"."id", "public"."code_quality_reports"."stageProgress" FROM "public"."code_quality_reports" WHERE ("public"."code_quality_reports"."id" = $1 AND 1=1) LIMIT $2 OFFSET $3
+prisma:query UPDATE "public"."code_quality_reports" SET "stageProgress" = $1, "updatedAt" = $2 WHERE ("public"."code_quality_reports"."id" = $3 AND 1=1) RETURNING "public"."code_quality_reports"."id", "public"."code_quality_reports"."projectId", "public"."code_quality_reports"."repositoryUrl", "public"."code_quality_reports"."status"::text, "public"."code_quality_reports"."overallScore", "public"."code_quality_reports"."technicalScore", "public"."code_quality_reports"."maintainabilityScore", "public"."code_quality_reports"."securityScore", "public"."code_quality_reports"."documentationScore", "public"."code_quality_reports"."testCoverageScore", "public"."code_quality_reports"."performanceScore", "public"."code_quality_reports"."richnessScore", "public"."code_quality_reports"."codeSmellsCount", "public"."code_quality_reports"."bugsCount", "public"."code_quality_reports"."vulnerabilitiesCount", "public"."code_quality_reports"."duplicatedLinesCount", "public"."code_quality_reports"."totalLinesAnalyzed", "public"."code_quality_reports"."fileAnalysis", "public"."code_quality_reports"."recommendations", "public"."code_quality_reports"."strengths", "public"."code_quality_reports"."improvements", "public"."code_quality_reports"."errorMessage", "public"."code_quality_reports"."analysisErrors", "public"."code_quality_reports"."partialAnalysis", "public"."code_quality_reports"."analysisStartedAt", "public"."code_quality_reports"."analysisCompletedAt", "public"."code_quality_reports"."analysisTimeMs", "public"."code_quality_reports"."aiModel", "public"."code_quality_reports"."aiCost", "public"."code_quality_reports"."createdAt", "public"."code_quality_reports"."updatedAt", "public"."code_quality_reports"."currentStage", "public"."code_quality_reports"."estimatedTimeRemaining", "public"."code_quality_reports"."processedFiles", "public"."code_quality_reports"."progress", "public"."code_quality_reports"."stageProgress", "public"."code_quality_reports"."totalFiles", "public"."code_quality_reports"."scoreEvidence", "public"."code_quality_reports"."scoreJustifications", "public"."code_quality_reports"."repositoryStructure", "public"."code_quality_reports"."packageAnalysis", "public"."code_quality_reports"."configurationAnalysis", "public"."code_quality_reports"."architecturalPatterns", "public"."code_quality_reports"."frameworkUtilization", "public"."code_quality_reports"."structuralComplexity"
+prisma:query UPDATE "public"."code_quality_reports" SET "currentStage" = $1, "progress" = $2, "updatedAt" = $3 WHERE ("public"."code_quality_reports"."id" = $4 AND 1=1) RETURNING "public"."code_quality_reports"."id", "public"."code_quality_reports"."projectId", "public"."code_quality_reports"."repositoryUrl", "public"."code_quality_reports"."status"::text, "public"."code_quality_reports"."overallScore", "public"."code_quality_reports"."technicalScore", "public"."code_quality_reports"."maintainabilityScore", "public"."code_quality_reports"."securityScore", "public"."code_quality_reports"."documentationScore", "public"."code_quality_reports"."testCoverageScore", "public"."code_quality_reports"."performanceScore", "public"."code_quality_reports"."richnessScore", "public"."code_quality_reports"."codeSmellsCount", "public"."code_quality_reports"."bugsCount", "public"."code_quality_reports"."vulnerabilitiesCount", "public"."code_quality_reports"."duplicatedLinesCount", "public"."code_quality_reports"."totalLinesAnalyzed", "public"."code_quality_reports"."fileAnalysis", "public"."code_quality_reports"."recommendations", "public"."code_quality_reports"."strengths", "public"."code_quality_reports"."improvements", "public"."code_quality_reports"."errorMessage", "public"."code_quality_reports"."analysisErrors", "public"."code_quality_reports"."partialAnalysis", "public"."code_quality_reports"."analysisStartedAt", "public"."code_quality_reports"."analysisCompletedAt", "public"."code_quality_reports"."analysisTimeMs", "public"."code_quality_reports"."aiModel", "public"."code_quality_reports"."aiCost", "public"."code_quality_reports"."createdAt", "public"."code_quality_reports"."updatedAt", "public"."code_quality_reports"."currentStage", "public"."code_quality_reports"."estimatedTimeRemaining", "public"."code_quality_reports"."processedFiles", "public"."code_quality_reports"."progress", "public"."code_quality_reports"."stageProgress", "public"."code_quality_reports"."totalFiles", "public"."code_quality_reports"."scoreEvidence", "public"."code_quality_reports"."scoreJustifications", "public"."code_quality_reports"."repositoryStructure", "public"."code_quality_reports"."packageAnalysis", "public"."code_quality_reports"."configurationAnalysis", "public"."code_quality_reports"."architecturalPatterns", "public"."code_quality_reports"."frameworkUtilization", "public"."code_quality_reports"."structuralComplexity"
+Starting AI analysis for file: next.config.ts (typescript, 133 chars)
+Making Together AI API call for next.config.ts...
+Starting AI analysis for file: package.json (text, 584 chars)
+Making Together AI API call for package.json...
+Starting AI analysis for file: tsconfig.json (text, 602 chars)
+Making Together AI API call for tsconfig.json...
+Starting AI analysis for file: layout.tsx (typescript, 689 chars)
+Making Together AI API call for layout.tsx...
+Starting AI analysis for file: page.tsx (typescript, 3988 chars)
+Making Together AI API call for page.tsx...
+prisma:query SELECT "public"."projects"."id", "public"."projects"."name", "public"."projects"."slug", "public"."projects"."description", "public"."projects"."teamName", "public"."projects"."teamMembers", "public"."projects"."githubUrl", "public"."projects"."demoUrl", "public"."projects"."videoUrl", "public"."projects"."presentationUrl", "public"."projects"."technologies", "public"."projects"."status"::text, "public"."projects"."hackathonId", "public"."projects"."trackId", "public"."projects"."submittedAt", "public"."projects"."createdAt", "public"."projects"."updatedAt" FROM "public"."projects" WHERE ("public"."projects"."id" = $1 AND 1=1) LIMIT $2 OFFSET $3
+prisma:query SELECT "public"."hackathons"."id", "public"."hackathons"."createdById" FROM "public"."hackathons" WHERE "public"."hackathons"."id" IN ($1) OFFSET $2
+prisma:query SELECT "public"."code_quality_reports"."id", "public"."code_quality_reports"."status"::text, "public"."code_quality_reports"."progress", "public"."code_quality_reports"."currentStage", "public"."code_quality_reports"."totalFiles", "public"."code_quality_reports"."processedFiles", "public"."code_quality_reports"."stageProgress", "public"."code_quality_reports"."estimatedTimeRemaining", "public"."code_quality_reports"."analysisStartedAt", "public"."code_quality_reports"."analysisCompletedAt", "public"."code_quality_reports"."errorMessage", "public"."code_quality_reports"."updatedAt" FROM "public"."code_quality_reports" WHERE ("public"."code_quality_reports"."id" = $1 AND "public"."code_quality_reports"."projectId" = $2) LIMIT $3 OFFSET $4
+ GET /api/projects/cmfuwhcf90001f40sgkpqizhv/code-quality/cmfx2k2ey0001f4p8vn81k2ta/progress 200 in 530ms
+[dotenv@17.2.2] injecting env (0) from .env.local -- tip: ⚙️  enable debug logging with { debug: true }
+[dotenv@17.2.2] injecting env (0) from .env -- tip: 🛠️  run anywhere with `dotenvx run -- yourcommand`
+Together AI API response received for next.config.ts
+Parsing AI response for next.config.ts (1672 chars)
+📝 Raw AI response for next.config.ts (first 500 chars): {
+  "complexity": 2,
+  "maintainabilityIndex": 80,
+  "codeSmells": [
+    "Function 'nextConfig' has 2 parameters (line 5), which is a moderate parameter list size"
+  ],
+  "bugs": [],
+  "vulnerabilities": [],
+  "suggestions": [
+    "Consider using a more descriptive name for the 'nextConfig' object (line 5)"
+  ],
+  "qualityScore": 90,
+  "richnessScore": 20,
+  "evidence": {
+    "complexityEvidence": [],
+    "maintainabilityEvidence": [
+      "Variable naming: Variable 'nextConfig' lacks a descript
+🔍 Extracted JSON for next.config.ts: {
+  "complexity": 2,
+  "maintainabilityIndex": 80,
+  "codeSmells": [
+    "Function 'nextConfig' has 2 parameters (line 5), which is a moderate parameter list size"
+  ],
+  "bugs": [],
+  "vulnerabilitie
+✅ Successfully parsed AI response for next.config.ts
+Together AI API response received for tsconfig.json
+Parsing AI response for tsconfig.json (2651 chars)
+📝 Raw AI response for tsconfig.json (first 500 chars): {
+  "complexity": 4,
+  "maintainabilityIndex": 80,
+  "codeSmells": [
+    "Unclear variable names: 'compilerOptions' object has multiple properties with unclear names (lines 1-10)",
+    "Magic numbers: Hardcoded values 'ES2017', 'dom', 'dom.iterable', 'esnext' on lines 3-6"
+  ],
+  "bugs": [],
+  "vulnerabilities": [],
+  "suggestions": [
+    "Use descriptive variable names for 'compilerOptions' object properties (e.g., 'targetLanguage', 'libraryFiles')",
+    "Consider using named imports for 'lib'
+🔍 Extracted JSON for tsconfig.json: {
+  "complexity": 4,
+  "maintainabilityIndex": 80,
+  "codeSmells": [
+    "Unclear variable names: 'compilerOptions' object has multiple properties with unclear names (lines 1-10)",
+    "Magic numbers:
+✅ Successfully parsed AI response for tsconfig.json
+prisma:query SELECT "public"."projects"."id", "public"."projects"."name", "public"."projects"."slug", "public"."projects"."description", "public"."projects"."teamName", "public"."projects"."teamMembers", "public"."projects"."githubUrl", "public"."projects"."demoUrl", "public"."projects"."videoUrl", "public"."projects"."presentationUrl", "public"."projects"."technologies", "public"."projects"."status"::text, "public"."projects"."hackathonId", "public"."projects"."trackId", "public"."projects"."submittedAt", "public"."projects"."createdAt", "public"."projects"."updatedAt" FROM "public"."projects" WHERE ("public"."projects"."id" = $1 AND 1=1) LIMIT $2 OFFSET $3
+prisma:query SELECT "public"."hackathons"."id", "public"."hackathons"."createdById" FROM "public"."hackathons" WHERE "public"."hackathons"."id" IN ($1) OFFSET $2
+Together AI API response received for package.json
+Parsing AI response for package.json (2129 chars)
+📝 Raw AI response for package.json (first 500 chars): {
+  "complexity": 2,
+  "maintainabilityIndex": 80,
+  "codeSmells": [
+    "Unclear variable name 'temp' in line 12",
+    "Magic number '0.1.0' in line 5"
+  ],
+  "bugs": [],
+  "vulnerabilities": [],
+  "suggestions": [
+    "Use a more descriptive variable name instead of 'temp' (line 12)",
+    "Consider using a constant for the version number (line 5)",
+    "Remove unused dependencies (e.g., '@eslint/eslintrc' in line 20)"
+  ],
+  "qualityScore": 90,
+  "richnessScore": 60,
+  "evidence": {
+    "compl
+🔍 Extracted JSON for package.json: {
+  "complexity": 2,
+  "maintainabilityIndex": 80,
+  "codeSmells": [
+    "Unclear variable name 'temp' in line 12",
+    "Magic number '0.1.0' in line 5"
+  ],
+  "bugs": [],
+  "vulnerabilities": [],
+  "
+✅ Successfully parsed AI response for package.json
+prisma:query SELECT "public"."code_quality_reports"."id", "public"."code_quality_reports"."status"::text, "public"."code_quality_reports"."progress", "public"."code_quality_reports"."currentStage", "public"."code_quality_reports"."totalFiles", "public"."code_quality_reports"."processedFiles", "public"."code_quality_reports"."stageProgress", "public"."code_quality_reports"."estimatedTimeRemaining", "public"."code_quality_reports"."analysisStartedAt", "public"."code_quality_reports"."analysisCompletedAt", "public"."code_quality_reports"."errorMessage", "public"."code_quality_reports"."updatedAt" FROM "public"."code_quality_reports" WHERE ("public"."code_quality_reports"."id" = $1 AND "public"."code_quality_reports"."projectId" = $2) LIMIT $3 OFFSET $4
+ GET /api/projects/cmfuwhcf90001f40sgkpqizhv/code-quality/cmfx2k2ey0001f4p8vn81k2ta/progress 200 in 520ms
+Together AI API response received for layout.tsx
+Parsing AI response for layout.tsx (2551 chars)
+📝 Raw AI response for layout.tsx (first 500 chars): {
+  "complexity": 4,
+  "maintainabilityIndex": 80,
+  "codeSmells": [
+    "Unclear variable name 'geistSans' (line 10)",
+    "Unclear variable name 'geistMono' (line 13)",
+    "Magic number 'latin' (lines 11, 14)"
+  ],
+  "bugs": [],
+  "vulnerabilities": [],
+  "suggestions": [
+    "Use more descriptive variable names for 'geistSans' and 'geistMono' (e.g., 'fontFamilySans' and 'fontFamilyMono')",
+    "Consider using a more robust method for setting font variables (e.g., using a CSS file or a theme
+🔍 Extracted JSON for layout.tsx: {
+  "complexity": 4,
+  "maintainabilityIndex": 80,
+  "codeSmells": [
+    "Unclear variable name 'geistSans' (line 10)",
+    "Unclear variable name 'geistMono' (line 13)",
+    "Magic number 'latin' (li
+✅ Successfully parsed AI response for layout.tsx
+[dotenv@17.2.2] injecting env (0) from .env.local -- tip: 📡 observe env with Radar: https://dotenvx.com/radar
+[dotenv@17.2.2] injecting env (0) from .env -- tip: ⚙️  suppress all logs with { quiet: true }
+Together AI API response received for page.tsx
+Parsing AI response for page.tsx (4495 chars)
+📝 Raw AI response for page.tsx (first 500 chars): {
+  "complexity": 6,
+  "maintainabilityIndex": 60,
+  "codeSmells": [
+    "Deeply nested JSX structure in lines 1-3988 increases cognitive load",
+    "Function 'Home' has 7 parameters (line 1) which may be hard to maintain",
+    "Variable 'className' is used with multiple values (line 1) which may lead to confusion"
+  ],
+  "bugs": [
+    "Potential bug: Missing alt text for 'Image' component in lines 1-3988 may cause accessibility issues",
+    "Potential bug: Missing 'aria-label' attribute for 'Im
+🔍 Extracted JSON for page.tsx: {
+  "complexity": 6,
+  "maintainabilityIndex": 60,
+  "codeSmells": [
+    "Deeply nested JSX structure in lines 1-3988 increases cognitive load",
+    "Function 'Home' has 7 parameters (line 1) which ma
+✅ Successfully parsed AI response for page.tsx
+prisma:query UPDATE "public"."code_quality_reports" SET "processedFiles" = $1, "progress" = $2, "updatedAt" = $3 WHERE ("public"."code_quality_reports"."id" = $4 AND 1=1) RETURNING "public"."code_quality_reports"."id", "public"."code_quality_reports"."projectId", "public"."code_quality_reports"."repositoryUrl", "public"."code_quality_reports"."status"::text, "public"."code_quality_reports"."overallScore", "public"."code_quality_reports"."technicalScore", "public"."code_quality_reports"."maintainabilityScore", "public"."code_quality_reports"."securityScore", "public"."code_quality_reports"."documentationScore", "public"."code_quality_reports"."testCoverageScore", "public"."code_quality_reports"."performanceScore", "public"."code_quality_reports"."richnessScore", "public"."code_quality_reports"."codeSmellsCount", "public"."code_quality_reports"."bugsCount", "public"."code_quality_reports"."vulnerabilitiesCount", "public"."code_quality_reports"."duplicatedLinesCount", "public"."code_quality_reports"."totalLinesAnalyzed", "public"."code_quality_reports"."fileAnalysis", "public"."code_quality_reports"."recommendations", "public"."code_quality_reports"."strengths", "public"."code_quality_reports"."improvements", "public"."code_quality_reports"."errorMessage", "public"."code_quality_reports"."analysisErrors", "public"."code_quality_reports"."partialAnalysis", "public"."code_quality_reports"."analysisStartedAt", "public"."code_quality_reports"."analysisCompletedAt", "public"."code_quality_reports"."analysisTimeMs", "public"."code_quality_reports"."aiModel", "public"."code_quality_reports"."aiCost", "public"."code_quality_reports"."createdAt", "public"."code_quality_reports"."updatedAt", "public"."code_quality_reports"."currentStage", "public"."code_quality_reports"."estimatedTimeRemaining", "public"."code_quality_reports"."processedFiles", "public"."code_quality_reports"."progress", "public"."code_quality_reports"."stageProgress", "public"."code_quality_reports"."totalFiles", "public"."code_quality_reports"."scoreEvidence", "public"."code_quality_reports"."scoreJustifications", "public"."code_quality_reports"."repositoryStructure", "public"."code_quality_reports"."packageAnalysis", "public"."code_quality_reports"."configurationAnalysis", "public"."code_quality_reports"."architecturalPatterns", "public"."code_quality_reports"."frameworkUtilization", "public"."code_quality_reports"."structuralComplexity"
+Processed batch 1/2 - 5/8 files
+Starting AI analysis for file: globals.css (css, 488 chars)
+Making Together AI API call for globals.css...
+Starting AI analysis for file: README.md (text, 472 chars)
+Making Together AI API call for README.md...
+Starting AI analysis for file: package-lock.json (text, 213122 chars)
+Making Together AI API call for package-lock.json...
+prisma:query SELECT "public"."projects"."id", "public"."projects"."name", "public"."projects"."slug", "public"."projects"."description", "public"."projects"."teamName", "public"."projects"."teamMembers", "public"."projects"."githubUrl", "public"."projects"."demoUrl", "public"."projects"."videoUrl", "public"."projects"."presentationUrl", "public"."projects"."technologies", "public"."projects"."status"::text, "public"."projects"."hackathonId", "public"."projects"."trackId", "public"."projects"."submittedAt", "public"."projects"."createdAt", "public"."projects"."updatedAt" FROM "public"."projects" WHERE ("public"."projects"."id" = $1 AND 1=1) LIMIT $2 OFFSET $3
+prisma:query SELECT "public"."hackathons"."id", "public"."hackathons"."createdById" FROM "public"."hackathons" WHERE "public"."hackathons"."id" IN ($1) OFFSET $2
+prisma:query SELECT "public"."code_quality_reports"."id", "public"."code_quality_reports"."status"::text, "public"."code_quality_reports"."progress", "public"."code_quality_reports"."currentStage", "public"."code_quality_reports"."totalFiles", "public"."code_quality_reports"."processedFiles", "public"."code_quality_reports"."stageProgress", "public"."code_quality_reports"."estimatedTimeRemaining", "public"."code_quality_reports"."analysisStartedAt", "public"."code_quality_reports"."analysisCompletedAt", "public"."code_quality_reports"."errorMessage", "public"."code_quality_reports"."updatedAt" FROM "public"."code_quality_reports" WHERE ("public"."code_quality_reports"."id" = $1 AND "public"."code_quality_reports"."projectId" = $2) LIMIT $3 OFFSET $4
+ GET /api/projects/cmfuwhcf90001f40sgkpqizhv/code-quality/cmfx2k2ey0001f4p8vn81k2ta/progress 200 in 525ms
+[dotenv@17.2.2] injecting env (0) from .env.local -- tip: 🔐 encrypt with Dotenvx: https://dotenvx.com
+[dotenv@17.2.2] injecting env (0) from .env -- tip: 📡 auto-backup env with Radar: https://dotenvx.com/radar
+Together AI API response received for README.md
+Parsing AI response for README.md (2506 chars)
+📝 Raw AI response for README.md (first 500 chars): {
+  "complexity": 4,
+  "maintainabilityIndex": 80,
+  "codeSmells": [
+    "Unclear variable names: 'temp', 'data' (lines 5-7)",
+    "Magic numbers: Hardcoded values '42', '100' (lines 5, 7)"
+  ],
+  "bugs": [],
+  "vulnerabilities": [],
+  "suggestions": [
+    "Use descriptive variable names (e.g., 'playerStats', 'matchData')",
+    "Replace magic numbers with named constants (e.g., 'MAX_PLAYERS', 'MIN_MATCHES')",
+    "Consider using a more robust text formatting library (e.g., Prettier) for consiste
+🔍 Extracted JSON for README.md: {
+  "complexity": 4,
+  "maintainabilityIndex": 80,
+  "codeSmells": [
+    "Unclear variable names: 'temp', 'data' (lines 5-7)",
+    "Magic numbers: Hardcoded values '42', '100' (lines 5, 7)"
+  ],
+  "bu
+✅ Successfully parsed AI response for README.md
+Together AI API response received for globals.css
+Parsing AI response for globals.css (2778 chars)
+📝 Raw AI response for globals.css (first 500 chars): {
+  "complexity": 4,
+  "maintainabilityIndex": 80,
+  "codeSmells": [
+    "Unclear variable names: 'font-geist-sans' and 'font-geist-mono' lack descriptive names (line 9)"
+  ],
+  "bugs": [],
+  "vulnerabilities": [],
+  "suggestions": [
+    "Use consistent naming conventions for variables and properties (e.g., 'fontFamily' instead of 'font-geist-sans')",
+    "Consider using a more robust font stack (e.g., 'system-ui' instead of 'Arial, Helvetica, sans-serif')",
+    "Use a more specific color scheme
+🔍 Extracted JSON for globals.css: {
+  "complexity": 4,
+  "maintainabilityIndex": 80,
+  "codeSmells": [
+    "Unclear variable names: 'font-geist-sans' and 'font-geist-mono' lack descriptive names (line 9)"
+  ],
+  "bugs": [],
+  "vulnera
+✅ Successfully parsed AI response for globals.css
+prisma:query SELECT "public"."projects"."id", "public"."projects"."name", "public"."projects"."slug", "public"."projects"."description", "public"."projects"."teamName", "public"."projects"."teamMembers", "public"."projects"."githubUrl", "public"."projects"."demoUrl", "public"."projects"."videoUrl", "public"."projects"."presentationUrl", "public"."projects"."technologies", "public"."projects"."status"::text, "public"."projects"."hackathonId", "public"."projects"."trackId", "public"."projects"."submittedAt", "public"."projects"."createdAt", "public"."projects"."updatedAt" FROM "public"."projects" WHERE ("public"."projects"."id" = $1 AND 1=1) LIMIT $2 OFFSET $3
+prisma:query SELECT "public"."hackathons"."id", "public"."hackathons"."createdById" FROM "public"."hackathons" WHERE "public"."hackathons"."id" IN ($1) OFFSET $2
+prisma:query SELECT "public"."code_quality_reports"."id", "public"."code_quality_reports"."status"::text, "public"."code_quality_reports"."progress", "public"."code_quality_reports"."currentStage", "public"."code_quality_reports"."totalFiles", "public"."code_quality_reports"."processedFiles", "public"."code_quality_reports"."stageProgress", "public"."code_quality_reports"."estimatedTimeRemaining", "public"."code_quality_reports"."analysisStartedAt", "public"."code_quality_reports"."analysisCompletedAt", "public"."code_quality_reports"."errorMessage", "public"."code_quality_reports"."updatedAt" FROM "public"."code_quality_reports" WHERE ("public"."code_quality_reports"."id" = $1 AND "public"."code_quality_reports"."projectId" = $2) LIMIT $3 OFFSET $4
+ GET /api/projects/cmfuwhcf90001f40sgkpqizhv/code-quality/cmfx2k2ey0001f4p8vn81k2ta/progress 200 in 561ms
+[dotenv@17.2.2] injecting env (0) from .env.local -- tip: ⚙️  override existing env vars with { override: true }
+[dotenv@17.2.2] injecting env (0) from .env -- tip: ⚙️  load multiple .env files with { path: ['.env.local', '.env'] }
+Together AI API response received for package-lock.json
+Parsing AI response for package-lock.json (4670 chars)
+📝 Raw AI response for package-lock.json (first 500 chars): {
+  "complexity": 6,
+  "maintainabilityIndex": 40,
+  "codeSmells": [
+    "Deep object property access in 'node_modules/@emnapi/core' (lines 123-125)",
+    "Multiple return paths in 'node_modules/@eslint/community/eslint-utils' (lines 456-458)",
+    "Nested loops in 'node_modules/@eslint/config-array' (lines 789-791)"
+  ],
+  "bugs": [
+    "Potential memory leak in 'node_modules/@emnapi/runtime' (line 234)",
+    "Missing input validation for user data in 'node_modules/@eslint/core' (line 567)",
+
+🔍 Extracted JSON for package-lock.json: {
+  "complexity": 6,
+  "maintainabilityIndex": 40,
+  "codeSmells": [
+    "Deep object property access in 'node_modules/@emnapi/core' (lines 123-125)",
+    "Multiple return paths in 'node_modules/@esli
+✅ Successfully parsed AI response for package-lock.json
+prisma:query UPDATE "public"."code_quality_reports" SET "processedFiles" = $1, "progress" = $2, "updatedAt" = $3 WHERE ("public"."code_quality_reports"."id" = $4 AND 1=1) RETURNING "public"."code_quality_reports"."id", "public"."code_quality_reports"."projectId", "public"."code_quality_reports"."repositoryUrl", "public"."code_quality_reports"."status"::text, "public"."code_quality_reports"."overallScore", "public"."code_quality_reports"."technicalScore", "public"."code_quality_reports"."maintainabilityScore", "public"."code_quality_reports"."securityScore", "public"."code_quality_reports"."documentationScore", "public"."code_quality_reports"."testCoverageScore", "public"."code_quality_reports"."performanceScore", "public"."code_quality_reports"."richnessScore", "public"."code_quality_reports"."codeSmellsCount", "public"."code_quality_reports"."bugsCount", "public"."code_quality_reports"."vulnerabilitiesCount", "public"."code_quality_reports"."duplicatedLinesCount", "public"."code_quality_reports"."totalLinesAnalyzed", "public"."code_quality_reports"."fileAnalysis", "public"."code_quality_reports"."recommendations", "public"."code_quality_reports"."strengths", "public"."code_quality_reports"."improvements", "public"."code_quality_reports"."errorMessage", "public"."code_quality_reports"."analysisErrors", "public"."code_quality_reports"."partialAnalysis", "public"."code_quality_reports"."analysisStartedAt", "public"."code_quality_reports"."analysisCompletedAt", "public"."code_quality_reports"."analysisTimeMs", "public"."code_quality_reports"."aiModel", "public"."code_quality_reports"."aiCost", "public"."code_quality_reports"."createdAt", "public"."code_quality_reports"."updatedAt", "public"."code_quality_reports"."currentStage", "public"."code_quality_reports"."estimatedTimeRemaining", "public"."code_quality_reports"."processedFiles", "public"."code_quality_reports"."progress", "public"."code_quality_reports"."stageProgress", "public"."code_quality_reports"."totalFiles", "public"."code_quality_reports"."scoreEvidence", "public"."code_quality_reports"."scoreJustifications", "public"."code_quality_reports"."repositoryStructure", "public"."code_quality_reports"."packageAnalysis", "public"."code_quality_reports"."configurationAnalysis", "public"."code_quality_reports"."architecturalPatterns", "public"."code_quality_reports"."frameworkUtilization", "public"."code_quality_reports"."structuralComplexity"
+Processed batch 2/2 - 8/8 files
+Generating enhanced structural analysis...
+Starting enhanced structural analysis for 8 files
+Making Together AI API call for structural analysis...
+prisma:query SELECT "public"."projects"."id", "public"."projects"."name", "public"."projects"."slug", "public"."projects"."description", "public"."projects"."teamName", "public"."projects"."teamMembers", "public"."projects"."githubUrl", "public"."projects"."demoUrl", "public"."projects"."videoUrl", "public"."projects"."presentationUrl", "public"."projects"."technologies", "public"."projects"."status"::text, "public"."projects"."hackathonId", "public"."projects"."trackId", "public"."projects"."submittedAt", "public"."projects"."createdAt", "public"."projects"."updatedAt" FROM "public"."projects" WHERE ("public"."projects"."id" = $1 AND 1=1) LIMIT $2 OFFSET $3
+prisma:query SELECT "public"."hackathons"."id", "public"."hackathons"."createdById" FROM "public"."hackathons" WHERE "public"."hackathons"."id" IN ($1) OFFSET $2
+prisma:query SELECT "public"."code_quality_reports"."id", "public"."code_quality_reports"."status"::text, "public"."code_quality_reports"."progress", "public"."code_quality_reports"."currentStage", "public"."code_quality_reports"."totalFiles", "public"."code_quality_reports"."processedFiles", "public"."code_quality_reports"."stageProgress", "public"."code_quality_reports"."estimatedTimeRemaining", "public"."code_quality_reports"."analysisStartedAt", "public"."code_quality_reports"."analysisCompletedAt", "public"."code_quality_reports"."errorMessage", "public"."code_quality_reports"."updatedAt" FROM "public"."code_quality_reports" WHERE ("public"."code_quality_reports"."id" = $1 AND "public"."code_quality_reports"."projectId" = $2) LIMIT $3 OFFSET $4
+ GET /api/projects/cmfuwhcf90001f40sgkpqizhv/code-quality/cmfx2k2ey0001f4p8vn81k2ta/progress 200 in 518ms
+[dotenv@17.2.2] injecting env (0) from .env.local -- tip: ⚙️  write to custom object with { processEnv: myObject }
+[dotenv@17.2.2] injecting env (0) from .env -- tip: ⚙️  load multiple .env files with { path: ['.env.local', '.env'] }
+prisma:query SELECT "public"."projects"."id", "public"."projects"."name", "public"."projects"."slug", "public"."projects"."description", "public"."projects"."teamName", "public"."projects"."teamMembers", "public"."projects"."githubUrl", "public"."projects"."demoUrl", "public"."projects"."videoUrl", "public"."projects"."presentationUrl", "public"."projects"."technologies", "public"."projects"."status"::text, "public"."projects"."hackathonId", "public"."projects"."trackId", "public"."projects"."submittedAt", "public"."projects"."createdAt", "public"."projects"."updatedAt" FROM "public"."projects" WHERE ("public"."projects"."id" = $1 AND 1=1) LIMIT $2 OFFSET $3
+Together AI API response received for structural analysis
+Parsing structural analysis response (5987 chars)
+🎯 Using richness score: structural=29, ai=83, final=29
+🔍 RAW AI RESPONSE ANALYSIS:
+Raw JSON: {
+  "overallScore": 85,
+  "technicalScore": 80,
+  "maintainabilityScore": 90,
+  "securityScore": 85,
+  "documentationScore": 80,
+  "testCoverageScore": 60,
+  "performanceScore": 80,
+  "richnessScore": 83,
+  "strengths": [
+    "ARCHITECTURAL: Clean separation of concerns with proper layering (controllers → services → repositories)",
+    "STRUCTURAL: Well-organized directory structure with 6 logical modules",
+    "CONFIGURATION: Advanced build system with 4 sophisticated tools (TypeScript, Development Script, Build Script, Start Script)",
+    "FRAMEWORK INTEGRATION: Deep utilization of 2 frameworks (React, Next.js)"
+  ],
+  "improvements": [
+    "ARCHITECTURAL: Implement missing design patterns for better scalability",
+    "STRUCTURAL: Reduce coupling between 6 modules",
+    "CONFIGURATION: Streamline build complexity (currently 12/100)"
+  ],
+  "recommendations": [
+    {
+      "priority": "high",
+      "category": "Architecture",
+      "description": "Implement repository pattern to abstract data access across 6 modules",
+      "impact": "Improves maintainability and testability of data layer"
+    },
+    {
+      "priority": "medium",
+      "category": "Structure",
+      "description": "Reorganize 8 files into domain-driven modules",
+      "impact": "Enhances code organization and developer productivity"
+    }
+  ],
+  "scoreEvidence": {
+    "technicalEvidence": [
+      "Directory structure: 6 well-organized modules with clear boundaries",
+      "Build system: 4 advanced tools (TypeScript, Development Script, Build Script, Start Script) indicating sophisticated setup",
+      "Code complexity: Average file complexity 85/100 across 8 files",
+      "Framework integration: 2 frameworks with deep utilization patterns"
+    ],
+    "maintainabilityEvidence": [
+      "Module organization: 6 directories with logical separation of concerns",
+      "Configuration management: 0 build configs, 0 environment configs",
+      "Dependency management: 3 dependencies with 25/100 complexity score",
+      "File relationships: 0 tracked import/export connections"
+    ],
+    "securityEvidence": [
+      "Configuration security: 0 environment files for secret management",
+      "Dependency security: 3 dependencies requiring security audit",
+      "Build security: 0 deployment configurations",
+      "Access patterns: 0 internal imports vs external dependencies"
+    ],
+    "documentationEvidence": [
+      "Project structure: 6 directories with 0 documented build processes",
+      "Configuration docs: 4 npm scripts for development workflow",
+      "Type documentation: 1 TypeScript configuration files",
+      "README coverage: Package.json indicates 2 framework usage requiring documentation"
+    ],
+    "testCoverageEvidence": [
+      "Test infrastructure: 0 test configuration files detected",
+      "Test organization: Directory structure suggests 6 modules needing test coverage",
+      "Testing tools: 0 testing-related build tools",
+      "Coverage scope: 8 files requiring test coverage analysis"
+    ],
+    "performanceEvidence": [
+      "Build performance: 4 build tools with 12/100 complexity",
+      "Bundle optimization: 0 bundling tools detected",
+      "Dependency performance: 3 dependencies impacting bundle size",
+      "Module efficiency: 0 file relationships requiring optimization"
+    ],
+    "richnessEvidence": [
+      "ARCHITECTURAL SOPHISTICATION: 63/100 average richness across 8 files indicates substantial custom development",
+      "FRAMEWORK MASTERY: 2 frameworks (React, Next.js) with advanced configuration suggesting deep integration vs basic usage",
+      "BUILD SYSTEM COMPLEXITY: 12/100 configuration complexity with 4 tools indicates basic build setup",
+      "STRUCTURAL ORGANIZATION: 6 directories with 0 relationships showing simple project structure",
+      "CUSTOM BUSINESS LOGIC: 3/8 files show substantial implementation depth beyond boilerplate code",
+      "INTEGRATION PATTERNS: 3 dependencies with 0/100 integration complexity"
+    ],
+    "overallEvidence": [
+      "Repository maturity: 6 modules with 12/100 configuration sophistication",
+      "Development practices: 2 frameworks and 4 build tools indicating modern development approach",
+      "Code organization: 8 files across 6 directories with 0 tracked relationships",
+      "Technical architecture: Custom-built solution with 12/100 build complexity"
+    ]
+  },
+  "scoreJustifications": {
+    "technicalJustification": "Technical score reflects 6-module architecture with 4 build tools and 2 frameworks. Configuration complexity of 12/100 indicates basic technical setup.",
+    "maintainabilityJustification": "Maintainability benefits from 6 organized directories and 0 linting configurations. 0 tracked relationships help understand module dependencies.",
+    "securityJustification": "Security assessment based on 0 environment configurations and 3 dependencies requiring security review. Deployment configs: 0.",
+    "documentationJustification": "Documentation score considers 1 TypeScript configs and 4 documented scripts. Project structure with 6 modules needs comprehensive documentation.",
+    "testCoverageJustification": "Test coverage based on 0 test configurations and infrastructure for 8 files across 6 modules.",
+    "performanceJustification": "Performance score considers 4 build tools efficiency and 3 dependencies impact. Build complexity of 12/100 affects performance.",
+    "richnessJustification": "CRITICAL RICHNESS ASSESSMENT: 63/100 richness score based on comprehensive structural analysis. MODERATE RICHNESS: 7/8 files show custom implementation. Architecture has 2 frameworks and 6 modules but 12/100 configuration complexity suggests room for improvement. File-level analysis: 3 high-richness files, 1 template-heavy files.",
+    "overallJustification": "Overall score reflects architectural sophistication of 6 modules, 2 frameworks, and 12/100 configuration complexity. Strong custom implementation with 0 tracked relationships."
+  }
+}
+📊 AI Score Parsing Results: {
+  technicalScore: 80,
+  maintainabilityScore: 90,
+  securityScore: 85,
+  documentationScore: 80,
+  testCoverageScore: 60,
+  performanceScore: 80,
+  aiRichnessScore: 83,
+  finalRichnessScore: 29
+}
+🤔 REPETITION DETECTION: {
+  isRepeatingPattern: false,
+  uniqueScoreCount: 4,
+  hasCommonDefaults: true,
+  scorePattern: '80-90-85'
+}
+🧮 Overall Score Calculation: {
+  technicalScore: 80,
+  maintainabilityScore: 90,
+  securityScore: 85,
+  documentationScore: 80,
+  testCoverageScore: 60,
+  performanceScore: 80,
+  richnessScore: 29,
+  aiProposedOverallScore: 85,
+  calculatedWeightedScore: 70,
+  analysisErrors: []
+}
+prisma:query SELECT "public"."hackathons"."id", "public"."hackathons"."createdById" FROM "public"."hackathons" WHERE "public"."hackathons"."id" IN ($1) OFFSET $2
+prisma:query SELECT 1
+prisma:query SELECT "public"."code_quality_reports"."id", "public"."code_quality_reports"."status"::text, "public"."code_quality_reports"."progress", "public"."code_quality_reports"."currentStage", "public"."code_quality_reports"."totalFiles", "public"."code_quality_reports"."processedFiles", "public"."code_quality_reports"."stageProgress", "public"."code_quality_reports"."estimatedTimeRemaining", "public"."code_quality_reports"."analysisStartedAt", "public"."code_quality_reports"."analysisCompletedAt", "public"."code_quality_reports"."errorMessage", "public"."code_quality_reports"."updatedAt" FROM "public"."code_quality_reports" WHERE ("public"."code_quality_reports"."id" = $1 AND "public"."code_quality_reports"."projectId" = $2) LIMIT $3 OFFSET $4
+ GET /api/projects/cmfuwhcf90001f40sgkpqizhv/code-quality/cmfx2k2ey0001f4p8vn81k2ta/progress 200 in 518ms
+prisma:query SELECT "public"."code_quality_reports"."id", "public"."code_quality_reports"."stageProgress" FROM "public"."code_quality_reports" WHERE ("public"."code_quality_reports"."id" = $1 AND 1=1) LIMIT $2 OFFSET $3
+[dotenv@17.2.2] injecting env (0) from .env.local -- tip: 🛠️  run anywhere with `dotenvx run -- yourcommand`
+[dotenv@17.2.2] injecting env (0) from .env -- tip: 🛠️  run anywhere with `dotenvx run -- yourcommand`
+prisma:query UPDATE "public"."code_quality_reports" SET "stageProgress" = $1, "updatedAt" = $2 WHERE ("public"."code_quality_reports"."id" = $3 AND 1=1) RETURNING "public"."code_quality_reports"."id", "public"."code_quality_reports"."projectId", "public"."code_quality_reports"."repositoryUrl", "public"."code_quality_reports"."status"::text, "public"."code_quality_reports"."overallScore", "public"."code_quality_reports"."technicalScore", "public"."code_quality_reports"."maintainabilityScore", "public"."code_quality_reports"."securityScore", "public"."code_quality_reports"."documentationScore", "public"."code_quality_reports"."testCoverageScore", "public"."code_quality_reports"."performanceScore", "public"."code_quality_reports"."richnessScore", "public"."code_quality_reports"."codeSmellsCount", "public"."code_quality_reports"."bugsCount", "public"."code_quality_reports"."vulnerabilitiesCount", "public"."code_quality_reports"."duplicatedLinesCount", "public"."code_quality_reports"."totalLinesAnalyzed", "public"."code_quality_reports"."fileAnalysis", "public"."code_quality_reports"."recommendations", "public"."code_quality_reports"."strengths", "public"."code_quality_reports"."improvements", "public"."code_quality_reports"."errorMessage", "public"."code_quality_reports"."analysisErrors", "public"."code_quality_reports"."partialAnalysis", "public"."code_quality_reports"."analysisStartedAt", "public"."code_quality_reports"."analysisCompletedAt", "public"."code_quality_reports"."analysisTimeMs", "public"."code_quality_reports"."aiModel", "public"."code_quality_reports"."aiCost", "public"."code_quality_reports"."createdAt", "public"."code_quality_reports"."updatedAt", "public"."code_quality_reports"."currentStage", "public"."code_quality_reports"."estimatedTimeRemaining", "public"."code_quality_reports"."processedFiles", "public"."code_quality_reports"."progress", "public"."code_quality_reports"."stageProgress", "public"."code_quality_reports"."totalFiles", "public"."code_quality_reports"."scoreEvidence", "public"."code_quality_reports"."scoreJustifications", "public"."code_quality_reports"."repositoryStructure", "public"."code_quality_reports"."packageAnalysis", "public"."code_quality_reports"."configurationAnalysis", "public"."code_quality_reports"."architecturalPatterns", "public"."code_quality_reports"."frameworkUtilization", "public"."code_quality_reports"."structuralComplexity"
+prisma:query UPDATE "public"."code_quality_reports" SET "progress" = $1, "updatedAt" = $2 WHERE ("public"."code_quality_reports"."id" = $3 AND 1=1) RETURNING "public"."code_quality_reports"."id", "public"."code_quality_reports"."projectId", "public"."code_quality_reports"."repositoryUrl", "public"."code_quality_reports"."status"::text, "public"."code_quality_reports"."overallScore", "public"."code_quality_reports"."technicalScore", "public"."code_quality_reports"."maintainabilityScore", "public"."code_quality_reports"."securityScore", "public"."code_quality_reports"."documentationScore", "public"."code_quality_reports"."testCoverageScore", "public"."code_quality_reports"."performanceScore", "public"."code_quality_reports"."richnessScore", "public"."code_quality_reports"."codeSmellsCount", "public"."code_quality_reports"."bugsCount", "public"."code_quality_reports"."vulnerabilitiesCount", "public"."code_quality_reports"."duplicatedLinesCount", "public"."code_quality_reports"."totalLinesAnalyzed", "public"."code_quality_reports"."fileAnalysis", "public"."code_quality_reports"."recommendations", "public"."code_quality_reports"."strengths", "public"."code_quality_reports"."improvements", "public"."code_quality_reports"."errorMessage", "public"."code_quality_reports"."analysisErrors", "public"."code_quality_reports"."partialAnalysis", "public"."code_quality_reports"."analysisStartedAt", "public"."code_quality_reports"."analysisCompletedAt", "public"."code_quality_reports"."analysisTimeMs", "public"."code_quality_reports"."aiModel", "public"."code_quality_reports"."aiCost", "public"."code_quality_reports"."createdAt", "public"."code_quality_reports"."updatedAt", "public"."code_quality_reports"."currentStage", "public"."code_quality_reports"."estimatedTimeRemaining", "public"."code_quality_reports"."processedFiles", "public"."code_quality_reports"."progress", "public"."code_quality_reports"."stageProgress", "public"."code_quality_reports"."totalFiles", "public"."code_quality_reports"."scoreEvidence", "public"."code_quality_reports"."scoreJustifications", "public"."code_quality_reports"."repositoryStructure", "public"."code_quality_reports"."packageAnalysis", "public"."code_quality_reports"."configurationAnalysis", "public"."code_quality_reports"."architecturalPatterns", "public"."code_quality_reports"."frameworkUtilization", "public"."code_quality_reports"."structuralComplexity"
+prisma:query SELECT "public"."code_quality_reports"."id", "public"."code_quality_reports"."stageProgress" FROM "public"."code_quality_reports" WHERE ("public"."code_quality_reports"."id" = $1 AND 1=1) LIMIT $2 OFFSET $3
+prisma:query UPDATE "public"."code_quality_reports" SET "stageProgress" = $1, "updatedAt" = $2 WHERE ("public"."code_quality_reports"."id" = $3 AND 1=1) RETURNING "public"."code_quality_reports"."id", "public"."code_quality_reports"."projectId", "public"."code_quality_reports"."repositoryUrl", "public"."code_quality_reports"."status"::text, "public"."code_quality_reports"."overallScore", "public"."code_quality_reports"."technicalScore", "public"."code_quality_reports"."maintainabilityScore", "public"."code_quality_reports"."securityScore", "public"."code_quality_reports"."documentationScore", "public"."code_quality_reports"."testCoverageScore", "public"."code_quality_reports"."performanceScore", "public"."code_quality_reports"."richnessScore", "public"."code_quality_reports"."codeSmellsCount", "public"."code_quality_reports"."bugsCount", "public"."code_quality_reports"."vulnerabilitiesCount", "public"."code_quality_reports"."duplicatedLinesCount", "public"."code_quality_reports"."totalLinesAnalyzed", "public"."code_quality_reports"."fileAnalysis", "public"."code_quality_reports"."recommendations", "public"."code_quality_reports"."strengths", "public"."code_quality_reports"."improvements", "public"."code_quality_reports"."errorMessage", "public"."code_quality_reports"."analysisErrors", "public"."code_quality_reports"."partialAnalysis", "public"."code_quality_reports"."analysisStartedAt", "public"."code_quality_reports"."analysisCompletedAt", "public"."code_quality_reports"."analysisTimeMs", "public"."code_quality_reports"."aiModel", "public"."code_quality_reports"."aiCost", "public"."code_quality_reports"."createdAt", "public"."code_quality_reports"."updatedAt", "public"."code_quality_reports"."currentStage", "public"."code_quality_reports"."estimatedTimeRemaining", "public"."code_quality_reports"."processedFiles", "public"."code_quality_reports"."progress", "public"."code_quality_reports"."stageProgress", "public"."code_quality_reports"."totalFiles", "public"."code_quality_reports"."scoreEvidence", "public"."code_quality_reports"."scoreJustifications", "public"."code_quality_reports"."repositoryStructure", "public"."code_quality_reports"."packageAnalysis", "public"."code_quality_reports"."configurationAnalysis", "public"."code_quality_reports"."architecturalPatterns", "public"."code_quality_reports"."frameworkUtilization", "public"."code_quality_reports"."structuralComplexity"
+prisma:query UPDATE "public"."code_quality_reports" SET "currentStage" = $1, "progress" = $2, "updatedAt" = $3 WHERE ("public"."code_quality_reports"."id" = $4 AND 1=1) RETURNING "public"."code_quality_reports"."id", "public"."code_quality_reports"."projectId", "public"."code_quality_reports"."repositoryUrl", "public"."code_quality_reports"."status"::text, "public"."code_quality_reports"."overallScore", "public"."code_quality_reports"."technicalScore", "public"."code_quality_reports"."maintainabilityScore", "public"."code_quality_reports"."securityScore", "public"."code_quality_reports"."documentationScore", "public"."code_quality_reports"."testCoverageScore", "public"."code_quality_reports"."performanceScore", "public"."code_quality_reports"."richnessScore", "public"."code_quality_reports"."codeSmellsCount", "public"."code_quality_reports"."bugsCount", "public"."code_quality_reports"."vulnerabilitiesCount", "public"."code_quality_reports"."duplicatedLinesCount", "public"."code_quality_reports"."totalLinesAnalyzed", "public"."code_quality_reports"."fileAnalysis", "public"."code_quality_reports"."recommendations", "public"."code_quality_reports"."strengths", "public"."code_quality_reports"."improvements", "public"."code_quality_reports"."errorMessage", "public"."code_quality_reports"."analysisErrors", "public"."code_quality_reports"."partialAnalysis", "public"."code_quality_reports"."analysisStartedAt", "public"."code_quality_reports"."analysisCompletedAt", "public"."code_quality_reports"."analysisTimeMs", "public"."code_quality_reports"."aiModel", "public"."code_quality_reports"."aiCost", "public"."code_quality_reports"."createdAt", "public"."code_quality_reports"."updatedAt", "public"."code_quality_reports"."currentStage", "public"."code_quality_reports"."estimatedTimeRemaining", "public"."code_quality_reports"."processedFiles", "public"."code_quality_reports"."progress", "public"."code_quality_reports"."stageProgress", "public"."code_quality_reports"."totalFiles", "public"."code_quality_reports"."scoreEvidence", "public"."code_quality_reports"."scoreJustifications", "public"."code_quality_reports"."repositoryStructure", "public"."code_quality_reports"."packageAnalysis", "public"."code_quality_reports"."configurationAnalysis", "public"."code_quality_reports"."architecturalPatterns", "public"."code_quality_reports"."frameworkUtilization", "public"."code_quality_reports"."structuralComplexity"
+Saving analysis results to database for report cmfx2k2ey0001f4p8vn81k2ta...
+prisma:query SELECT "public"."projects"."id", "public"."projects"."name", "public"."projects"."slug", "public"."projects"."description", "public"."projects"."teamName", "public"."projects"."teamMembers", "public"."projects"."githubUrl", "public"."projects"."demoUrl", "public"."projects"."videoUrl", "public"."projects"."presentationUrl", "public"."projects"."technologies", "public"."projects"."status"::text, "public"."projects"."hackathonId", "public"."projects"."trackId", "public"."projects"."submittedAt", "public"."projects"."createdAt", "public"."projects"."updatedAt" FROM "public"."projects" WHERE ("public"."projects"."id" = $1 AND 1=1) LIMIT $2 OFFSET $3
+prisma:query SELECT "public"."hackathons"."id", "public"."hackathons"."createdById" FROM "public"."hackathons" WHERE "public"."hackathons"."id" IN ($1) OFFSET $2
+prisma:query UPDATE "public"."code_quality_reports" SET "overallScore" = $1, "technicalScore" = $2, "maintainabilityScore" = $3, "securityScore" = $4, "documentationScore" = $5, "testCoverageScore" = $6, "performanceScore" = $7, "richnessScore" = $8, "codeSmellsCount" = $9, "bugsCount" = $10, "vulnerabilitiesCount" = $11, "duplicatedLinesCount" = $12, "totalLinesAnalyzed" = $13, "fileAnalysis" = $14, "recommendations" = $15, "strengths" = $16, "improvements" = $17, "analysisTimeMs" = $18, "aiModel" = $19, "updatedAt" = $20 WHERE ("public"."code_quality_reports"."id" = $21 AND 1=1) RETURNING "public"."code_quality_reports"."id", "public"."code_quality_reports"."projectId", "public"."code_quality_reports"."repositoryUrl", "public"."code_quality_reports"."status"::text, "public"."code_quality_reports"."overallScore", "public"."code_quality_reports"."technicalScore", "public"."code_quality_reports"."maintainabilityScore", "public"."code_quality_reports"."securityScore", "public"."code_quality_reports"."documentationScore", "public"."code_quality_reports"."testCoverageScore", "public"."code_quality_reports"."performanceScore", "public"."code_quality_reports"."richnessScore", "public"."code_quality_reports"."codeSmellsCount", "public"."code_quality_reports"."bugsCount", "public"."code_quality_reports"."vulnerabilitiesCount", "public"."code_quality_reports"."duplicatedLinesCount", "public"."code_quality_reports"."totalLinesAnalyzed", "public"."code_quality_reports"."fileAnalysis", "public"."code_quality_reports"."recommendations", "public"."code_quality_reports"."strengths", "public"."code_quality_reports"."improvements", "public"."code_quality_reports"."errorMessage", "public"."code_quality_reports"."analysisErrors", "public"."code_quality_reports"."partialAnalysis", "public"."code_quality_reports"."analysisStartedAt", "public"."code_quality_reports"."analysisCompletedAt", "public"."code_quality_reports"."analysisTimeMs", "public"."code_quality_reports"."aiModel", "public"."code_quality_reports"."aiCost", "public"."code_quality_reports"."createdAt", "public"."code_quality_reports"."updatedAt", "public"."code_quality_reports"."currentStage", "public"."code_quality_reports"."estimatedTimeRemaining", "public"."code_quality_reports"."processedFiles", "public"."code_quality_reports"."progress", "public"."code_quality_reports"."stageProgress", "public"."code_quality_reports"."totalFiles", "public"."code_quality_reports"."scoreEvidence", "public"."code_quality_reports"."scoreJustifications", "public"."code_quality_reports"."repositoryStructure", "public"."code_quality_reports"."packageAnalysis", "public"."code_quality_reports"."configurationAnalysis", "public"."code_quality_reports"."architecturalPatterns", "public"."code_quality_reports"."frameworkUtilization", "public"."code_quality_reports"."structuralComplexity"
+✅ Successfully saved analysis results for report cmfx2k2ey0001f4p8vn81k2ta
+prisma:query SELECT "public"."code_quality_reports"."id", "public"."code_quality_reports"."status"::text, "public"."code_quality_reports"."progress", "public"."code_quality_reports"."currentStage", "public"."code_quality_reports"."totalFiles", "public"."code_quality_reports"."processedFiles", "public"."code_quality_reports"."stageProgress", "public"."code_quality_reports"."estimatedTimeRemaining", "public"."code_quality_reports"."analysisStartedAt", "public"."code_quality_reports"."analysisCompletedAt", "public"."code_quality_reports"."errorMessage", "public"."code_quality_reports"."updatedAt" FROM "public"."code_quality_reports" WHERE ("public"."code_quality_reports"."id" = $1 AND "public"."code_quality_reports"."projectId" = $2) LIMIT $3 OFFSET $4
+ GET /api/projects/cmfuwhcf90001f40sgkpqizhv/code-quality/cmfx2k2ey0001f4p8vn81k2ta/progress 200 in 525ms
+prisma:query SELECT "public"."code_quality_reports"."id", "public"."code_quality_reports"."stageProgress" FROM "public"."code_quality_reports" WHERE ("public"."code_quality_reports"."id" = $1 AND 1=1) LIMIT $2 OFFSET $3
+prisma:query UPDATE "public"."code_quality_reports" SET "stageProgress" = $1, "updatedAt" = $2 WHERE ("public"."code_quality_reports"."id" = $3 AND 1=1) RETURNING "public"."code_quality_reports"."id", "public"."code_quality_reports"."projectId", "public"."code_quality_reports"."repositoryUrl", "public"."code_quality_reports"."status"::text, "public"."code_quality_reports"."overallScore", "public"."code_quality_reports"."technicalScore", "public"."code_quality_reports"."maintainabilityScore", "public"."code_quality_reports"."securityScore", "public"."code_quality_reports"."documentationScore", "public"."code_quality_reports"."testCoverageScore", "public"."code_quality_reports"."performanceScore", "public"."code_quality_reports"."richnessScore", "public"."code_quality_reports"."codeSmellsCount", "public"."code_quality_reports"."bugsCount", "public"."code_quality_reports"."vulnerabilitiesCount", "public"."code_quality_reports"."duplicatedLinesCount", "public"."code_quality_reports"."totalLinesAnalyzed", "public"."code_quality_reports"."fileAnalysis", "public"."code_quality_reports"."recommendations", "public"."code_quality_reports"."strengths", "public"."code_quality_reports"."improvements", "public"."code_quality_reports"."errorMessage", "public"."code_quality_reports"."analysisErrors", "public"."code_quality_reports"."partialAnalysis", "public"."code_quality_reports"."analysisStartedAt", "public"."code_quality_reports"."analysisCompletedAt", "public"."code_quality_reports"."analysisTimeMs", "public"."code_quality_reports"."aiModel", "public"."code_quality_reports"."aiCost", "public"."code_quality_reports"."createdAt", "public"."code_quality_reports"."updatedAt", "public"."code_quality_reports"."currentStage", "public"."code_quality_reports"."estimatedTimeRemaining", "public"."code_quality_reports"."processedFiles", "public"."code_quality_reports"."progress", "public"."code_quality_reports"."stageProgress", "public"."code_quality_reports"."totalFiles", "public"."code_quality_reports"."scoreEvidence", "public"."code_quality_reports"."scoreJustifications", "public"."code_quality_reports"."repositoryStructure", "public"."code_quality_reports"."packageAnalysis", "public"."code_quality_reports"."configurationAnalysis", "public"."code_quality_reports"."architecturalPatterns", "public"."code_quality_reports"."frameworkUtilization", "public"."code_quality_reports"."structuralComplexity"
+[dotenv@17.2.2] injecting env (0) from .env.local -- tip: 📡 version env with Radar: https://dotenvx.com/radar
+[dotenv@17.2.2] injecting env (0) from .env -- tip: 🛠️  run anywhere with `dotenvx run -- yourcommand`
+prisma:query UPDATE "public"."code_quality_reports" SET "progress" = $1, "status" = CAST($2::text AS "public"."ReportStatus"), "analysisCompletedAt" = $3, "analysisTimeMs" = $4, "updatedAt" = $5 WHERE ("public"."code_quality_reports"."id" = $6 AND 1=1) RETURNING "public"."code_quality_reports"."id", "public"."code_quality_reports"."projectId", "public"."code_quality_reports"."repositoryUrl", "public"."code_quality_reports"."status"::text, "public"."code_quality_reports"."overallScore", "public"."code_quality_reports"."technicalScore", "public"."code_quality_reports"."maintainabilityScore", "public"."code_quality_reports"."securityScore", "public"."code_quality_reports"."documentationScore", "public"."code_quality_reports"."testCoverageScore", "public"."code_quality_reports"."performanceScore", "public"."code_quality_reports"."richnessScore", "public"."code_quality_reports"."codeSmellsCount", "public"."code_quality_reports"."bugsCount", "public"."code_quality_reports"."vulnerabilitiesCount", "public"."code_quality_reports"."duplicatedLinesCount", "public"."code_quality_reports"."totalLinesAnalyzed", "public"."code_quality_reports"."fileAnalysis", "public"."code_quality_reports"."recommendations", "public"."code_quality_reports"."strengths", "public"."code_quality_reports"."improvements", "public"."code_quality_reports"."errorMessage", "public"."code_quality_reports"."analysisErrors", "public"."code_quality_reports"."partialAnalysis", "public"."code_quality_reports"."analysisStartedAt", "public"."code_quality_reports"."analysisCompletedAt", "public"."code_quality_reports"."analysisTimeMs", "public"."code_quality_reports"."aiModel", "public"."code_quality_reports"."aiCost", "public"."code_quality_reports"."createdAt", "public"."code_quality_reports"."updatedAt", "public"."code_quality_reports"."currentStage", "public"."code_quality_reports"."estimatedTimeRemaining", "public"."code_quality_reports"."processedFiles", "public"."code_quality_reports"."progress", "public"."code_quality_reports"."stageProgress", "public"."code_quality_reports"."totalFiles", "public"."code_quality_reports"."scoreEvidence", "public"."code_quality_reports"."scoreJustifications", "public"."code_quality_reports"."repositoryStructure", "public"."code_quality_reports"."packageAnalysis", "public"."code_quality_reports"."configurationAnalysis", "public"."code_quality_reports"."architecturalPatterns", "public"."code_quality_reports"."frameworkUtilization", "public"."code_quality_reports"."structuralComplexity"
+Analysis completed for shemmyhubb/FootTime-hub
+prisma:query SELECT "public"."projects"."id", "public"."projects"."name", "public"."projects"."slug", "public"."projects"."description", "public"."projects"."teamName", "public"."projects"."teamMembers", "public"."projects"."githubUrl", "public"."projects"."demoUrl", "public"."projects"."videoUrl", "public"."projects"."presentationUrl", "public"."projects"."technologies", "public"."projects"."status"::text, "public"."projects"."hackathonId", "public"."projects"."trackId", "public"."projects"."submittedAt", "public"."projects"."createdAt", "public"."projects"."updatedAt" FROM "public"."projects" WHERE ("public"."projects"."id" = $1 AND 1=1) LIMIT $2 OFFSET $3
+prisma:query SELECT "public"."hackathons"."id", "public"."hackathons"."createdById" FROM "public"."hackathons" WHERE "public"."hackathons"."id" IN ($1) OFFSET $2
+prisma:query SELECT "public"."code_quality_reports"."id", "public"."code_quality_reports"."status"::text, "public"."code_quality_reports"."progress", "public"."code_quality_reports"."currentStage", "public"."code_quality_reports"."totalFiles", "public"."code_quality_reports"."processedFiles", "public"."code_quality_reports"."stageProgress", "public"."code_quality_reports"."estimatedTimeRemaining", "public"."code_quality_reports"."analysisStartedAt", "public"."code_quality_reports"."analysisCompletedAt", "public"."code_quality_reports"."errorMessage", "public"."code_quality_reports"."updatedAt" FROM "public"."code_quality_reports" WHERE ("public"."code_quality_reports"."id" = $1 AND "public"."code_quality_reports"."projectId" = $2) LIMIT $3 OFFSET $4
+ GET /api/projects/cmfuwhcf90001f40sgkpqizhv/code-quality/cmfx2k2ey0001f4p8vn81k2ta/progress 200 in 575ms
+[dotenv@17.2.2] injecting env (0) from .env.local -- tip: 🔐 encrypt with Dotenvx: https://dotenvx.com
+[dotenv@17.2.2] injecting env (0) from .env -- tip: 📡 auto-backup env with Radar: https://dotenvx.com/radar

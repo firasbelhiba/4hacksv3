@@ -1,0 +1,33 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(find . -name \"*.service.ts\" -type f -exec sed -i 's/hackathons: {$/hackathon: {/g' {} ;)",
+      "Bash(find . -name \"*.service.ts\" -type f -exec sed -i 's/tracks: {$/track: {/g; s/tracks: true/track: true/g' {} ;)",
+      "Bash(find . -name \"*.service.ts\" -type f -exec sed -i 's/projects: {$/project: {/g' {} ;)",
+      "Bash(find . -name \"*.service.ts\" -type f -exec sed -i 's/ai_jury_sessions: {$/session: {/g' {} ;)",
+      "Bash(find . -name \"*.service.ts\" -type f -exec sed -i 's/\\.tracks\\.name/.track.name/g; s/\\.tracks\\.description/.track.description/g' {} ;)",
+      "Bash(find . -name \"*.service.ts\" -type f -exec sed -i 's/\\.ai_jury_sessions/.session/g' {} ;)",
+      "Bash(npm run start:dev)",
+      "Bash(npm run dev)",
+      "Bash(netstat -ano)",
+      "Bash(findstr :4000)",
+      "Bash(taskkill /F /PID 7352)",
+      "Bash(taskkill //F //PID 7352)",
+      "Bash(npx prisma studio)",
+      "Bash(node reset-stuck-report.js)",
+      "Bash(ssh -o StrictHostKeyChecking=no -o ConnectTimeout=10 root@35.95.138.191 \"echo ''Connection successful'' && uname -a\")",
+      "Bash(where sshpass)",
+      "Bash(ssh -o StrictHostKeyChecking=no -o PreferredAuthentications=password -o PubkeyAuthentication=no root@35.95.138.191 \"echo ''Connected'' && cat /etc/os-release\")",
+      "Bash(git add -A)",
+      "Bash(git add docker-compose.yml DOCKER_SETUP.md)",
+      "Bash(git check-ignore -v docker-compose.yml DOCKER_SETUP.md)",
+      "Bash(git add -f docker-compose.yml DOCKER_SETUP.md)",
+      "Bash(git add Dockerfile .dockerignore .env.example)",
+      "Bash(git commit -m \"$(cat <<''EOF''\nfeat: Add Docker configuration for Redis and backend deployment\n\n- Add Dockerfile for production-ready NestJS backend\n- Add .dockerignore to optimize Docker builds\n- Update .env.example with Redis password configuration\n- Support for Docker Compose deployment\n\nGenerated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")",
+      "Bash(git add docker-compose.yml DOCKER_SETUP.md backend)",
+      "Bash(git ls-tree HEAD)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

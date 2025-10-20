@@ -1,0 +1,566 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String        @id @default(cuid())
+  email         String        @unique
+  password      String?
+  name          String
+  role          UserRole      @default(ADMIN)
+  image         String?
+  emailVerified DateTime?
+  lastLoginAt   DateTime?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  accounts      Account[]
+  activityLogs  ActivityLog[]
+  apiKeys       ApiKey[]
+  hackathons    Hackathon[]
+  sessions      Session[]
+  notifications Notification[]
+
+  @@map("users")
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@map("accounts")
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+  @@map("verification_tokens")
+}
+
+model Hackathon {
+  id               String         @id @default(cuid())
+  name             String
+  slug             String         @unique
+  description      String
+  startDate        DateTime
+  endDate          DateTime
+  prizePool        String?
+  organizationName String
+  bannerImage      String?
+  settings         Json           @default("{}")
+  createdById      String
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+  createdBy        User           @relation(fields: [createdById], references: [id], onDelete: Cascade)
+  projects         Project[]
+  tournament       Tournament?
+  tracks           Track[]
+  aiJurySessions   AIJurySession[]
+
+  @@index([slug])
+  @@index([createdById])
+  @@map("hackathons")
+}
+
+model Track {
+  id                  String    @id @default(cuid())
+  name                String
+  description         String
+  prize               String?
+  order               Int       @default(0)
+  eligibilityCriteria Json?
+  hackathonId         String
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+  projects            Project[]
+  hackathon           Hackathon @relation(fields: [hackathonId], references: [id], onDelete: Cascade)
+
+  @@index([hackathonId])
+  @@index([order])
+  @@map("tracks")
+}
+
+model Project {
+  id                 String              @id @default(cuid())
+  name               String
+  slug               String
+  description        String
+  teamName           String
+  teamMembers        Json                @default("[]")
+  githubUrl          String
+  demoUrl            String?
+  videoUrl           String?
+  presentationUrl    String?
+  technologies       String[]
+  status             ProjectStatus       @default(SUBMITTED)
+  hackathonId        String
+  trackId            String
+  submittedAt        DateTime?
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+  codeQualityReports CodeQualityReport[]
+  coherenceReports   CoherenceReport[]
+  evaluation         Evaluation?
+  innovationReports  InnovationReport[]
+  hederaReports      HederaAnalysisReport[]
+  eligibilityReports EligibilityReport[]
+  hackathon          Hackathon           @relation(fields: [hackathonId], references: [id], onDelete: Cascade)
+  track              Track               @relation(fields: [trackId], references: [id], onDelete: Cascade)
+  project1Matches    TournamentMatch[]   @relation("Project1")
+  project2Matches    TournamentMatch[]   @relation("Project2")
+  wonMatches         TournamentMatch[]   @relation("Winner")
+
+  @@unique([hackathonId, slug])
+  @@index([hackathonId])
+  @@index([trackId])
+  @@map("projects")
+}
+
+model Evaluation {
+  id                 String           @id @default(cuid())
+  projectId          String           @unique
+  overallScore       Float            @default(0)
+  technicalScore     Float            @default(0)
+  innovationScore    Float            @default(0)
+  businessScore      Float            @default(0)
+  documentationScore Float            @default(0)
+  presentationScore  Float            @default(0)
+  plagiarismScore    Float            @default(0)
+  feedback           Json             @default("{}")
+  strengths          String[]
+  improvements       String[]
+  evaluationDetails  Json             @default("{}")
+  status             EvaluationStatus @default(PENDING)
+  startedAt          DateTime?
+  completedAt        DateTime?
+  evaluationTime     Int?
+  aiModel            String?
+  aiCost             Float?
+  createdAt          DateTime         @default(now())
+  updatedAt          DateTime         @updatedAt
+  project            Project          @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([overallScore])
+  @@map("evaluations")
+}
+
+model Tournament {
+  id           String            @id @default(cuid())
+  hackathonId  String            @unique
+  format       TournamentFormat  @default(SINGLE_ELIMINATION)
+  currentRound Int               @default(1)
+  totalRounds  Int               @default(1)
+  status       TournamentStatus  @default(NOT_STARTED)
+  brackets     Json              @default("{}")
+  createdAt    DateTime          @default(now())
+  updatedAt    DateTime          @updatedAt
+  matches      TournamentMatch[]
+  hackathon    Hackathon         @relation(fields: [hackathonId], references: [id], onDelete: Cascade)
+
+  @@map("tournaments")
+}
+
+model TournamentMatch {
+  id           String      @id @default(cuid())
+  tournamentId String
+  round        Int
+  matchNumber  Int
+  project1Id   String?
+  project2Id   String?
+  winnerId     String?
+  score1       Float?
+  score2       Float?
+  status       MatchStatus @default(PENDING)
+  scheduledAt  DateTime?
+  completedAt  DateTime?
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+  project1     Project?    @relation("Project1", fields: [project1Id], references: [id])
+  project2     Project?    @relation("Project2", fields: [project2Id], references: [id])
+  tournament   Tournament  @relation(fields: [tournamentId], references: [id], onDelete: Cascade)
+  winner       Project?    @relation("Winner", fields: [winnerId], references: [id])
+
+  @@index([tournamentId])
+  @@index([round])
+  @@map("tournament_matches")
+}
+
+model ActivityLog {
+  id         String   @id @default(cuid())
+  userId     String?
+  action     String
+  entityType String
+  entityId   String
+  metadata   Json?
+  ipAddress  String?
+  userAgent  String?
+  createdAt  DateTime @default(now())
+  user       User?    @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([entityType, entityId])
+  @@index([createdAt])
+  @@map("activity_logs")
+}
+
+model ApiKey {
+  id          String    @id @default(cuid())
+  key         String    @unique
+  name        String
+  userId      String
+  permissions String[]
+  lastUsedAt  DateTime?
+  expiresAt   DateTime?
+  active      Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([active])
+  @@index([expiresAt])
+  @@map("api_keys")
+}
+
+model CodeQualityReport {
+  id                     String       @id @default(cuid())
+  projectId              String
+  repositoryUrl          String
+  status                 ReportStatus @default(PENDING)
+  overallScore           Float?
+  technicalScore         Float?
+  securityScore          Float?
+  documentationScore     Float?
+  performanceScore       Float?
+  richnessScore          Float?
+  codeSmellsCount        Int?
+  bugsCount              Int?
+  vulnerabilitiesCount   Int?
+  duplicatedLinesCount   Int?
+  totalLinesAnalyzed     Int?
+  fileAnalysis           Json         @default("{}")
+  recommendations        Json         @default("[]")
+  strengths              String[]
+  improvements           String[]
+  errorMessage           String?
+  analysisErrors         String[]     @default([])
+  partialAnalysis        Boolean      @default(false)
+  analysisStartedAt      DateTime?
+  analysisCompletedAt    DateTime?
+  analysisTimeMs         Int?
+  aiModel                String?
+  aiCost                 Float?
+  createdAt              DateTime     @default(now())
+  updatedAt              DateTime     @updatedAt
+  currentStage           String?
+  estimatedTimeRemaining Int?
+  processedFiles         Int?
+  progress               Float        @default(0)
+  stageProgress          Json         @default("{}")
+  totalFiles             Int?
+  scoreEvidence          Json         @default("{}")
+  scoreJustifications    Json         @default("{}")
+  repositoryStructure    Json         @default("{}")
+  packageAnalysis        Json         @default("{}")
+  configurationAnalysis  Json         @default("{}")
+  architecturalPatterns  Json         @default("[]")
+  frameworkUtilization   Json         @default("[]")
+  structuralComplexity   Json         @default("{}")
+  project                Project      @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([projectId])
+  @@index([status])
+  @@index([overallScore])
+  @@map("code_quality_reports")
+}
+
+model CoherenceReport {
+  id                    String       @id @default(cuid())
+  projectId             String
+  score                 Float
+  summary               String
+  trackAlignment        Float
+  readmeExists          Boolean
+  readmeQuality         Float
+  projectPurpose        String
+  trackJustification    String
+  inconsistencies       Json
+  suggestions           Json
+  evidence              Json
+  agentModel            String
+  processingTime        Int
+  status                ReportStatus @default(PENDING)
+  // Progress tracking fields
+  progress              Float        @default(0)
+  currentStage          String?
+  stageProgress         Json         @default("{}")
+  analysisStartedAt     DateTime?
+  analysisCompletedAt   DateTime?
+  analysisTimeMs        Int?
+  errorMessage          String?
+  createdAt             DateTime     @default(now())
+  updatedAt             DateTime     @updatedAt
+  project               Project      @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([projectId])
+  @@index([status])
+  @@index([score])
+  @@map("coherence_reports")
+}
+
+model InnovationReport {
+  id                       String       @id @default(cuid())
+  projectId                String
+  score                    Float
+  summary                  String
+  noveltyScore             Float
+  creativityScore          Float
+  technicalInnovation      Float
+  marketInnovation         Float
+  implementationInnovation Float
+  similarProjects          Json
+  uniqueAspects            Json
+  innovationEvidence       Json
+  potentialImpact          String
+  patentPotential          Boolean
+  patentabilityScore       Float?       // AI-generated patent score (0-100)
+  patentAssessment         Json?        // Detailed patent assessment data
+  suggestions              Json
+  agentModel               String
+  processingTime           Int
+  status                   ReportStatus @default(PENDING)
+  createdAt                DateTime     @default(now())
+  updatedAt                DateTime     @updatedAt
+  isArchived               Boolean      @default(false)
+  project                  Project      @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([projectId])
+  @@index([status])
+  @@index([score])
+  @@map("innovation_reports")
+}
+
+model HederaAnalysisReport {
+  id                     String                @id @default(cuid())
+  projectId              String
+  repositoryUrl          String
+  status                 ReportStatus          @default(PENDING)
+  technologyCategory     TechnologyCategory    @default(NO_BLOCKCHAIN)
+  confidence             Float                 @default(0)
+  detectedTechnologies   String[]              @default([])
+  hederaUsageScore       Float?
+  hederaPresenceDetected Boolean               @default(false)
+  complexityLevel        HederaComplexityLevel?
+  presenceEvidence       Json                  @default("[]")
+  evidenceFiles          Json                  @default("[]")
+  detectedPatterns       Json                  @default("{}")
+  libraryUsage           Json                  @default("{}")
+  recommendations        Json                  @default("[]")
+  summary                String?
+  strengths              String[]              @default([])
+  improvements           String[]              @default([])
+  processingTime         Int?
+  agentModel             String?
+  errorMessage           String?
+  // Progress tracking fields
+  progress               Float                 @default(0)
+  currentStage           String?
+  analysisStartedAt      DateTime?
+  analysisCompletedAt    DateTime?
+  createdAt              DateTime              @default(now())
+  updatedAt              DateTime              @updatedAt
+  project                Project               @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([projectId])
+  @@index([status])
+  @@index([technologyCategory])
+  @@index([confidence])
+  @@map("hedera_analysis_reports")
+}
+
+model EligibilityReport {
+  id                 String       @id @default(cuid())
+  projectId          String
+  repositoryUrl      String
+  status             ReportStatus @default(PENDING)
+  eligible           Boolean      @default(false)
+  overallScore       Float        @default(0)
+  reason             String?
+  evidence           Json         @default("{}")
+  criteria           Json         @default("{}")
+  repositoryStatus   String?
+  accessibilityCheck Json        @default("{}")
+  processingTime     Int?
+  agentModel         String?
+  errorMessage       String?
+  createdAt          DateTime     @default(now())
+  updatedAt          DateTime     @updatedAt
+  project            Project      @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([projectId])
+  @@index([status])
+  @@index([eligible])
+  @@map("eligibility_reports")
+}
+
+model Notification {
+  id          String   @id @default(cuid())
+  userId      String
+  type        String   // success, warning, error, info
+  category    String   // system, evaluation, hackathon, project, performance
+  title       String
+  message     String
+  priority    String   @default("medium") // low, medium, high, urgent
+  read        Boolean  @default(false)
+  actionUrl   String?
+  actionLabel String?
+  metadata    Json     @default("{}")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([read])
+  @@index([createdAt])
+  @@map("notifications")
+}
+
+model AIJurySession {
+  id                 String               @id @default(cuid())
+  hackathonId        String
+  eligibilityCriteria Json                @default("{}")
+  status             JurySessionStatus    @default(PENDING)
+  currentLayer       Int                  @default(1)
+  totalLayers        Int                  @default(4)
+  layerResults       Json                 @default("{}")
+  finalResults       Json                 @default("{}")
+  totalProjects      Int                  @default(0)
+  eliminatedProjects Int                  @default(0)
+  createdAt          DateTime             @default(now())
+  updatedAt          DateTime             @updatedAt
+  hackathon          Hackathon            @relation(fields: [hackathonId], references: [id], onDelete: Cascade)
+  layerResults_rel   AIJuryLayerResult[]
+
+  @@index([hackathonId])
+  @@index([status])
+  @@map("ai_jury_sessions")
+}
+
+model AIJuryLayerResult {
+  id             String        @id @default(cuid())
+  sessionId      String
+  layer          Int
+  projectId      String
+  eliminated     Boolean       @default(false)
+  score          Float?
+  reason         String?
+  evidence       Json          @default("{}")
+  processedAt    DateTime      @default(now())
+  session        AIJurySession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  @@index([sessionId])
+  @@index([layer])
+  @@index([projectId])
+  @@index([eliminated])
+  @@map("ai_jury_layer_results")
+}
+
+enum JurySessionStatus {
+  PENDING
+  LAYER_1_ELIGIBILITY
+  LAYER_2_HEDERA
+  LAYER_3_CODE_QUALITY
+  LAYER_4_FINAL_ANALYSIS
+  COMPLETED
+  FAILED
+}
+
+enum UserRole {
+  ADMIN
+  SUPER_ADMIN
+}
+
+enum ProjectStatus {
+  SUBMITTED
+  EVALUATING
+  EVALUATED
+  DISQUALIFIED
+}
+
+enum EvaluationStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+  FAILED
+}
+
+enum TournamentFormat {
+  SINGLE_ELIMINATION
+  DOUBLE_ELIMINATION
+  ROUND_ROBIN
+  SWISS
+}
+
+enum TournamentStatus {
+  NOT_STARTED
+  IN_PROGRESS
+  COMPLETED
+}
+
+enum MatchStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+}
+
+enum ReportStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+  FAILED
+}
+
+enum TechnologyCategory {
+  HEDERA
+  OTHER_BLOCKCHAIN
+  NO_BLOCKCHAIN
+}
+
+
+enum HederaComplexityLevel {
+  SIMPLE
+  MODERATE
+  ADVANCED
+}

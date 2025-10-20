@@ -1,0 +1,77 @@
+version: '3.8'
+
+services:
+  # Redis Service
+  redis:
+    image: redis:7-alpine
+    container_name: fourhacks-redis
+    restart: always
+    ports:
+      - "6379:6379"
+    command: redis-server --requirepass 4hacks_redis_2025!
+    volumes:
+      - redis_data:/data
+    networks:
+      - fourhacks-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "4hacks_redis_2025!", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+
+  # PostgreSQL Service (optional - if you want to run it in Docker too)
+  postgres:
+    image: postgres:16-alpine
+    container_name: fourhacks-postgres
+    restart: always
+    ports:
+      - "9000:5432"  # Expose as port 9000 to match your current setup
+    environment:
+      POSTGRES_USER: forhacks_user
+      POSTGRES_PASSWORD: forhacks_dev_pass
+      POSTGRES_DB: fourhacks
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - fourhacks-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U forhacks_user -d fourhacks"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+
+  # Backend NestJS Application (optional - for full deployment)
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: fourhacks-backend
+    restart: always
+    ports:
+      - "4000:4000"
+    environment:
+      NODE_ENV: production
+      PORT: 4000
+      DATABASE_URL: postgresql://forhacks_user:forhacks_dev_pass@postgres:5432/fourhacks?schema=public
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      REDIS_PASSWORD: 4hacks_redis_2025!
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - fourhacks-network
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+      - /app/dist
+
+volumes:
+  redis_data:
+  postgres_data:
+
+networks:
+  fourhacks-network:
+    driver: bridge
