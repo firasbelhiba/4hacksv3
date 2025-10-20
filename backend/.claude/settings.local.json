@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm run build)",
+      "Read(//c/Users/firas/OneDrive/Documents/workhole 2/4hacks v2/forhacks - Copy (2)/src/components/projects/**)",
+      "Read(//c/Users/firas/OneDrive/Documents/workhole 2/4hacks v2/forhacks - Copy (2)/src/**)",
+      "Read(//c/Users/firas/OneDrive/Documents/workhole 2/4hacks v2/forhacks - Copy (2)/src/app/dashboard/hackathons/[id]/projects/**)",
+      "Read(//c/Users/firas/OneDrive/Documents/workhole 2/4hacks v2/forhacks - Copy (2)/src/lib/api/**)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
