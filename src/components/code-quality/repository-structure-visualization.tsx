@@ -151,18 +151,20 @@ const ArchitecturalPatternsCard: React.FC<{ patterns: any[] }> = ({ patterns }) 
                 <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
                   {pattern.description}
                 </p>
-                <div className="space-y-2">
-                  <h5 className="text-sm font-medium text-gray-700 dark:text-gray-300">Evidence:</h5>
-                  <ul className="text-sm text-gray-600 dark:text-gray-400 space-y-1">
-                    {pattern.evidence.map((evidence: string, i: number) => (
-                      <li key={i} className="flex items-start gap-2">
-                        <ArrowRightIcon className="w-3 h-3 mt-1 text-gray-400 flex-shrink-0" />
-                        <span>{evidence}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-                {pattern.files.length > 0 && (
+                {pattern.evidence && pattern.evidence.length > 0 && (
+                  <div className="space-y-2">
+                    <h5 className="text-sm font-medium text-gray-700 dark:text-gray-300">Evidence:</h5>
+                    <ul className="text-sm text-gray-600 dark:text-gray-400 space-y-1">
+                      {pattern.evidence.map((evidence: string, i: number) => (
+                        <li key={i} className="flex items-start gap-2">
+                          <ArrowRightIcon className="w-3 h-3 mt-1 text-gray-400 flex-shrink-0" />
+                          <span>{evidence}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+                {pattern.files && pattern.files.length > 0 && (
                   <div className="mt-3">
                     <h5 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                       Affected Files ({pattern.files.length}):
@@ -223,7 +225,7 @@ const FrameworkUtilizationCard: React.FC<{ frameworks: any[] }> = ({ frameworks 
                 </div>
 
                 <div className="grid md:grid-cols-2 gap-4 mt-3">
-                  {framework.advancedFeatures.length > 0 && (
+                  {framework.advancedFeatures && framework.advancedFeatures.length > 0 && (
                     <div>
                       <h5 className="text-sm font-medium text-green-700 dark:text-green-400 mb-2">
                         Advanced Features:
@@ -239,7 +241,7 @@ const FrameworkUtilizationCard: React.FC<{ frameworks: any[] }> = ({ frameworks 
                     </div>
                   )}
 
-                  {framework.customImplementations.length > 0 && (
+                  {framework.customImplementations && framework.customImplementations.length > 0 && (
                     <div>
                       <h5 className="text-sm font-medium text-purple-700 dark:text-purple-400 mb-2">
                         Custom Implementations:

@@ -130,6 +130,12 @@ export default function CodeQualityReportPage() {
   const [refreshing, setRefreshing] = useState(false);
   const [expandedEvidence, setExpandedEvidence] = useState<Record<string, boolean>>({});
   const [deleting, setDeleting] = useState<string | null>(null);
+  const [analyzing, setAnalyzing] = useState(false);
+  const [currentAnalysisReportId, setCurrentAnalysisReportId] = useState<string | null>(null);
+  const [analysisProgress, setAnalysisProgress] = useState<{
+    progress: number;
+    currentStage: string | null;
+  }>({ progress: 0, currentStage: null });
 
   const projectId = params.id as string;
 
@@ -277,7 +283,9 @@ export default function CodeQualityReportPage() {
       }
     } catch (err) {
       console.error('Error fetching reports:', err);
-      setError(err instanceof Error ? err.message : 'Failed to load reports');
+      const errorMessage = err instanceof Error ? err.message : 'Failed to load reports';
+      setError(errorMessage);
+      toast.error(errorMessage);
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -291,6 +299,9 @@ export default function CodeQualityReportPage() {
 
   const startNewAnalysis = async () => {
     try {
+      setAnalyzing(true);
+      setAnalysisProgress({ progress: 0, currentStage: 'Starting analysis...' });
+
       const response = await fetchBackend(`/projects/${projectId}/code-quality`, {
         method: 'POST',
         credentials: 'include',
@@ -302,11 +313,16 @@ export default function CodeQualityReportPage() {
         throw new Error(data.error || 'Failed to start analysis');
       }
 
-      toast.success('New code quality analysis started!');
-      refreshReports();
+      const reportId = data.data.reportId;
+      setCurrentAnalysisReportId(reportId);
+      toast.success('Code quality analysis started!');
+
+      // Don't refresh reports here - let polling handle it
     } catch (error) {
       console.error('Error starting analysis:', error);
       toast.error(error instanceof Error ? error.message : 'Failed to start analysis');
+      setAnalyzing(false);
+      setCurrentAnalysisReportId(null);
     }
   };
 
@@ -356,6 +372,58 @@ export default function CodeQualityReportPage() {
       fetchReports();
     }
   }, [projectId]);
+
+  // Poll for progress when analysis is in progress
+  useEffect(() => {
+    if (!analyzing || !currentAnalysisReportId) return;
+
+    const pollProgress = async () => {
+      try {
+        const response = await fetchBackend(
+          `/projects/${projectId}/code-quality/${currentAnalysisReportId}/progress`,
+          { credentials: 'include' }
+        );
+
+        if (!response.ok) return;
+
+        const data = await response.json();
+        if (!data.success) return;
+
+        const { status, progress, currentStage } = data.data;
+
+        // Update progress
+        setAnalysisProgress({
+          progress: progress || 0,
+          currentStage: currentStage || 'Processing...',
+        });
+
+        // Check if analysis is complete
+        if (status === 'COMPLETED') {
+          setAnalyzing(false);
+          setCurrentAnalysisReportId(null);
+          setAnalysisProgress({ progress: 100, currentStage: 'Completed' });
+          toast.success('Code quality analysis completed!');
+          // Refresh reports to show the new one
+          fetchReports();
+        } else if (status === 'FAILED') {
+          setAnalyzing(false);
+          setCurrentAnalysisReportId(null);
+          toast.error('Analysis failed. Please try again.');
+          fetchReports();
+        }
+      } catch (error) {
+        console.error('Error polling progress:', error);
+      }
+    };
+
+    // Poll immediately
+    pollProgress();
+
+    // Then poll every 2 seconds
+    const interval = setInterval(pollProgress, 2000);
+
+    return () => clearInterval(interval);
+  }, [analyzing, currentAnalysisReportId, projectId]);
 
   if (loading) {
     return (
@@ -468,10 +536,20 @@ export default function CodeQualityReportPage() {
               </Button>
               <Button
                 onClick={startNewAnalysis}
+                disabled={analyzing}
                 className="bg-white/20 hover:bg-white/30 text-white border-white/20 backdrop-blur-sm transition-all duration-200"
               >
-                <Zap className="w-4 h-4 mr-2" />
-                New Analysis
+                {analyzing ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Analyzing... {analysisProgress.progress}%
+                  </>
+                ) : (
+                  <>
+                    <Zap className="w-4 h-4 mr-2" />
+                    New Analysis
+                  </>
+                )}
               </Button>
             </div>
           </div>
@@ -481,6 +559,31 @@ export default function CodeQualityReportPage() {
         <div className="absolute top-4 right-4 w-32 h-32 bg-white/5 rounded-full blur-xl animate-pulse"></div>
         <div className="absolute bottom-4 left-4 w-24 h-24 bg-white/5 rounded-full blur-xl animate-pulse delay-1000"></div>
       </div>
+
+      {/* Analysis Progress Banner */}
+      {analyzing && (
+        <Card className="border-indigo-200 bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20 shadow-lg">
+          <CardContent className="py-6">
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-3">
+                <Loader2 className="w-6 h-6 animate-spin text-indigo-600" />
+                <div>
+                  <h3 className="font-semibold text-lg text-indigo-900 dark:text-indigo-100">
+                    Analysis in Progress
+                  </h3>
+                  <p className="text-sm text-indigo-700 dark:text-indigo-300">
+                    {analysisProgress.currentStage || 'Processing...'}
+                  </p>
+                </div>
+              </div>
+              <div className="text-right">
+                <div className="text-2xl font-bold text-indigo-600">{analysisProgress.progress}%</div>
+              </div>
+            </div>
+            <Progress value={analysisProgress.progress} className="h-2" />
+          </CardContent>
+        </Card>
+      )}
 
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
         {/* Enhanced Reports List */}
@@ -1157,7 +1260,9 @@ export default function CodeQualityReportPage() {
                       </CardHeader>
                       <CardContent>
                         <div className="space-y-6">
-                          {selectedReport.recommendations.map((rec, index) => (
+                          {selectedReport.recommendations
+                            .filter(rec => rec && (rec.description || rec.category))
+                            .map((rec, index) => (
                             <div
                               key={index}
                               className={`p-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 hover:-translate-y-1 ${
@@ -1179,14 +1284,16 @@ export default function CodeQualityReportPage() {
                                       : 'bg-blue-100 text-blue-800 border-blue-200'
                                   }
                                 >
-                                  {rec.priority.toUpperCase()}
+                                  {rec.priority ? rec.priority.toUpperCase() : 'MEDIUM'}
                                 </Badge>
-                                <span className="font-medium">{rec.category}</span>
+                                <span className="font-medium">{rec.category || 'General'}</span>
                               </div>
-                              <p className="text-sm mb-2">{rec.description}</p>
-                              <p className="text-xs text-muted-foreground">
-                                <strong>Impact:</strong> {rec.impact}
-                              </p>
+                              <p className="text-sm mb-2">{rec.description || 'No description available'}</p>
+                              {rec.impact && (
+                                <p className="text-xs text-muted-foreground">
+                                  <strong>Impact:</strong> {rec.impact}
+                                </p>
+                              )}
                             </div>
                           ))}
                         </div>

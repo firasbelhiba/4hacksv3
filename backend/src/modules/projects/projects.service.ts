@@ -50,6 +50,43 @@ export class ProjectsService {
     return project;
   }
 
+  async findAll(userId: string) {
+    this.logger.log(`Fetching all projects for user ${userId}`);
+
+    const projects = await this.prisma.projects.findMany({
+      where: {
+        hackathon: {
+          createdById: userId,
+        },
+      },
+      include: {
+        hackathon: {
+          select: {
+            id: true,
+            name: true,
+            createdById: true,
+          },
+        },
+        track: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+    });
+
+    this.logger.log(`Found ${projects.length} projects for user ${userId}`);
+
+    return {
+      projects,
+      count: projects.length,
+    };
+  }
+
   async findOne(projectId: string, userId: string) {
     const project = await this.prisma.projects.findFirst({
       where: {

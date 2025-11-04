@@ -1,11 +1,16 @@
 import { Injectable, NotFoundException, ConflictException, Logger } from '@nestjs/common';
+import { InjectQueue } from '@nestjs/bull';
+import { Queue } from 'bull';
 import { PrismaService } from '@/database/prisma.service';
 
 @Injectable()
 export class CodeQualityService {
   private readonly logger = new Logger(CodeQualityService.name);
 
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    @InjectQueue('code-quality') private codeQualityQueue: Queue,
+  ) {}
 
   private async verifyProjectAccess(projectId: string, userId: string) {
     const project = await this.prisma.projects.findFirst({
@@ -64,8 +69,18 @@ export class CodeQualityService {
 
     this.logger.log(`Code quality analysis started for project ${projectId}: report ${report.id}`);
 
-    // Note: Actual background analysis would be triggered here
-    // For now, we just return the report
+    // Queue the background analysis job
+    await this.codeQualityQueue.add(
+      {
+        reportId: report.id,
+        projectId: project.id,
+        githubUrl: project.githubUrl,
+      },
+      {
+        attempts: 3,
+        backoff: { type: 'exponential', delay: 2000 },
+      }
+    );
 
     return {
       reportId: report.id,
@@ -120,5 +135,59 @@ export class CodeQualityService {
       currentStage: report.currentStage,
       updatedAt: report.updatedAt,
     };
+  }
+
+  async getAllReports(projectId: string, userId: string) {
+    await this.verifyProjectAccess(projectId, userId);
+
+    const reports = await this.prisma.code_quality_reports.findMany({
+      where: { projectId },
+      orderBy: { createdAt: 'desc' },
+      include: {
+        project: {
+          include: {
+            hackathon: {
+              select: {
+                id: true,
+                name: true,
+                createdById: true,
+              },
+            },
+            track: {
+              select: {
+                id: true,
+                name: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    this.logger.log(`Retrieved ${reports.length} reports for project ${projectId}`);
+
+    return reports;
+  }
+
+  async deleteReport(reportId: string, projectId: string, userId: string) {
+    await this.verifyProjectAccess(projectId, userId);
+
+    const report = await this.prisma.code_quality_reports.findUnique({
+      where: { id: reportId },
+    });
+
+    if (!report) {
+      throw new NotFoundException('Report not found');
+    }
+
+    if (report.projectId !== projectId) {
+      throw new NotFoundException('Report does not belong to this project');
+    }
+
+    await this.prisma.code_quality_reports.delete({
+      where: { id: reportId },
+    });
+
+    this.logger.log(`Deleted code quality report ${reportId} from project ${projectId}`);
   }
 }

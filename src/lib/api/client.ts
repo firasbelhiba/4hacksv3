@@ -128,7 +128,7 @@ class ApiClient {
       }
       const response = await this.request<{ success: boolean; data: any[]; pagination?: any }>(endpoint);
       // Backend returns { success: true, data: [...], pagination: {...} }
-      return response.data || response;
+      return response;
     },
 
     create: async (data: any) => {

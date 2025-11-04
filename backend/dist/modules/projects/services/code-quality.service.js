@@ -8,14 +8,19 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
+var __param = (this && this.__param) || function (paramIndex, decorator) {
+    return function (target, key) { decorator(target, key, paramIndex); }
+};
 var CodeQualityService_1;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.CodeQualityService = void 0;
 const common_1 = require("@nestjs/common");
+const bull_1 = require("@nestjs/bull");
 const prisma_service_1 = require("../../../database/prisma.service");
 let CodeQualityService = CodeQualityService_1 = class CodeQualityService {
-    constructor(prisma) {
+    constructor(prisma, codeQualityQueue) {
         this.prisma = prisma;
+        this.codeQualityQueue = codeQualityQueue;
         this.logger = new common_1.Logger(CodeQualityService_1.name);
     }
     async verifyProjectAccess(projectId, userId) {
@@ -65,6 +70,14 @@ let CodeQualityService = CodeQualityService_1 = class CodeQualityService {
             },
         });
         this.logger.log(`Code quality analysis started for project ${projectId}: report ${report.id}`);
+        await this.codeQualityQueue.add({
+            reportId: report.id,
+            projectId: project.id,
+            githubUrl: project.githubUrl,
+        }, {
+            attempts: 3,
+            backoff: { type: 'exponential', delay: 2000 },
+        });
         return {
             reportId: report.id,
             status: report.status,
@@ -112,10 +125,55 @@ let CodeQualityService = CodeQualityService_1 = class CodeQualityService {
             updatedAt: report.updatedAt,
         };
     }
+    async getAllReports(projectId, userId) {
+        await this.verifyProjectAccess(projectId, userId);
+        const reports = await this.prisma.code_quality_reports.findMany({
+            where: { projectId },
+            orderBy: { createdAt: 'desc' },
+            include: {
+                project: {
+                    include: {
+                        hackathon: {
+                            select: {
+                                id: true,
+                                name: true,
+                                createdById: true,
+                            },
+                        },
+                        track: {
+                            select: {
+                                id: true,
+                                name: true,
+                            },
+                        },
+                    },
+                },
+            },
+        });
+        this.logger.log(`Retrieved ${reports.length} reports for project ${projectId}`);
+        return reports;
+    }
+    async deleteReport(reportId, projectId, userId) {
+        await this.verifyProjectAccess(projectId, userId);
+        const report = await this.prisma.code_quality_reports.findUnique({
+            where: { id: reportId },
+        });
+        if (!report) {
+            throw new common_1.NotFoundException('Report not found');
+        }
+        if (report.projectId !== projectId) {
+            throw new common_1.NotFoundException('Report does not belong to this project');
+        }
+        await this.prisma.code_quality_reports.delete({
+            where: { id: reportId },
+        });
+        this.logger.log(`Deleted code quality report ${reportId} from project ${projectId}`);
+    }
 };
 exports.CodeQualityService = CodeQualityService;
 exports.CodeQualityService = CodeQualityService = CodeQualityService_1 = __decorate([
     (0, common_1.Injectable)(),
-    __metadata("design:paramtypes", [prisma_service_1.PrismaService])
+    __param(1, (0, bull_1.InjectQueue)('code-quality')),
+    __metadata("design:paramtypes", [prisma_service_1.PrismaService, Object])
 ], CodeQualityService);
 //# sourceMappingURL=code-quality.service.js.map

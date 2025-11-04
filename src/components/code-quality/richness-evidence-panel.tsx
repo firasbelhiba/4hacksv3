@@ -11,7 +11,7 @@ import {
   CodeIcon,
   ArchiveIcon,
   SettingsIcon,
-  ConnectIcon,
+  LinkIcon,
   BrainIcon,
   BarChart3Icon,
   InfoIcon,
@@ -37,93 +37,68 @@ interface RichnessEvidencePanelProps {
 }
 
 const ScoreBreakdownChart: React.FC<{ breakdown: any }> = ({ breakdown }) => {
-  const categories = [
-    { key: 'architecturalPatterns', label: 'Architectural Patterns', weight: '25%', color: 'bg-purple-500' },
-    { key: 'businessLogic', label: 'Business Logic Depth', weight: '25%', color: 'bg-blue-500' },
-    { key: 'frameworkUtilization', label: 'Framework Utilization', weight: '20%', color: 'bg-green-500' },
-    { key: 'codeOrganization', label: 'Code Organization', weight: '15%', color: 'bg-orange-500' },
-    { key: 'integrationComplexity', label: 'Integration Complexity', weight: '15%', color: 'bg-red-500' },
-  ];
+  const richnessScore = breakdown?.richnessScore || 0;
+  const totalFiles = breakdown?.totalFiles || 0;
+
+  const getScoreStatus = (score: number) => {
+    if (score >= 80) return { icon: CheckCircleIcon, color: 'text-green-600', label: 'Complex' };
+    if (score >= 60) return { icon: TrendingUpIcon, color: 'text-blue-600', label: 'Moderate' };
+    if (score >= 40) return { icon: AlertTriangleIcon, color: 'text-orange-600', label: 'Basic' };
+    return { icon: XCircleIcon, color: 'text-red-600', label: 'Very Simple' };
+  };
+
+  const status = getScoreStatus(richnessScore);
+  const StatusIcon = status.icon;
 
   return (
     <div className="space-y-4">
       <h4 className="font-semibold flex items-center gap-2">
         <BarChart3Icon className="w-5 h-5 text-indigo-600" />
-        Richness Score Breakdown
+        Richness Score (Based on File Count)
       </h4>
 
-      {categories.map((category) => {
-        const score = breakdown?.[category.key] || 0;
-        const getScoreStatus = (score: number) => {
-          if (score >= 80) return { icon: CheckCircleIcon, color: 'text-green-600', label: 'Excellent' };
-          if (score >= 60) return { icon: TrendingUpIcon, color: 'text-blue-600', label: 'Good' };
-          if (score >= 40) return { icon: AlertTriangleIcon, color: 'text-orange-600', label: 'Moderate' };
-          return { icon: XCircleIcon, color: 'text-red-600', label: 'Needs Improvement' };
-        };
-
-        const status = getScoreStatus(score);
-        const StatusIcon = status.icon;
-
-        return (
-          <div key={category.key} className="border rounded-lg p-4">
-            <div className="flex items-center justify-between mb-2">
-              <div className="flex items-center gap-2">
-                <StatusIcon className={`w-4 h-4 ${status.color}`} />
-                <span className="font-medium text-sm">{category.label}</span>
-                <Badge variant="outline" className="text-xs">
-                  {category.weight}
-                </Badge>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className={`text-sm font-bold ${status.color}`}>
-                  {score}/100
-                </span>
-                <Badge
-                  variant={score >= 80 ? "default" : score >= 60 ? "secondary" : "outline"}
-                  className="text-xs"
-                >
-                  {status.label}
-                </Badge>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-3">
-              <div className="flex-1">
-                <Progress value={score} className="h-2" />
-              </div>
-              <div className={`w-4 h-2 rounded-full ${category.color}`} />
-            </div>
-
-            <div className="mt-2">
-              <div className="text-xs text-gray-600 dark:text-gray-400">
-                {category.key === 'architecturalPatterns' && 'Presence and implementation of design patterns (MVC, Repository, Service Layer, etc.)'}
-                {category.key === 'businessLogic' && 'Custom algorithms, domain-specific logic, and unique implementations vs templates'}
-                {category.key === 'frameworkUtilization' && 'Advanced framework features usage beyond basic functionality'}
-                {category.key === 'codeOrganization' && 'Module structure, separation of concerns, and code cohesion'}
-                {category.key === 'integrationComplexity' && 'External APIs, databases, and third-party service integrations'}
-              </div>
-            </div>
+      <div className="border rounded-lg p-4">
+        <div className="flex items-center justify-between mb-2">
+          <div className="flex items-center gap-2">
+            <StatusIcon className={`w-4 h-4 ${status.color}`} />
+            <span className="font-medium text-sm">Project Richness</span>
           </div>
-        );
-      })}
+          <div className="flex items-center gap-2">
+            <span className={`text-sm font-bold ${status.color}`}>
+              {richnessScore}/100
+            </span>
+            <Badge
+              variant={richnessScore >= 80 ? "default" : richnessScore >= 60 ? "secondary" : "outline"}
+              className="text-xs"
+            >
+              {status.label}
+            </Badge>
+          </div>
+        </div>
 
-      <div className="bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20 rounded-lg p-4 mt-4">
-        <div className="flex items-center gap-2 mb-2">
-          <DiamondIcon className="w-5 h-5 text-indigo-600" />
-          <span className="font-semibold">Overall Richness Score</span>
+        <div className="flex items-center gap-3">
+          <div className="flex-1">
+            <Progress value={richnessScore} className="h-2" />
+          </div>
+          <div className="w-4 h-2 rounded-full bg-indigo-500" />
         </div>
-        <div className="text-2xl font-bold text-indigo-600">
-          {Math.round(
-            (breakdown?.architecturalPatterns || 0) * 0.25 +
-            (breakdown?.businessLogic || 0) * 0.25 +
-            (breakdown?.frameworkUtilization || 0) * 0.20 +
-            (breakdown?.codeOrganization || 0) * 0.15 +
-            (breakdown?.integrationComplexity || 0) * 0.15
-          )}/100
+
+        <div className="mt-3">
+          <div className="text-xs text-gray-500 dark:text-gray-500 mb-1 font-medium">
+            Total files in repository: {totalFiles}
+          </div>
+          {breakdown?.richnessJustification && (
+            <div className="text-sm text-gray-700 dark:text-gray-300 bg-gray-50 dark:bg-gray-800/50 rounded p-3 mt-2">
+              <div className="flex items-start gap-2">
+                <InfoIcon className="w-4 h-4 text-indigo-600 mt-0.5 flex-shrink-0" />
+                <div className="flex-1">
+                  <span className="font-medium text-xs text-indigo-600 dark:text-indigo-400 block mb-1">WHY THIS SCORE?</span>
+                  <p className="text-xs leading-relaxed">{breakdown.richnessJustification}</p>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
-        <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-          Weighted average based on architectural sophistication and implementation depth
-        </p>
       </div>
     </div>
   );
@@ -260,7 +235,11 @@ const StructuralInsights: React.FC<{ structuralAnalysis: any }> = ({ structuralA
     },
     {
       title: 'Framework Depth',
-      value: Math.round(structuralAnalysis.frameworkUtilization?.reduce((avg: number, fw: any) => avg + fw.utilizationDepth, 0) / Math.max(structuralAnalysis.frameworkUtilization?.length || 1, 1)),
+      value: Math.round(
+        (Array.isArray(structuralAnalysis.frameworkUtilization) && structuralAnalysis.frameworkUtilization.length > 0)
+          ? structuralAnalysis.frameworkUtilization.reduce((avg: number, fw: any) => avg + fw.utilizationDepth, 0) / structuralAnalysis.frameworkUtilization.length
+          : 0
+      ),
       description: 'Average framework utilization',
       icon: CodeIcon,
       color: 'text-green-600'
@@ -269,7 +248,7 @@ const StructuralInsights: React.FC<{ structuralAnalysis: any }> = ({ structuralA
       title: 'Module Cohesion',
       value: structuralAnalysis.structuralComplexity?.cohesionScore || 0,
       description: 'Code organization quality',
-      icon: ConnectIcon,
+      icon: LinkIcon,
       color: 'text-blue-600'
     },
     {

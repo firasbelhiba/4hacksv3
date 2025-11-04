@@ -6,6 +6,38 @@ export declare class ProjectsService {
     constructor(prisma: PrismaService);
     private slugify;
     private verifyProjectAccess;
+    findAll(userId: string): Promise<{
+        projects: ({
+            hackathon: {
+                name: string;
+                id: string;
+                createdById: string;
+            };
+            track: {
+                name: string;
+                id: string;
+            };
+        } & {
+            description: string;
+            name: string;
+            id: string;
+            createdAt: Date;
+            updatedAt: Date;
+            teamName: string;
+            teamMembers: import("@prisma/client/runtime/library").JsonValue;
+            githubUrl: string;
+            demoUrl: string | null;
+            videoUrl: string | null;
+            presentationUrl: string | null;
+            hackathonId: string;
+            trackId: string;
+            status: import(".prisma/client").$Enums.ProjectStatus;
+            slug: string;
+            technologies: string[];
+            submittedAt: Date | null;
+        })[];
+        count: number;
+    }>;
     findOne(projectId: string, userId: string): Promise<{
         hackathon: {
             name: string;

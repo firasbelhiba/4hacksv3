@@ -3,6 +3,39 @@ import { CreateProjectDto, UpdateProjectDto } from './dto';
 export declare class ProjectsController {
     private readonly projectsService;
     constructor(projectsService: ProjectsService);
+    findAll(userId: string): Promise<{
+        success: boolean;
+        data: ({
+            hackathon: {
+                name: string;
+                id: string;
+                createdById: string;
+            };
+            track: {
+                name: string;
+                id: string;
+            };
+        } & {
+            description: string;
+            name: string;
+            id: string;
+            createdAt: Date;
+            updatedAt: Date;
+            teamName: string;
+            teamMembers: import("@prisma/client/runtime/library").JsonValue;
+            githubUrl: string;
+            demoUrl: string | null;
+            videoUrl: string | null;
+            presentationUrl: string | null;
+            hackathonId: string;
+            trackId: string;
+            status: import(".prisma/client").$Enums.ProjectStatus;
+            slug: string;
+            technologies: string[];
+            submittedAt: Date | null;
+        })[];
+        count: number;
+    }>;
     findOne(id: string, userId: string): Promise<{
         success: boolean;
         data: {

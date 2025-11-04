@@ -23,6 +23,51 @@ import { CurrentUser } from '../auth/decorators/current-user.decorator';
 export class ProjectsController {
   constructor(private readonly projectsService: ProjectsService) {}
 
+  @Get()
+  @ApiOperation({
+    summary: 'Get all projects',
+    description: 'Retrieve a list of all projects belonging to the authenticated user\'s hackathons. Returns basic project information including IDs, names, status, GitHub URLs, and associated hackathon/track details.'
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Projects retrieved successfully',
+    schema: {
+      example: {
+        success: true,
+        data: [
+          {
+            id: 'cm2abc123xyz',
+            name: 'DeFi Swap Platform',
+            teamName: 'Team Alpha',
+            description: 'A decentralized exchange',
+            githubUrl: 'https://github.com/user/defi-swap',
+            demoUrl: 'https://demo.example.com',
+            status: 'SUBMITTED',
+            createdAt: '2025-10-30T10:00:00.000Z',
+            hackathon: {
+              id: 'hack123',
+              name: 'Web3 Hackathon 2025'
+            },
+            track: {
+              id: 'track1',
+              name: 'DeFi Track'
+            }
+          }
+        ],
+        count: 1
+      }
+    }
+  })
+  @ApiResponse({ status: 401, description: 'Unauthorized - Invalid or missing JWT token' })
+  async findAll(@CurrentUser('id') userId: string) {
+    const data = await this.projectsService.findAll(userId);
+    return {
+      success: true,
+      data: data.projects,
+      count: data.count,
+    };
+  }
+
   @Get(':id')
   @ApiOperation({
     summary: 'Get project by ID',

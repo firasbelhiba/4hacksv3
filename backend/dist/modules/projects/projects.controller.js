@@ -23,6 +23,14 @@ let ProjectsController = class ProjectsController {
     constructor(projectsService) {
         this.projectsService = projectsService;
     }
+    async findAll(userId) {
+        const data = await this.projectsService.findAll(userId);
+        return {
+            success: true,
+            data: data.projects,
+            count: data.count,
+        };
+    }
     async findOne(id, userId) {
         const project = await this.projectsService.findOne(id, userId);
         return {
@@ -55,6 +63,48 @@ let ProjectsController = class ProjectsController {
     }
 };
 exports.ProjectsController = ProjectsController;
+__decorate([
+    (0, common_1.Get)(),
+    (0, swagger_1.ApiOperation)({
+        summary: 'Get all projects',
+        description: 'Retrieve a list of all projects belonging to the authenticated user\'s hackathons. Returns basic project information including IDs, names, status, GitHub URLs, and associated hackathon/track details.'
+    }),
+    (0, swagger_1.ApiResponse)({
+        status: 200,
+        description: 'Projects retrieved successfully',
+        schema: {
+            example: {
+                success: true,
+                data: [
+                    {
+                        id: 'cm2abc123xyz',
+                        name: 'DeFi Swap Platform',
+                        teamName: 'Team Alpha',
+                        description: 'A decentralized exchange',
+                        githubUrl: 'https://github.com/user/defi-swap',
+                        demoUrl: 'https://demo.example.com',
+                        status: 'SUBMITTED',
+                        createdAt: '2025-10-30T10:00:00.000Z',
+                        hackathon: {
+                            id: 'hack123',
+                            name: 'Web3 Hackathon 2025'
+                        },
+                        track: {
+                            id: 'track1',
+                            name: 'DeFi Track'
+                        }
+                    }
+                ],
+                count: 1
+            }
+        }
+    }),
+    (0, swagger_1.ApiResponse)({ status: 401, description: 'Unauthorized - Invalid or missing JWT token' }),
+    __param(0, (0, current_user_decorator_1.CurrentUser)('id')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", Promise)
+], ProjectsController.prototype, "findAll", null);
 __decorate([
     (0, common_1.Get)(':id'),
     (0, swagger_1.ApiOperation)({
