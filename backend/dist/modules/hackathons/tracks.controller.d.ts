@@ -15,8 +15,8 @@ export declare class TracksController {
             createdAt: Date;
             updatedAt: Date;
             hackathonId: string;
-            prize: string | null;
             order: number;
+            prize: string | null;
             eligibilityCriteria: import("@prisma/client/runtime/library").JsonValue | null;
         })[];
     }>;
@@ -33,8 +33,8 @@ export declare class TracksController {
             createdAt: Date;
             updatedAt: Date;
             hackathonId: string;
-            prize: string | null;
             order: number;
+            prize: string | null;
             eligibilityCriteria: import("@prisma/client/runtime/library").JsonValue | null;
         };
         message: string;
@@ -52,8 +52,8 @@ export declare class TracksController {
             createdAt: Date;
             updatedAt: Date;
             hackathonId: string;
-            prize: string | null;
             order: number;
+            prize: string | null;
             eligibilityCriteria: import("@prisma/client/runtime/library").JsonValue | null;
         })[];
         message: string;

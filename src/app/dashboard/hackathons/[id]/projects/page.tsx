@@ -16,7 +16,19 @@ import {
   GitBranch,
   Brain,
   Trophy,
-  ArrowUpDown
+  ArrowUpDown,
+  Zap,
+  ShieldCheck,
+  XCircle,
+  Save,
+  Package,
+  Trash2,
+  Calendar,
+  Layers,
+  Eye,
+  ExternalLink,
+  RefreshCw,
+  Download
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -31,6 +43,7 @@ import { ProjectCard } from '@/components/projects/project-card';
 import { ProjectDetailModal } from '@/components/projects/project-detail-modal';
 import { ProgressIndicator, defaultAnalysisStages, type AnalysisStage } from '@/components/ui/progress-indicator';
 import { toast } from 'react-hot-toast';
+import * as XLSX from 'xlsx';
 
 import { fetchBackend } from '@/lib/api/fetch-backend';
 interface TeamMember {
@@ -76,6 +89,12 @@ interface Project {
   coherence_reports?: ReportSummary[];
   hedera_analysis_reports?: ReportSummary[];
   code_quality_reports?: ReportSummary[];
+  // Repository status (set after checking)
+  repositoryStatus?: {
+    accessible: boolean;
+    isPublic: boolean;
+    error?: string;
+  };
 }
 
 interface ProjectRankingData {
@@ -108,10 +127,12 @@ interface ProjectsResponse {
   success: boolean;
   data: Project[];
   pagination: {
+    page: number;
+    pageSize: number;
     total: number;
-    limit: number;
-    offset: number;
-    hasMore: boolean;
+    totalPages: number;
+    hasNextPage: boolean;
+    hasPreviousPage: boolean;
   };
 }
 
@@ -189,6 +210,9 @@ export default function HackathonProjectsPage() {
     processedFiles: 0,
     estimatedTimeRemaining: 0
   });
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalProjects, setTotalProjects] = useState(0);
+  const pageSize = 50;
 
   // Coherence review state
   const [coherenceAnalyzingProject, setCoherenceAnalyzingProject] = useState<string | null>(null);
@@ -204,6 +228,41 @@ export default function HackathonProjectsPage() {
   const [loadingRanking, setLoadingRanking] = useState(false);
   const [sortColumn, setSortColumn] = useState('average');
   const [sortDirection, setSortDirection] = useState('desc');
+
+  // Bulk Analysis state
+  const [allProjects, setAllProjects] = useState<Project[]>([]);
+  const [loadingAllProjects, setLoadingAllProjects] = useState(false);
+  const [loadingProgress, setLoadingProgress] = useState(0);
+  const [loadedProjectsCount, setLoadedProjectsCount] = useState(0);
+  const [totalProjectsToLoad, setTotalProjectsToLoad] = useState(0);
+
+  // Eligibility criteria state
+  const [eligibilityCriteria, setEligibilityCriteria] = useState({
+    githubExists: true, // Required
+    isPublic: false, // Optional - check repository is public
+  });
+
+  // Repository check state
+  const [checkingRepositories, setCheckingRepositories] = useState(false);
+  const [checkProgress, setCheckProgress] = useState({ checked: 0, total: 0 });
+
+  // Save batch state
+  const [showSaveBatchModal, setShowSaveBatchModal] = useState(false);
+  const [batchName, setBatchName] = useState('');
+  const [batchDescription, setBatchDescription] = useState('');
+  const [savingBatch, setSavingBatch] = useState(false);
+
+  // Batches state
+  const [batches, setBatches] = useState<any[]>([]);
+  const [loadingBatches, setLoadingBatches] = useState(false);
+  const [selectedBatch, setSelectedBatch] = useState<any>(null);
+
+  // Hedera analysis state
+  const [selectedHederaBatch, setSelectedHederaBatch] = useState<string>('');
+  const [runningHederaAnalysis, setRunningHederaAnalysis] = useState(false);
+  const [hederaResults, setHederaResults] = useState<any[]>([]);
+  const [hederaAnalysisComplete, setHederaAnalysisComplete] = useState(false);
+  const [hederaProgress, setHederaProgress] = useState({ analyzed: 0, total: 0 });
 
   const hackathonId = params.id as string;
 
@@ -515,6 +574,1087 @@ export default function HackathonProjectsPage() {
     return sorted;
   };
 
+  const fetchAllProjects = async () => {
+    setLoadingAllProjects(true);
+    setLoadingProgress(0);
+    setLoadedProjectsCount(0);
+    setTotalProjectsToLoad(totalProjects || 0);
+
+    try {
+      const batchSize = 200;
+      let currentPage = 1;
+      let allFetchedProjects: Project[] = [];
+      let hasMore = true;
+      let total = totalProjects || 0;
+
+      while (hasMore) {
+        // Fetch batch
+        const response = await fetchBackend(
+          `/hackathons/${hackathonId}/projects?page=${currentPage}&pageSize=${batchSize}`,
+          {
+            method: 'GET',
+            credentials: 'include',
+          }
+        );
+
+        if (!response.ok) {
+          throw new Error('Failed to fetch projects');
+        }
+
+        const data: ProjectsResponse = await response.json();
+        if (!data.success) {
+          throw new Error('Failed to fetch projects');
+        }
+
+        // Update total on first batch
+        if (currentPage === 1) {
+          total = data.pagination.total;
+          setTotalProjectsToLoad(total);
+        }
+
+        // Add fetched projects
+        allFetchedProjects = [...allFetchedProjects, ...data.data];
+
+        // Update progress
+        const loadedCount = allFetchedProjects.length;
+        setLoadedProjectsCount(loadedCount);
+        setLoadingProgress(Math.min(Math.round((loadedCount / total) * 100), 100));
+
+        // Check if we have more
+        hasMore = data.pagination.hasNextPage;
+        currentPage++;
+
+        // Small delay to allow UI to update
+        await new Promise(resolve => setTimeout(resolve, 50));
+      }
+
+      // Final update
+      setAllProjects(allFetchedProjects);
+      setLoadedProjectsCount(allFetchedProjects.length);
+      setLoadingProgress(100);
+
+      // Reset progress after completion
+      setTimeout(() => {
+        setLoadingProgress(0);
+      }, 500);
+    } catch (error) {
+      console.error('Error fetching all projects:', error);
+      toast.error('Failed to load all projects for analysis');
+      setLoadingProgress(0);
+      setLoadedProjectsCount(0);
+      setTotalProjectsToLoad(0);
+    } finally {
+      setLoadingAllProjects(false);
+    }
+  };
+
+  const checkAllRepositories = async () => {
+    if (allProjects.length === 0) {
+      toast.error('No projects loaded. Please load projects first.');
+      return;
+    }
+
+    // IMPORTANT: Only check projects with valid GitHub URLs
+    const projectsToCheck = allProjects.filter(p => p.githubUrl && p.githubUrl !== 'N/A');
+
+    if (projectsToCheck.length === 0) {
+      toast.error('No projects with valid GitHub URLs to check.');
+      return;
+    }
+
+    console.log(`[Repository Check] Starting batch check for ${projectsToCheck.length} projects with valid URLs (out of ${allProjects.length} total)`);
+
+    setCheckingRepositories(true);
+    setCheckProgress({ checked: 0, total: projectsToCheck.length });
+
+    try {
+      // Get IDs of only projects with valid GitHub URLs
+      const projectIds = projectsToCheck.map(p => p.id);
+
+      // Split into batches of 100
+      const BATCH_SIZE = 100;
+      const batches = [];
+      for (let i = 0; i < projectIds.length; i += BATCH_SIZE) {
+        batches.push(projectIds.slice(i, i + BATCH_SIZE));
+      }
+
+      console.log(`[Repository Check] Split into ${batches.length} batches of ${BATCH_SIZE}`);
+
+      toast.loading(`Checking repositories... (0/${projectsToCheck.length})`, { id: 'check-repos' });
+
+      let totalChecked = 0;
+      const allResults: any[] = [];
+
+      // Process each batch sequentially
+      for (let batchIndex = 0; batchIndex < batches.length; batchIndex++) {
+        const batch = batches[batchIndex];
+        const batchNumber = batchIndex + 1;
+
+        console.log(`[Repository Check] Processing batch ${batchNumber}/${batches.length} (${batch.length} projects)`);
+
+        // Call backend API for this batch
+        const response = await fetchBackend(`/hackathons/${hackathonId}/projects/check-repositories`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          credentials: 'include',
+          body: JSON.stringify({ projectIds: batch }),
+        });
+
+        if (!response.ok) {
+          throw new Error(`Failed to check batch ${batchNumber}`);
+        }
+
+        const data = await response.json();
+
+        if (!data.success) {
+          throw new Error(`Failed to check batch ${batchNumber}`);
+        }
+
+        // Accumulate results
+        allResults.push(...data.results);
+        totalChecked += batch.length;
+
+        // Update progress
+        setCheckProgress({ checked: totalChecked, total: projectsToCheck.length });
+        toast.loading(`Checking repositories... (${totalChecked}/${projectsToCheck.length})`, { id: 'check-repos' });
+
+        // Update UI with results from this batch
+        const updatedProjects = allProjects.map(project => {
+          // If project has no GitHub URL or N/A, mark it explicitly as not checkable
+          if (!project.githubUrl || project.githubUrl === 'N/A') {
+            return {
+              ...project,
+              repositoryStatus: {
+                accessible: false,
+                isPublic: false,
+                error: 'No GitHub URL provided',
+              },
+            };
+          }
+
+          // Otherwise, find the result from all accumulated results
+          const result = allResults.find((r: any) => r.projectId === project.id);
+          if (result) {
+            return {
+              ...project,
+              repositoryStatus: {
+                accessible: result.accessible,
+                isPublic: result.isPublic,
+                error: result.error,
+              },
+            };
+          }
+          return project;
+        });
+
+        // Update state after each batch
+        setAllProjects(updatedProjects);
+
+        console.log(`[Repository Check] Batch ${batchNumber}/${batches.length} completed. Total checked: ${totalChecked}/${projectsToCheck.length}`);
+      }
+
+      // Final statistics
+      const publicRepos = allResults.filter(r => r.isPublic).length;
+      const privateRepos = allResults.filter(r => r.accessible && !r.isPublic).length;
+      const inaccessibleRepos = allResults.filter(r => !r.accessible).length;
+
+      console.log(`[Repository Check] Final Results:`, {
+        totalProjects: allProjects.length,
+        checkedRepos: allResults.length,
+        public: publicRepos,
+        private: privateRepos,
+        inaccessible: inaccessibleRepos,
+      });
+
+      toast.success(`Checked ${allResults.length} repositories! Found ${publicRepos} public, ${privateRepos} private.`, { id: 'check-repos' });
+    } catch (error) {
+      console.error('Error checking repositories:', error);
+      toast.error('Failed to check repositories', { id: 'check-repos' });
+    } finally {
+      setCheckingRepositories(false);
+    }
+  };
+
+  // Combined function: Load projects + optionally check repositories
+  const runEligibilityAnalysis = async () => {
+    setLoadingAllProjects(true);
+    setLoadingProgress(0);
+    setLoadedProjectsCount(0);
+    setTotalProjectsToLoad(totalProjects || 0);
+
+    try {
+      // Step 1: Load all projects
+      toast.loading('Step 1/2: Loading projects...', { id: 'analysis' });
+
+      const batchSize = 200;
+      let currentPage = 1;
+      let allFetchedProjects: Project[] = [];
+      let hasMore = true;
+      let total = totalProjects || 0;
+
+      while (hasMore) {
+        const response = await fetchBackend(
+          `/hackathons/${hackathonId}/projects?page=${currentPage}&pageSize=${batchSize}`,
+          {
+            method: 'GET',
+            credentials: 'include',
+          }
+        );
+
+        if (!response.ok) {
+          throw new Error('Failed to fetch projects');
+        }
+
+        const data: ProjectsResponse = await response.json();
+        if (!data.success) {
+          throw new Error('Failed to fetch projects');
+        }
+
+        if (currentPage === 1) {
+          total = data.pagination.total;
+          setTotalProjectsToLoad(total);
+        }
+
+        allFetchedProjects = [...allFetchedProjects, ...data.data];
+
+        const loadedCount = allFetchedProjects.length;
+        setLoadedProjectsCount(loadedCount);
+        setLoadingProgress(Math.min(Math.round((loadedCount / total) * 100), 100));
+
+        hasMore = data.pagination.hasNextPage;
+        currentPage++;
+
+        await new Promise(resolve => setTimeout(resolve, 50));
+      }
+
+      setAllProjects(allFetchedProjects);
+      console.log(`[Analysis] Loaded ${allFetchedProjects.length} projects`);
+
+      // Step 2: If "Repository is Public" is checked, run repository check
+      if (eligibilityCriteria.isPublic) {
+        toast.loading('Step 2/2: Checking repositories...', { id: 'analysis' });
+        setCheckingRepositories(true);
+
+        const projectsToCheck = allFetchedProjects.filter(p => p.githubUrl && p.githubUrl !== 'N/A');
+
+        if (projectsToCheck.length > 0) {
+          setCheckProgress({ checked: 0, total: projectsToCheck.length });
+
+          const projectIds = projectsToCheck.map(p => p.id);
+          const BATCH_SIZE = 100;
+          const batches = [];
+          for (let i = 0; i < projectIds.length; i += BATCH_SIZE) {
+            batches.push(projectIds.slice(i, i + BATCH_SIZE));
+          }
+
+          console.log(`[Analysis] Checking ${projectsToCheck.length} repositories in ${batches.length} batches`);
+
+          let totalChecked = 0;
+          const allResults: any[] = [];
+
+          for (let batchIndex = 0; batchIndex < batches.length; batchIndex++) {
+            const batch = batches[batchIndex];
+            const batchNumber = batchIndex + 1;
+
+            const response = await fetchBackend(`/hackathons/${hackathonId}/projects/check-repositories`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              credentials: 'include',
+              body: JSON.stringify({ projectIds: batch }),
+            });
+
+            if (!response.ok) {
+              throw new Error(`Failed to check batch ${batchNumber}`);
+            }
+
+            const data = await response.json();
+
+            if (!data.success) {
+              throw new Error(`Failed to check batch ${batchNumber}`);
+            }
+
+            allResults.push(...data.results);
+            totalChecked += batch.length;
+
+            setCheckProgress({ checked: totalChecked, total: projectsToCheck.length });
+            toast.loading(`Step 2/2: Checking repositories (${totalChecked}/${projectsToCheck.length})...`, { id: 'analysis' });
+
+            const updatedProjects = allFetchedProjects.map(project => {
+              if (!project.githubUrl || project.githubUrl === 'N/A') {
+                return {
+                  ...project,
+                  repositoryStatus: {
+                    accessible: false,
+                    isPublic: false,
+                    error: 'No GitHub URL provided',
+                  },
+                };
+              }
+
+              const result = allResults.find((r: any) => r.projectId === project.id);
+              if (result) {
+                return {
+                  ...project,
+                  repositoryStatus: {
+                    accessible: result.accessible,
+                    isPublic: result.isPublic,
+                    error: result.error,
+                  },
+                };
+              }
+              return project;
+            });
+
+            allFetchedProjects = updatedProjects;
+            setAllProjects(updatedProjects);
+          }
+
+          const publicRepos = allResults.filter(r => r.isPublic).length;
+          const privateRepos = allResults.filter(r => r.accessible && !r.isPublic).length;
+
+          console.log(`[Analysis] Repository check completed: ${publicRepos} public, ${privateRepos} private`);
+        }
+
+        setCheckingRepositories(false);
+      }
+
+      // Final success message
+      const eligible = allFetchedProjects.filter(project => {
+        if (eligibilityCriteria.githubExists) {
+          if (!project.githubUrl || project.githubUrl === 'N/A') return false;
+        }
+        if (eligibilityCriteria.isPublic) {
+          if (!project.repositoryStatus || !project.repositoryStatus.isPublic) return false;
+        }
+        return true;
+      });
+
+      toast.success(`Analysis complete! Found ${eligible.length} eligible projects.`, { id: 'analysis' });
+      setLoadingProgress(0);
+
+    } catch (error) {
+      console.error('Error running eligibility analysis:', error);
+      toast.error('Failed to run analysis', { id: 'analysis' });
+      setLoadingProgress(0);
+      setLoadedProjectsCount(0);
+      setTotalProjectsToLoad(0);
+    } finally {
+      setLoadingAllProjects(false);
+      setCheckingRepositories(false);
+    }
+  };
+
+  const saveBatch = async () => {
+    if (!batchName.trim()) {
+      toast.error('Please enter a batch name');
+      return;
+    }
+
+    const eligibleProjects = getEligibleProjects();
+
+    if (eligibleProjects.length === 0) {
+      toast.error('No eligible projects to save');
+      return;
+    }
+
+    setSavingBatch(true);
+
+    try {
+      // Deduplicate project IDs to avoid issues with duplicate entries
+      const uniqueProjectIds = [...new Set(eligibleProjects.map(p => p.id))];
+
+      const payload = {
+        name: batchName,
+        description: batchDescription,
+        projectIds: uniqueProjectIds,
+        criteria: eligibilityCriteria,
+      };
+
+      console.log('[Save Batch] Sending payload:', {
+        hackathonId,
+        originalCount: eligibleProjects.length,
+        uniqueCount: uniqueProjectIds.length,
+        hasDuplicates: eligibleProjects.length !== uniqueProjectIds.length,
+        projectCount: payload.projectIds.length,
+        projectIds: payload.projectIds.slice(0, 5), // First 5 IDs for debugging
+        criteria: payload.criteria,
+      });
+
+      const response = await fetchBackend(`/hackathons/${hackathonId}/eligibility-batches`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify(payload),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || 'Failed to save batch');
+      }
+
+      const data = await response.json();
+
+      if (!data.success) {
+        throw new Error('Failed to save batch');
+      }
+
+      toast.success(`Batch "${batchName}" saved successfully with ${eligibleProjects.length} projects!`);
+      setShowSaveBatchModal(false);
+      setBatchName('');
+      setBatchDescription('');
+
+      // Reload batches list
+      fetchBatches();
+    } catch (error: any) {
+      console.error('Error saving batch:', error);
+      toast.error(error.message || 'Failed to save batch');
+    } finally {
+      setSavingBatch(false);
+    }
+  };
+
+  const fetchBatches = async () => {
+    setLoadingBatches(true);
+    try {
+      const response = await fetchBackend(`/hackathons/${hackathonId}/eligibility-batches`, {
+        method: 'GET',
+        credentials: 'include',
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch batches');
+      }
+
+      const data = await response.json();
+
+      if (!data.success) {
+        throw new Error('Failed to fetch batches');
+      }
+
+      setBatches(data.data);
+    } catch (error) {
+      console.error('Error fetching batches:', error);
+      toast.error('Failed to load batches');
+    } finally {
+      setLoadingBatches(false);
+    }
+  };
+
+  const deleteBatch = async (batchId: string) => {
+    if (!confirm('Are you sure you want to delete this batch?')) {
+      return;
+    }
+
+    try {
+      const response = await fetchBackend(`/hackathons/${hackathonId}/eligibility-batches/${batchId}`, {
+        method: 'DELETE',
+        credentials: 'include',
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to delete batch');
+      }
+
+      toast.success('Batch deleted successfully');
+      fetchBatches();
+    } catch (error) {
+      console.error('Error deleting batch:', error);
+      toast.error('Failed to delete batch');
+    }
+  };
+
+  const viewBatchDetails = async (batchId: string) => {
+    try {
+      const response = await fetchBackend(`/hackathons/${hackathonId}/eligibility-batches/${batchId}`, {
+        method: 'GET',
+        credentials: 'include',
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch batch details');
+      }
+
+      const data = await response.json();
+
+      if (!data.success) {
+        throw new Error('Failed to fetch batch details');
+      }
+
+      setSelectedBatch(data.data);
+    } catch (error) {
+      console.error('Error fetching batch details:', error);
+      toast.error('Failed to load batch details');
+    }
+  };
+
+  const runHederaAnalysis = async () => {
+    if (!selectedHederaBatch) {
+      toast.error('Please select a batch first');
+      return;
+    }
+
+    setRunningHederaAnalysis(true);
+    setHederaAnalysisComplete(false);
+    setHederaResults([]);
+
+    try {
+      // Get the selected batch details to get project IDs
+      const batchResponse = await fetchBackend(`/hackathons/${hackathonId}/eligibility-batches/${selectedHederaBatch}`, {
+        method: 'GET',
+        credentials: 'include',
+      });
+
+      if (!batchResponse.ok) {
+        throw new Error('Failed to fetch batch details');
+      }
+
+      const batchData = await batchResponse.json();
+      if (!batchData.success) {
+        throw new Error('Failed to fetch batch details');
+      }
+
+      const projectIds = batchData.data.batchProjects.map((bp: any) => bp.projectId);
+
+      console.log('[Hedera Analysis] Starting analysis for', projectIds.length, 'projects');
+      console.log('[Hedera Analysis] Project IDs:', projectIds);
+
+      // Initialize progress
+      setHederaProgress({ analyzed: 0, total: projectIds.length });
+
+      // Run Hedera analysis
+      const response = await fetchBackend(`/hackathons/${hackathonId}/hedera-analysis/batch`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify({ projectIds }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        console.error('[Hedera Analysis] Error response:', errorData);
+        throw new Error(errorData.message || 'Failed to run Hedera analysis');
+      }
+
+      const data = await response.json();
+
+      if (!data.success) {
+        throw new Error(data.message || 'Failed to run Hedera analysis');
+      }
+
+      // Poll for results with progress updates
+      await pollHederaResults(projectIds);
+
+      toast.success(data.message || 'Hedera analysis completed successfully');
+      setHederaAnalysisComplete(true);
+    } catch (error: any) {
+      console.error('Error running Hedera analysis:', error);
+      toast.error(error.message || 'Failed to run Hedera analysis');
+    } finally {
+      setRunningHederaAnalysis(false);
+      setHederaProgress({ analyzed: 0, total: 0 });
+    }
+  };
+
+  const pollHederaResults = async (projectIds: string[]) => {
+    // Calculate timeout: 1.5 seconds per project + 2 minute buffer
+    const estimatedSeconds = Math.ceil(projectIds.length * 1.5) + 120;
+    const maxAttempts = estimatedSeconds; // Poll every second
+    const pollInterval = 1000; // Poll every 1 second for real-time updates
+
+    console.log(`[Hedera Analysis] Will poll for up to ${Math.ceil(estimatedSeconds / 60)} minutes`);
+
+    let previousAnalyzedCount = 0;
+
+    for (let attempt = 0; attempt < maxAttempts; attempt++) {
+      await new Promise(resolve => setTimeout(resolve, pollInterval));
+
+      // Fetch current results
+      const results = await Promise.all(
+        projectIds.map(async (projectId) => {
+          try {
+            const project = allProjects.find(p => p.id === projectId);
+            if (!project) return null;
+
+            const response = await fetchBackend(`/projects/${projectId}/hedera-report`, {
+              method: 'GET',
+              credentials: 'include',
+            });
+
+            if (!response.ok) return { project, report: null, analyzed: false };
+
+            const data = await response.json();
+            return {
+              project,
+              report: data.success ? data.data : null,
+              analyzed: data.success && data.data !== null,
+            };
+          } catch (error) {
+            return null;
+          }
+        })
+      );
+
+      const validResults = results.filter(r => r !== null);
+      const analyzedCount = validResults.filter(r => r.analyzed).length;
+
+      // Update progress immediately when count changes
+      if (analyzedCount !== previousAnalyzedCount) {
+        console.log(`[Hedera Analysis] Progress: ${analyzedCount}/${projectIds.length}`);
+        setHederaProgress({ analyzed: analyzedCount, total: projectIds.length });
+        setHederaResults(validResults);
+        previousAnalyzedCount = analyzedCount;
+      }
+
+      // Check if all projects have been analyzed
+      if (analyzedCount >= projectIds.length) {
+        console.log('[Hedera Analysis] All projects analyzed successfully');
+        break;
+      }
+
+      // Log progress every 30 seconds
+      if (attempt > 0 && attempt % 30 === 0) {
+        const elapsed = Math.floor(attempt / 60);
+        const remaining = Math.ceil((projectIds.length - analyzedCount) * 1.5 / 60);
+        console.log(`[Hedera Analysis] ${elapsed}m elapsed, ${analyzedCount}/${projectIds.length} complete, ~${remaining}m remaining`);
+      }
+    }
+
+    // Final check - if we timed out, log the status
+    if (previousAnalyzedCount < projectIds.length) {
+      console.warn(`[Hedera Analysis] Polling timed out. Completed: ${previousAnalyzedCount}/${projectIds.length}`);
+      toast.warning(`Analysis timed out. ${previousAnalyzedCount} of ${projectIds.length} projects completed.`);
+    }
+  };
+
+  const fetchHederaResults = async (projectIds: string[]) => {
+    try {
+      // Fetch hedera reports for the analyzed projects
+      const results = await Promise.all(
+        projectIds.map(async (projectId) => {
+          try {
+            const project = allProjects.find(p => p.id === projectId);
+            if (!project) return null;
+
+            // Fetch hedera report for this project
+            const response = await fetchBackend(`/projects/${projectId}/hedera-report`, {
+              method: 'GET',
+              credentials: 'include',
+            });
+
+            if (!response.ok) return { project, report: null };
+
+            const data = await response.json();
+            return {
+              project,
+              report: data.success ? data.data : null,
+            };
+          } catch (error) {
+            console.error(`Error fetching report for project ${projectId}:`, error);
+            return null;
+          }
+        })
+      );
+
+      const validResults = results.filter(r => r !== null);
+      setHederaResults(validResults);
+    } catch (error) {
+      console.error('Error fetching Hedera results:', error);
+    }
+  };
+
+  const getEligibleProjects = () => {
+    const eligible = allProjects.filter(project => {
+      // Check GitHub exists criterion
+      if (eligibilityCriteria.githubExists) {
+        if (!project.githubUrl || project.githubUrl === 'N/A') {
+          return false;
+        }
+      }
+
+      // Check isPublic criterion - when checked, REQUIRE analysis AND public status
+      if (eligibilityCriteria.isPublic) {
+        // If not analyzed yet, exclude it
+        if (!project.repositoryStatus) {
+          return false;
+        }
+        // If analyzed but not public, exclude it
+        if (!project.repositoryStatus.isPublic) {
+          return false;
+        }
+      }
+
+      // All criteria passed
+      return true;
+    });
+
+    // Log filter results for debugging
+    console.log(`[Filter] Eligible projects:`, {
+      total: allProjects.length,
+      eligible: eligible.length,
+      criteria: eligibilityCriteria,
+      sample: eligible.slice(0, 3).map(p => ({
+        name: p.name,
+        hasUrl: !!p.githubUrl && p.githubUrl !== 'N/A',
+        status: p.repositoryStatus,
+      })),
+    });
+
+    return eligible;
+  };
+
+  const getIneligibleProjects = () => {
+    return allProjects.filter(project => {
+      // Ineligible if it doesn't meet any of the eligible criteria
+      if (eligibilityCriteria.githubExists) {
+        if (!project.githubUrl || project.githubUrl === 'N/A') {
+          return true;
+        }
+      }
+
+      // Check isPublic criterion - when checked, exclude unanalyzed or non-public repos
+      if (eligibilityCriteria.isPublic) {
+        // If not analyzed yet, it's ineligible
+        if (!project.repositoryStatus) {
+          return true;
+        }
+        // If analyzed but not public, it's ineligible
+        if (!project.repositoryStatus.isPublic) {
+          return true;
+        }
+      }
+
+      return false;
+    });
+  };
+
+  const getIneligibilityReason = (project: Project): string => {
+    // Check for missing GitHub URL first
+    if (!project.githubUrl || project.githubUrl === 'N/A') {
+      return 'No GitHub URL';
+    }
+
+    // If we have a repository status, check for specific issues
+    if (project.repositoryStatus) {
+      if (!project.repositoryStatus.accessible) {
+        return 'Inaccessible Repository';
+      }
+      if (project.repositoryStatus.accessible && !project.repositoryStatus.isPublic) {
+        return 'Private Repository';
+      }
+    }
+
+    // Default fallback
+    return 'Does not meet criteria';
+  };
+
+  // Export functions
+  const exportToExcel = (projects: Project[], filename: string) => {
+    try {
+      // Prepare CSV data
+      const headers = ['Project Name', 'Team Name', 'GitHub URL', 'Track', 'Status', 'Reason'];
+      const rows = projects.map(project => [
+        project.name || '',
+        project.teamName || '',
+        project.githubUrl || 'N/A',
+        project.track?.name || 'N/A',
+        getEligibleProjects().some(p => p.id === project.id) ? 'Eligible' : 'Ineligible',
+        getEligibleProjects().some(p => p.id === project.id) ? 'Meets all criteria' : getIneligibilityReason(project)
+      ]);
+
+      // Create CSV content
+      const csvContent = [
+        headers.join(','),
+        ...rows.map(row => row.map(cell => `"${cell}"`).join(','))
+      ].join('\n');
+
+      // Create blob and download
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      const url = URL.createObjectURL(blob);
+      link.setAttribute('href', url);
+      link.setAttribute('download', filename);
+      link.style.visibility = 'hidden';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      toast.success(`Exported ${projects.length} projects to ${filename}`);
+    } catch (error) {
+      console.error('Export error:', error);
+      toast.error('Failed to export projects');
+    }
+  };
+
+  const exportEligibleProjects = () => {
+    const eligible = getEligibleProjects();
+    exportToExcel(eligible, `eligible-projects-${new Date().toISOString().split('T')[0]}.csv`);
+  };
+
+  const exportIneligibleProjects = () => {
+    const ineligible = getIneligibleProjects();
+    exportToExcel(ineligible, `ineligible-projects-${new Date().toISOString().split('T')[0]}.csv`);
+  };
+
+  // Hedera Export Functions
+  const exportHederaToCSV = (results: any[], filename: string, withHedera: boolean) => {
+    try {
+      // Prepare CSV data with Hedera-specific columns
+      const headers = [
+        'Project Name',
+        'Team Name',
+        'GitHub URL',
+        'Hedera Status',
+        'Confidence %',
+        'Technologies',
+        'Complexity Level',
+        'Summary'
+      ];
+
+      const rows = results
+        .filter(r => withHedera ? r.report?.hederaPresenceDetected : !r.report?.hederaPresenceDetected)
+        .map(result => [
+          result.project.name || '',
+          result.project.teamName || '',
+          result.project.githubUrl || 'N/A',
+          result.report?.hederaPresenceDetected ? 'Detected' : 'Not Detected',
+          result.report?.confidence || 0,
+          (result.report?.detectedTechnologies || []).join('; ') || 'None',
+          result.report?.complexityLevel || 'N/A',
+          result.report?.summary || 'N/A'
+        ]);
+
+      // Create CSV content
+      const csvContent = [
+        headers.join(','),
+        ...rows.map(row => row.map(cell => `"${cell}"`).join(','))
+      ].join('\n');
+
+      // Create blob and download
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      const url = URL.createObjectURL(blob);
+      link.setAttribute('href', url);
+      link.setAttribute('download', filename);
+      link.style.visibility = 'hidden';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      toast.success(`Exported ${rows.length} projects to ${filename}`);
+    } catch (error) {
+      console.error('Export error:', error);
+      toast.error('Failed to export projects');
+    }
+  };
+
+  const exportHederaProjects = () => {
+    exportHederaToCSV(
+      hederaResults,
+      `hedera-detected-projects-${new Date().toISOString().split('T')[0]}.csv`,
+      true
+    );
+  };
+
+  const exportNonHederaProjects = () => {
+    exportHederaToCSV(
+      hederaResults,
+      `no-hedera-projects-${new Date().toISOString().split('T')[0]}.csv`,
+      false
+    );
+  };
+
+  // Comprehensive Export All function for batch analysis with Excel formatting and colors
+  const exportAllBatchResults = async () => {
+    try {
+      if (!selectedHederaBatch) {
+        toast.error('Please select a batch first');
+        return;
+      }
+
+      toast.loading('Fetching complete batch data...');
+
+      // Fetch complete batch data with ALL projects
+      const batchResponse = await fetchBackend(`/hackathons/${hackathonId}/eligibility-batches/${selectedHederaBatch}`, {
+        method: 'GET',
+        credentials: 'include',
+      });
+
+      if (!batchResponse.ok) {
+        throw new Error('Failed to fetch batch details');
+      }
+
+      const batchData = await batchResponse.json();
+      if (!batchData.success) {
+        throw new Error('Failed to fetch batch details');
+      }
+
+      const batch = batchData.data;
+      const allBatchProjects = batch.batchProjects || [];
+
+      if (allBatchProjects.length === 0) {
+        toast.error('No projects found in this batch');
+        return;
+      }
+
+      toast.dismiss();
+
+      console.log('[Export] Batch data structure:', batch);
+      console.log('[Export] First project sample:', allBatchProjects[0]);
+
+      // Prepare data with all project details
+      const exportData = allBatchProjects.map((bp: any) => {
+        const project = bp.project;
+        const hederaReport = project.hederaReports?.[0] || null;
+        const eligibilityReport = project.eligibilityReports?.[0] || null;
+
+        // Extract eligibility data from eligibility report
+        const hasGithubRepo = project.githubUrl && project.githubUrl !== 'N/A' && project.githubUrl.trim() !== '';
+
+        // Check if repo is public from eligibility report or accessibility check
+        let isPublicRepo = false;
+        if (eligibilityReport && eligibilityReport.accessibilityCheck) {
+          isPublicRepo = eligibilityReport.accessibilityCheck.isPublic === true;
+        }
+
+        const hasHedera = hederaReport?.hederaPresenceDetected || false;
+
+        // Final eligibility: must have GitHub repo, must be public, and must have Hedera
+        const isEligible = hasGithubRepo && isPublicRepo && hasHedera;
+
+        return {
+          'Project Name': project.name || 'N/A',
+          'Team Name': project.teamName || 'N/A',
+          'GitHub Link': hasGithubRepo ? project.githubUrl : 'N/A',
+          'Demo Link': project.demoUrl || 'N/A',
+          'Video Link': project.videoUrl || 'N/A',
+          'Presentation Link': project.presentationUrl || 'N/A',
+          'Track': project.track?.name || 'N/A',
+          'Existent Github Repo': hasGithubRepo ? 'YES' : 'NO',
+          'Public Github Repo': isPublicRepo ? 'YES' : 'NO',
+          'Hedera Use': hasHedera ? 'YES' : 'NO',
+          'Eligible': isEligible ? 'ELIGIBLE' : 'NOT ELIGIBLE',
+          'Hedera Confidence %': hederaReport?.confidence || 0,
+          'Complexity Level': hederaReport?.complexityLevel || 'N/A',
+          'Hedera Technologies': (hederaReport?.detectedTechnologies || []).join(', ') || 'None',
+          'Hedera Summary': hederaReport?.summary || 'N/A',
+          'Eligibility Reason': eligibilityReport?.reason || 'N/A',
+          'Repository Status': eligibilityReport?.repositoryStatus || 'N/A'
+        };
+      });
+
+      // Create workbook and worksheet
+      const ws = XLSX.utils.json_to_sheet(exportData);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, 'Batch Analysis Results');
+
+      // Set column widths for better readability
+      const colWidths = [
+        { wch: 30 }, // Project Name
+        { wch: 25 }, // Team Name
+        { wch: 50 }, // GitHub Link
+        { wch: 40 }, // Demo Link
+        { wch: 40 }, // Video Link
+        { wch: 40 }, // Presentation Link
+        { wch: 20 }, // Track
+        { wch: 22 }, // Existent Github Repo
+        { wch: 22 }, // Public Github Repo
+        { wch: 15 }, // Hedera Use
+        { wch: 18 }, // Eligible
+        { wch: 20 }, // Hedera Confidence %
+        { wch: 18 }, // Complexity Level
+        { wch: 40 }, // Hedera Technologies
+        { wch: 50 }, // Hedera Summary
+        { wch: 40 }, // Eligibility Reason
+        { wch: 25 }  // Repository Status
+      ];
+      ws['!cols'] = colWidths;
+
+      // Apply cell styling for headers and data
+      const range = XLSX.utils.decode_range(ws['!ref'] || 'A1');
+
+      // Style header row (bold and colored background)
+      for (let C = range.s.c; C <= range.e.c; ++C) {
+        const address = XLSX.utils.encode_col(C) + "1";
+        if (!ws[address]) continue;
+        ws[address].s = {
+          font: { bold: true, color: { rgb: "FFFFFF" } },
+          fill: { fgColor: { rgb: "4472C4" } },
+          alignment: { horizontal: "center", vertical: "center" }
+        };
+      }
+
+      // Style data rows with colors based on eligibility and status
+      for (let R = range.s.r + 1; R <= range.e.r; ++R) {
+        const rowData = exportData[R - 1];
+
+        // Color the "Eligible" column (Column K - index 10)
+        const eligibleCol = 10;
+        const eligibleAddress = XLSX.utils.encode_col(eligibleCol) + (R + 1);
+        if (ws[eligibleAddress]) {
+          ws[eligibleAddress].s = {
+            font: { bold: true, color: { rgb: "FFFFFF" } },
+            fill: { fgColor: { rgb: rowData['Eligible'] === 'ELIGIBLE' ? "00B050" : "FF0000" } },
+            alignment: { horizontal: "center", vertical: "center" }
+          };
+        }
+
+        // Color YES/NO columns with conditional formatting
+        // Columns: Existent Github (7), Public Github (8), Hedera Use (9)
+        const yesNoColumns = [7, 8, 9];
+        yesNoColumns.forEach(col => {
+          const address = XLSX.utils.encode_col(col) + (R + 1);
+          if (ws[address]) {
+            const value = ws[address].v;
+            ws[address].s = {
+              font: { bold: true, color: { rgb: "FFFFFF" } },
+              fill: { fgColor: { rgb: value === 'YES' ? "92D050" : "FFC000" } },
+              alignment: { horizontal: "center", vertical: "center" }
+            };
+          }
+        });
+
+        // Color confidence percentage (Column L - index 11)
+        const confidenceCol = 11;
+        const confidenceAddress = XLSX.utils.encode_col(confidenceCol) + (R + 1);
+        if (ws[confidenceAddress]) {
+          const confidence = rowData['Hedera Confidence %'];
+          let color = "CCCCCC"; // Gray for 0
+          if (confidence >= 80) color = "00B050"; // Green
+          else if (confidence >= 60) color = "92D050"; // Light green
+          else if (confidence >= 40) color = "FFC000"; // Orange
+          else if (confidence > 0) color = "FF6B6B"; // Red
+
+          ws[confidenceAddress].s = {
+            font: { bold: true, color: { rgb: confidence > 0 ? "FFFFFF" : "000000" } },
+            fill: { fgColor: { rgb: color } },
+            alignment: { horizontal: "center", vertical: "center" }
+          };
+        }
+      }
+
+      // Generate filename with date
+      const filename = `batch-analysis-complete-${new Date().toISOString().split('T')[0]}.xlsx`;
+
+      // Write file
+      XLSX.writeFile(wb, filename);
+
+      const eligibleCount = exportData.filter(d => d['Eligible'] === 'ELIGIBLE').length;
+      const withHedera = exportData.filter(d => d['Hedera Use'] === 'YES').length;
+
+      toast.success(
+        `Exported ${exportData.length} projects (${eligibleCount} eligible, ${withHedera} with Hedera) to ${filename}`,
+        { duration: 5000 }
+      );
+    } catch (error) {
+      console.error('Export error:', error);
+      toast.error('Failed to export batch results to Excel');
+    }
+  };
+
   const getScoreColor = (score: number | null | undefined) => {
     if (score === null || score === undefined) return 'text-gray-400';
     if (score >= 80) return 'text-green-600 font-semibold';
@@ -650,8 +1790,8 @@ export default function HackathonProjectsPage() {
 
         setHackathon(hackathonData.data);
 
-        // Fetch projects
-        const projectsResponse = await fetchBackend(`/hackathons/${hackathonId}/projects?limit=50`, {
+        // Fetch projects with pagination
+        const projectsResponse = await fetchBackend(`/hackathons/${hackathonId}/projects?page=${currentPage}&pageSize=${pageSize}`, {
           method: 'GET',
           credentials: 'include',
         });
@@ -666,6 +1806,7 @@ export default function HackathonProjectsPage() {
         }
 
         setProjects(projectsData.data);
+        setTotalProjects(projectsData.pagination.total);
       } catch (err) {
         console.error('Error fetching data:', err);
         setError(err instanceof Error ? err.message : 'An unexpected error occurred');
@@ -678,7 +1819,7 @@ export default function HackathonProjectsPage() {
     if (hackathonId) {
       fetchData();
     }
-  }, [hackathonId]);
+  }, [hackathonId, currentPage]);
 
   // Filter projects based on search and filters
   const filteredProjects = projects.filter(project => {
@@ -768,10 +1909,10 @@ export default function HackathonProjectsPage() {
         stats={[
           {
             label: 'Total Projects',
-            value: projects.length,
+            value: totalProjects,
           },
           {
-            label: 'Filtered Results',
+            label: 'Current Page',
             value: filteredProjects.length,
           },
           {
@@ -792,7 +1933,7 @@ export default function HackathonProjectsPage() {
 
       {/* Tabs */}
       <Tabs defaultValue="projects" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-2">
+        <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="projects" className="flex items-center gap-2">
             <FolderOpen className="w-4 h-4" />
             Projects
@@ -800,6 +1941,14 @@ export default function HackathonProjectsPage() {
           <TabsTrigger value="ranking" className="flex items-center gap-2" onClick={() => fetchRankingData()}>
             <Trophy className="w-4 h-4" />
             Ranking
+          </TabsTrigger>
+          <TabsTrigger value="bulk-analysis" className="flex items-center gap-2">
+            <Zap className="w-4 h-4" />
+            Bulk Analysis
+          </TabsTrigger>
+          <TabsTrigger value="batches" className="flex items-center gap-2" onClick={() => fetchBatches()}>
+            <Package className="w-4 h-4" />
+            Batches
           </TabsTrigger>
         </TabsList>
 
@@ -865,18 +2014,66 @@ export default function HackathonProjectsPage() {
 
           {/* Projects List */}
           {filteredProjects.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredProjects.map((project) => (
-                <ProjectCard
-                  key={project.id}
-                  project={project}
-                  onViewDetails={handleViewDetails}
-                  onAnalyzeCode={handleAnalyzeCode}
-                  onStartCoherenceReview={handleStartCoherenceReview}
-                  isAnalyzing={analyzingProject === project.id}
-                />
-              ))}
-            </div>
+            <>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {filteredProjects.map((project) => (
+                  <ProjectCard
+                    key={project.id}
+                    project={project}
+                    onViewDetails={handleViewDetails}
+                    onAnalyzeCode={handleAnalyzeCode}
+                    onStartCoherenceReview={handleStartCoherenceReview}
+                    isAnalyzing={analyzingProject === project.id}
+                  />
+                ))}
+              </div>
+
+              {/* Pagination Controls */}
+              <Card>
+                <CardContent className="flex items-center justify-between p-6">
+                  <div className="text-sm text-muted-foreground">
+                    Showing {((currentPage - 1) * pageSize) + 1} to {Math.min(currentPage * pageSize, totalProjects)} of {totalProjects} projects
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setCurrentPage(1)}
+                      disabled={currentPage === 1}
+                    >
+                      First
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setCurrentPage(currentPage - 1)}
+                      disabled={currentPage === 1}
+                    >
+                      Previous
+                    </Button>
+                    <div className="flex items-center gap-1 px-2">
+                      <span className="text-sm">Page {currentPage} of {Math.ceil(totalProjects / pageSize)}</span>
+                    </div>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setCurrentPage(currentPage + 1)}
+                      disabled={currentPage >= Math.ceil(totalProjects / pageSize)}
+                    >
+                      Next
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setCurrentPage(Math.ceil(totalProjects / pageSize))}
+                      disabled={currentPage >= Math.ceil(totalProjects / pageSize)}
+                    >
+                      Last
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            </>
           ) : (
             /* Empty State */
             <Card className="border-dashed border-2 border-border/50">
@@ -1081,6 +2278,849 @@ export default function HackathonProjectsPage() {
             </CardContent>
           </Card>
         </TabsContent>
+
+        {/* Bulk Analysis Tab */}
+        <TabsContent value="bulk-analysis" className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Zap className="w-5 h-5 text-blue-500" />
+                Bulk Analysis
+              </CardTitle>
+              <p className="text-sm text-muted-foreground">
+                Run analysis operations on multiple projects at once
+              </p>
+            </CardHeader>
+            <CardContent>
+              {/* Nested Tabs for Bulk Analysis */}
+              <Tabs defaultValue="eligibility" className="space-y-4">
+                <TabsList className="grid w-full grid-cols-2">
+                  <TabsTrigger
+                    value="eligibility"
+                    className="flex items-center gap-2"
+                  >
+                    <ShieldCheck className="w-4 h-4" />
+                    Eligibility Analysis
+                  </TabsTrigger>
+                  <TabsTrigger
+                    value="hedera"
+                    className="flex items-center gap-2"
+                    onClick={() => fetchBatches()}
+                  >
+                    <GitBranch className="w-4 h-4" />
+                    Hedera Analysis
+                  </TabsTrigger>
+                </TabsList>
+
+                {/* Eligibility Analysis Sub-tab */}
+                <TabsContent value="eligibility" className="space-y-4">
+                  {/* Eligibility Criteria Section - Always Visible */}
+                  <Card className="border-blue-200 bg-blue-50 dark:bg-blue-950/20">
+                        <CardHeader>
+                          <CardTitle className="text-sm font-medium text-blue-900 dark:text-blue-100">
+                            Eligibility Criteria
+                          </CardTitle>
+                          <p className="text-xs text-blue-700 dark:text-blue-300">
+                            Projects must meet ALL checked criteria to be considered eligible
+                          </p>
+                        </CardHeader>
+                        <CardContent>
+                          <div className="space-y-3">
+                            {/* GitHub Exists Criterion */}
+                            <div className="flex items-center space-x-3 p-3 bg-white dark:bg-gray-900 rounded-lg border">
+                              <input
+                                type="checkbox"
+                                id="githubExists"
+                                checked={eligibilityCriteria.githubExists}
+                                onChange={(e) => setEligibilityCriteria({
+                                  ...eligibilityCriteria,
+                                  githubExists: e.target.checked
+                                })}
+                                className="w-5 h-5 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2"
+                              />
+                              <label
+                                htmlFor="githubExists"
+                                className="flex-1 text-sm font-medium text-gray-900 dark:text-gray-100 cursor-pointer"
+                              >
+                                GitHub Repository URL Exists
+                              </label>
+                              <Badge variant={eligibilityCriteria.githubExists ? "default" : "outline"} className="text-xs">
+                                {eligibilityCriteria.githubExists ? "Required" : "Optional"}
+                              </Badge>
+                            </div>
+
+                            {/* Repository is Public Criterion */}
+                            <div className="flex items-center space-x-3 p-3 bg-white dark:bg-gray-900 rounded-lg border">
+                              <input
+                                type="checkbox"
+                                id="isPublic"
+                                checked={eligibilityCriteria.isPublic}
+                                onChange={(e) => {
+                                  setEligibilityCriteria({
+                                    ...eligibilityCriteria,
+                                    isPublic: e.target.checked
+                                  });
+                                }}
+                                className="w-5 h-5 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2"
+                              />
+                              <label
+                                htmlFor="isPublic"
+                                className="flex-1 text-sm font-medium text-gray-900 dark:text-gray-100 cursor-pointer"
+                              >
+                                Repository is Public (not private)
+                              </label>
+                              <Badge variant={eligibilityCriteria.isPublic ? "default" : "outline"} className="text-xs">
+                                {eligibilityCriteria.isPublic ? "Required" : "Optional"}
+                              </Badge>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+
+                  {/* Loading State */}
+                  {loadingAllProjects || checkingRepositories ? (
+                    <div className="flex flex-col items-center justify-center py-12 space-y-6">
+                      <LoadingSpinner size="lg" />
+                      <div className="w-full max-w-md space-y-2">
+                        <div className="flex items-center justify-between text-sm">
+                          <span className="text-muted-foreground">
+                            {checkingRepositories
+                              ? 'Checking repositories...'
+                              : 'Loading all projects...'}
+                          </span>
+                          <span className="font-semibold text-blue-600">
+                            {checkingRepositories
+                              ? `${checkProgress.checked} / ${checkProgress.total}`
+                              : `${loadedProjectsCount} / ${totalProjectsToLoad}`}
+                          </span>
+                        </div>
+                        <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
+                          <div
+                            className="bg-gradient-to-r from-blue-500 to-purple-500 h-full rounded-full transition-all duration-300 ease-out"
+                            style={{
+                              width: checkingRepositories
+                                ? `${Math.round((checkProgress.checked / checkProgress.total) * 100)}%`
+                                : `${loadingProgress}%`
+                            }}
+                          />
+                        </div>
+                        <p className="text-xs text-center text-muted-foreground mt-2">
+                          {checkingRepositories ? (
+                            `Step 2/2: Verifying repository accessibility...`
+                          ) : (
+                            loadingProgress < 50
+                              ? 'Step 1/2: Connecting to server...'
+                              : loadingProgress < 90
+                              ? 'Step 1/2: Fetching projects data...'
+                              : 'Step 1/2: Processing results...'
+                          )}
+                        </p>
+                      </div>
+                    </div>
+                  ) : allProjects.length > 0 ? (
+                    <div className="space-y-6">
+                      {/* Summary Cards */}
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {/* Eligible Projects Card */}
+                        <Card className="border-green-200 bg-green-50 dark:bg-green-950/20">
+                          <CardHeader>
+                            <CardTitle className="flex items-center gap-2 text-green-700 dark:text-green-400">
+                              <ShieldCheck className="w-5 h-5" />
+                              Eligible Projects
+                            </CardTitle>
+                          </CardHeader>
+                          <CardContent>
+                            <div className="text-4xl font-bold text-green-600 dark:text-green-400">
+                              {getEligibleProjects().length}
+                            </div>
+                            <p className="text-sm text-green-600 dark:text-green-500 mt-2">
+                              Projects with valid GitHub URLs
+                            </p>
+                          </CardContent>
+                        </Card>
+
+                        {/* Ineligible Projects Card */}
+                        <Card className="border-red-200 bg-red-50 dark:bg-red-950/20">
+                          <CardHeader>
+                            <CardTitle className="flex items-center gap-2 text-red-700 dark:text-red-400">
+                              <XCircle className="w-5 h-5" />
+                              Ineligible Projects
+                            </CardTitle>
+                          </CardHeader>
+                          <CardContent>
+                            <div className="text-4xl font-bold text-red-600 dark:text-red-400">
+                              {getIneligibleProjects().length}
+                            </div>
+                            <p className="text-sm text-red-600 dark:text-red-500 mt-2">
+                              Projects with N/A GitHub URLs
+                            </p>
+                          </CardContent>
+                        </Card>
+                      </div>
+
+                      {/* Export Buttons */}
+                      <div className="flex gap-4">
+                        <Button
+                          onClick={exportEligibleProjects}
+                          disabled={getEligibleProjects().length === 0}
+                          className="flex-1 bg-green-600 hover:bg-green-700 text-white"
+                        >
+                          <Download className="mr-2 w-4 h-4" />
+                          Export Eligible Projects ({getEligibleProjects().length})
+                        </Button>
+                        <Button
+                          onClick={exportIneligibleProjects}
+                          disabled={getIneligibleProjects().length === 0}
+                          variant="outline"
+                          className="flex-1 border-red-500 text-red-600 hover:bg-red-50"
+                        >
+                          <Download className="mr-2 w-4 h-4" />
+                          Export Ineligible Projects ({getIneligibleProjects().length})
+                        </Button>
+                      </div>
+
+                      {/* Debug Statistics Panel */}
+                      <Card className="border-blue-200 bg-blue-50 dark:bg-blue-950/20">
+                        <CardHeader>
+                          <CardTitle className="text-sm font-medium text-blue-900 dark:text-blue-100">
+                            Debug Statistics
+                          </CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                            <div>
+                              <div className="text-xs text-muted-foreground">Total Projects</div>
+                              <div className="text-lg font-semibold">{allProjects.length}</div>
+                            </div>
+                            <div>
+                              <div className="text-xs text-muted-foreground">With GitHub URLs</div>
+                              <div className="text-lg font-semibold">
+                                {allProjects.filter(p => p.githubUrl && p.githubUrl !== 'N/A').length}
+                              </div>
+                            </div>
+                            <div>
+                              <div className="text-xs text-muted-foreground">Analyzed</div>
+                              <div className="text-lg font-semibold">
+                                {allProjects.filter(p => p.repositoryStatus).length}
+                              </div>
+                            </div>
+                            <div>
+                              <div className="text-xs text-muted-foreground">Public Repos</div>
+                              <div className="text-lg font-semibold text-green-600">
+                                {allProjects.filter(p => p.repositoryStatus?.isPublic).length}
+                              </div>
+                            </div>
+                            <div>
+                              <div className="text-xs text-muted-foreground">Private Repos</div>
+                              <div className="text-lg font-semibold text-orange-600">
+                                {allProjects.filter(p => p.repositoryStatus && !p.repositoryStatus.isPublic && p.repositoryStatus.accessible).length}
+                              </div>
+                            </div>
+                            <div>
+                              <div className="text-xs text-muted-foreground">Inaccessible</div>
+                              <div className="text-lg font-semibold text-red-600">
+                                {allProjects.filter(p => p.repositoryStatus && !p.repositoryStatus.accessible).length}
+                              </div>
+                            </div>
+                            <div>
+                              <div className="text-xs text-muted-foreground">N/A URLs</div>
+                              <div className="text-lg font-semibold text-gray-600">
+                                {allProjects.filter(p => !p.githubUrl || p.githubUrl === 'N/A').length}
+                              </div>
+                            </div>
+                            <div>
+                              <div className="text-xs text-muted-foreground">Pending Check</div>
+                              <div className="text-lg font-semibold text-gray-600">
+                                {allProjects.filter(p => (p.githubUrl && p.githubUrl !== 'N/A') && !p.repositoryStatus).length}
+                              </div>
+                            </div>
+                          </div>
+                          <div className="mt-4 pt-4 border-t text-xs text-muted-foreground">
+                            <strong>Active Filters:</strong> {eligibilityCriteria.githubExists && 'GitHub URL exists'}{eligibilityCriteria.githubExists && eligibilityCriteria.isPublic && ' + '}{eligibilityCriteria.isPublic && 'Public repository'}
+                          </div>
+                        </CardContent>
+                      </Card>
+
+                      {/* Eligible Projects List */}
+                      <Card>
+                        <CardHeader>
+                          <div className="flex items-center justify-between">
+                            <div>
+                              <CardTitle className="flex items-center gap-2 text-green-600">
+                                <ShieldCheck className="w-5 h-5" />
+                                Eligible Projects ({getEligibleProjects().length})
+                              </CardTitle>
+                              <p className="text-sm text-muted-foreground">
+                                Projects with valid GitHub repository links
+                              </p>
+                            </div>
+                            {getEligibleProjects().length > 0 && (
+                              <Button
+                                onClick={() => setShowSaveBatchModal(true)}
+                                className="bg-green-600 hover:bg-green-700"
+                              >
+                                <Save className="w-4 h-4 mr-2" />
+                                Save Batch
+                              </Button>
+                            )}
+                          </div>
+                        </CardHeader>
+                        <CardContent>
+                          {getEligibleProjects().length > 0 ? (
+                            <div className="space-y-2 max-h-96 overflow-y-auto">
+                              {getEligibleProjects().map((project) => (
+                                <div
+                                  key={project.id}
+                                  className="flex items-center justify-between p-3 border rounded-lg hover:bg-muted/50 transition-colors"
+                                >
+                                  <div className="flex-1">
+                                    <div className="font-medium">{project.name}</div>
+                                    <div className="text-sm text-muted-foreground flex items-center gap-2 mt-1">
+                                      <Badge variant="outline" className="text-xs">{project.track.name}</Badge>
+                                      <span className="text-xs">{project.teamName}</span>
+                                      {/* Repository Status Badge */}
+                                      {project.repositoryStatus && (
+                                        project.repositoryStatus.isPublic ? (
+                                          <Badge className="text-xs bg-green-500 hover:bg-green-600">Public</Badge>
+                                        ) : project.repositoryStatus.accessible ? (
+                                          <Badge className="text-xs bg-orange-500 hover:bg-orange-600">Private</Badge>
+                                        ) : (
+                                          <Badge variant="outline" className="text-xs text-red-500">Inaccessible</Badge>
+                                        )
+                                      )}
+                                    </div>
+                                  </div>
+                                  <div className="flex items-center gap-2">
+                                    <a
+                                      href={project.githubUrl}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className="text-sm text-blue-500 hover:text-blue-600 hover:underline"
+                                    >
+                                      View GitHub
+                                    </a>
+                                    <ShieldCheck className="w-5 h-5 text-green-500" />
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          ) : (
+                            <div className="text-center py-8 text-muted-foreground">
+                              No eligible projects found
+                            </div>
+                          )}
+                        </CardContent>
+                      </Card>
+
+                      {/* Ineligible Projects List */}
+                      <Card>
+                        <CardHeader>
+                          <CardTitle className="flex items-center gap-2 text-red-600">
+                            <XCircle className="w-5 h-5" />
+                            Ineligible Projects ({getIneligibleProjects().length})
+                          </CardTitle>
+                          <p className="text-sm text-muted-foreground">
+                            Projects without valid GitHub repository links
+                          </p>
+                        </CardHeader>
+                        <CardContent>
+                          {getIneligibleProjects().length > 0 ? (
+                            <div className="space-y-2 max-h-96 overflow-y-auto">
+                              {getIneligibleProjects().map((project) => (
+                                <div
+                                  key={project.id}
+                                  className="flex items-center justify-between p-3 border rounded-lg hover:bg-muted/50 transition-colors"
+                                >
+                                  <div className="flex-1">
+                                    <div className="font-medium">{project.name}</div>
+                                    <div className="text-sm text-muted-foreground flex items-center gap-2 mt-1">
+                                      <Badge variant="outline" className="text-xs">{project.track.name}</Badge>
+                                      <span className="text-xs">{project.teamName}</span>
+                                    </div>
+                                  </div>
+                                  <div className="flex items-center gap-2">
+                                    <Badge variant="destructive" className="text-xs">
+                                      {getIneligibilityReason(project)}
+                                    </Badge>
+                                    <XCircle className="w-5 h-5 text-red-500" />
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          ) : (
+                            <div className="text-center py-8 text-muted-foreground">
+                              All projects have valid GitHub URLs!
+                            </div>
+                          )}
+                        </CardContent>
+                      </Card>
+                    </div>
+                  ) : (
+                    <div className="flex flex-col items-center justify-center py-12 space-y-4">
+                      <div className="w-16 h-16 bg-blue-50 dark:bg-blue-950/50 rounded-full flex items-center justify-center">
+                        <ShieldCheck className="w-8 h-8 text-blue-500" />
+                      </div>
+                      <div className="text-center space-y-2">
+                        <h3 className="text-lg font-semibold text-foreground">
+                          Ready to Run Analysis
+                        </h3>
+                        <p className="text-muted-foreground max-w-md">
+                          Select your eligibility criteria above, then click "Run Analysis" to load and filter projects.
+                        </p>
+                      </div>
+                      <Button
+                        onClick={runEligibilityAnalysis}
+                        className="bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600"
+                        disabled={loadingAllProjects || checkingRepositories}
+                      >
+                        {loadingAllProjects || checkingRepositories ? (
+                          <>
+                            <LoadingSpinner className="mr-2" />
+                            Running Analysis...
+                          </>
+                        ) : (
+                          <>
+                            <ShieldCheck className="mr-2 w-4 h-4" />
+                            Run Analysis
+                          </>
+                        )}
+                      </Button>
+                    </div>
+                  )}
+                </TabsContent>
+
+                {/* Hedera Analysis Sub-tab */}
+                <TabsContent value="hedera" className="space-y-4">
+                  <Card className="border-blue-200 bg-blue-50 dark:bg-blue-950/20">
+                    <CardHeader>
+                      <CardTitle className="text-sm font-medium text-blue-900 dark:text-blue-100 flex items-center gap-2">
+                        <GitBranch className="w-5 h-5" />
+                        Hedera Blockchain Analysis
+                      </CardTitle>
+                      <p className="text-xs text-blue-700 dark:text-blue-300">
+                        Analyze projects for Hedera blockchain integration and usage (Level 1: Fast Detection)
+                      </p>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-4">
+                        {/* Batch Selection */}
+                        <div className="flex items-end gap-4">
+                          <div className="flex-1">
+                            <label htmlFor="hederaBatch" className="block text-sm font-medium mb-2">
+                              Select Eligibility Batch
+                            </label>
+                            <select
+                              id="hederaBatch"
+                              value={selectedHederaBatch}
+                              onChange={(e) => setSelectedHederaBatch(e.target.value)}
+                              className="w-full px-3 py-2 border rounded-md bg-background border-input"
+                              disabled={runningHederaAnalysis}
+                            >
+                              <option value="">Choose a batch to analyze...</option>
+                              {batches.map((batch) => (
+                                <option key={batch.id} value={batch.id}>
+                                  {batch.name} ({batch.totalProjects} projects)
+                                </option>
+                              ))}
+                            </select>
+                          </div>
+                          <Button
+                            onClick={runHederaAnalysis}
+                            disabled={!selectedHederaBatch || runningHederaAnalysis}
+                            className="bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600"
+                          >
+                            {runningHederaAnalysis ? (
+                              <>
+                                <LoadingSpinner className="mr-2" />
+                                Analyzing...
+                              </>
+                            ) : (
+                              <>
+                                <GitBranch className="mr-2 w-4 h-4" />
+                                Run Analysis
+                              </>
+                            )}
+                          </Button>
+
+                          <Button
+                            onClick={async () => {
+                              try {
+                                console.log('[Hedera] Loading all results from database...');
+
+                                // Fetch ALL hedera reports for this hackathon
+                                const response = await fetchBackend(`/hackathons/${hackathonId}/hedera-reports`, {
+                                  method: 'GET',
+                                  credentials: 'include',
+                                });
+
+                                if (!response.ok) {
+                                  throw new Error('Failed to load Hedera reports');
+                                }
+
+                                const data = await response.json();
+                                console.log(`[Hedera] Loaded ${data.data.length} total projects`);
+
+                                // Filter to only include projects with reports
+                                const resultsWithReports = data.data.filter((r: any) => r.report !== null);
+                                console.log(`[Hedera] ${resultsWithReports.length} projects have Hedera reports`);
+
+                                const withHedera = resultsWithReports.filter((r: any) => r.report?.hederaPresenceDetected);
+                                console.log(`[Hedera] ${withHedera.length} projects detected with Hedera`);
+
+                                setHederaResults(resultsWithReports);
+                                setHederaAnalysisComplete(true);
+
+                                toast.success(`Loaded ${resultsWithReports.length} analyzed projects (${withHedera.length} with Hedera)`);
+                              } catch (error: any) {
+                                console.error('[Hedera] Error loading results:', error);
+                                toast.error(error.message || 'Failed to load results');
+                              }
+                            }}
+                            variant="outline"
+                            className="border-blue-500 text-blue-600 hover:bg-blue-50"
+                          >
+                            <RefreshCw className="mr-2 w-4 h-4" />
+                            Load Results
+                          </Button>
+                        </div>
+
+                        {/* Help Text */}
+                        {!selectedHederaBatch && batches.length === 0 && (
+                          <div className="text-sm text-muted-foreground bg-blue-50 dark:bg-blue-950/20 p-4 rounded-lg border border-blue-200">
+                            <p className="font-medium mb-2">To get started:</p>
+                            <ol className="list-decimal list-inside space-y-1 ml-2">
+                              <li>Go to the <strong>Eligibility Analysis</strong> tab</li>
+                              <li>Run eligibility checks and save a batch</li>
+                              <li>Come back here and select your saved batch</li>
+                              <li>Click "Run Analysis" to detect Hedera usage</li>
+                            </ol>
+                          </div>
+                        )}
+
+                        {/* Progress Bar */}
+                        {runningHederaAnalysis && hederaProgress.total > 0 && (
+                          <div className="space-y-2 p-4 bg-blue-50 dark:bg-blue-950/20 rounded-lg border border-blue-200">
+                            <div className="flex items-center justify-between text-sm">
+                              <span className="text-muted-foreground">
+                                Analyzing projects for Hedera usage...
+                              </span>
+                              <span className="font-semibold text-blue-600">
+                                {hederaProgress.analyzed} / {hederaProgress.total}
+                              </span>
+                            </div>
+                            <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5 overflow-hidden">
+                              <div
+                                className="h-2.5 rounded-full transition-all duration-500 ease-out bg-gradient-to-r from-blue-500 to-purple-500"
+                                style={{
+                                  width: `${hederaProgress.total > 0 ? (hederaProgress.analyzed / hederaProgress.total) * 100 : 0}%`,
+                                }}
+                              />
+                            </div>
+                            <div className="flex items-center justify-between">
+                              <p className="text-xs text-muted-foreground">
+                                {hederaProgress.total > 0
+                                  ? `${Math.round((hederaProgress.analyzed / hederaProgress.total) * 100)}%`
+                                  : '0%'} complete
+                              </p>
+                              <p className="text-xs text-muted-foreground">
+                                Analyzing Hedera blockchain integration...
+                              </p>
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Results Section */}
+                        {hederaAnalysisComplete && hederaResults.length > 0 && (
+                          <div className="space-y-4 mt-6">
+                            {/* Summary Cards */}
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                              {/* Total Analyzed */}
+                              <Card className="border-blue-200 bg-blue-50 dark:bg-blue-950/20">
+                                <CardHeader>
+                                  <CardTitle className="flex items-center gap-2 text-blue-700 dark:text-blue-400 text-sm">
+                                    <FolderOpen className="w-4 h-4" />
+                                    Total Analyzed
+                                  </CardTitle>
+                                </CardHeader>
+                                <CardContent>
+                                  <div className="text-3xl font-bold text-blue-600 dark:text-blue-400">
+                                    {hederaResults.length}
+                                  </div>
+                                </CardContent>
+                              </Card>
+
+                              {/* Hedera Detected */}
+                              <Card className="border-green-200 bg-green-50 dark:bg-green-950/20">
+                                <CardHeader>
+                                  <CardTitle className="flex items-center gap-2 text-green-700 dark:text-green-400 text-sm">
+                                    <GitBranch className="w-4 h-4" />
+                                    Hedera Detected
+                                  </CardTitle>
+                                </CardHeader>
+                                <CardContent>
+                                  <div className="text-3xl font-bold text-green-600 dark:text-green-400">
+                                    {hederaResults.filter(r => r.report?.hederaPresenceDetected).length}
+                                  </div>
+                                </CardContent>
+                              </Card>
+
+                              {/* No Hedera */}
+                              <Card className="border-gray-200 bg-gray-50 dark:bg-gray-950/20">
+                                <CardHeader>
+                                  <CardTitle className="flex items-center gap-2 text-gray-700 dark:text-gray-400 text-sm">
+                                    <XCircle className="w-4 h-4" />
+                                    No Hedera
+                                  </CardTitle>
+                                </CardHeader>
+                                <CardContent>
+                                  <div className="text-3xl font-bold text-gray-600 dark:text-gray-400">
+                                    {hederaResults.filter(r => !r.report?.hederaPresenceDetected).length}
+                                  </div>
+                                </CardContent>
+                              </Card>
+                            </div>
+
+                            {/* Export Buttons */}
+                            <div className="space-y-3">
+                              {/* Export All Button - Full width */}
+                              <Button
+                                onClick={exportAllBatchResults}
+                                disabled={!selectedHederaBatch}
+                                className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold py-6 shadow-lg"
+                              >
+                                <Download className="mr-2 w-5 h-5" />
+                                Export All Batch Results to Excel
+                              </Button>
+
+                              {/* Separate Export Buttons */}
+                              <div className="flex gap-4">
+                                <Button
+                                  onClick={exportHederaProjects}
+                                  disabled={hederaResults.filter(r => r.report?.hederaPresenceDetected).length === 0}
+                                  className="flex-1 bg-green-600 hover:bg-green-700 text-white"
+                                >
+                                  <Download className="mr-2 w-4 h-4" />
+                                  Export Hedera Projects ({hederaResults.filter(r => r.report?.hederaPresenceDetected).length})
+                                </Button>
+                                <Button
+                                  onClick={exportNonHederaProjects}
+                                  disabled={hederaResults.filter(r => !r.report?.hederaPresenceDetected).length === 0}
+                                  variant="outline"
+                                  className="flex-1 border-gray-500 text-gray-600 hover:bg-gray-50"
+                                >
+                                  <Download className="mr-2 w-4 h-4" />
+                                  Export Non-Hedera Projects ({hederaResults.filter(r => !r.report?.hederaPresenceDetected).length})
+                                </Button>
+                              </div>
+                            </div>
+
+                            {/* Projects List */}
+                            <div className="space-y-2">
+                              <h3 className="text-sm font-semibold">Analysis Results:</h3>
+                              <div className="space-y-2 max-h-[500px] overflow-y-auto">
+                                {hederaResults.map((result, index) => (
+                                  <Card
+                                    key={index}
+                                    className={`${
+                                      result.report?.hederaPresenceDetected
+                                        ? 'border-green-200 bg-green-50/50 dark:bg-green-950/10'
+                                        : 'border-gray-200'
+                                    }`}
+                                  >
+                                    <CardContent className="p-4">
+                                      <div className="flex items-start justify-between gap-4">
+                                        <div className="flex-1">
+                                          <div className="flex items-center gap-2 mb-2">
+                                            <h4 className="font-medium">{result.project.name}</h4>
+                                            {result.report?.hederaPresenceDetected ? (
+                                              <Badge className="bg-green-600 text-white">
+                                                <GitBranch className="w-3 h-3 mr-1" />
+                                                Hedera Detected
+                                              </Badge>
+                                            ) : (
+                                              <Badge variant="outline">No Hedera</Badge>
+                                            )}
+                                          </div>
+
+                                          {result.project.teamName && (
+                                            <div className="text-sm text-muted-foreground mb-2">
+                                              Team: {result.project.teamName}
+                                            </div>
+                                          )}
+
+                                          {result.report?.hederaPresenceDetected && (
+                                            <div className="space-y-2 mt-3">
+                                              <div className="flex items-center gap-2 text-sm">
+                                                <span className="font-medium">Confidence:</span>
+                                                <Badge variant="secondary">{result.report.confidence}%</Badge>
+                                                {result.report.complexityLevel && (
+                                                  <>
+                                                    <span className="font-medium ml-2">Complexity:</span>
+                                                    <Badge variant="secondary">{result.report.complexityLevel}</Badge>
+                                                  </>
+                                                )}
+                                              </div>
+
+                                              {result.report.summary && (
+                                                <p className="text-sm text-muted-foreground">
+                                                  {result.report.summary}
+                                                </p>
+                                              )}
+
+                                              {result.report.detectedTechnologies?.length > 0 && (
+                                                <div className="flex flex-wrap gap-1 mt-2">
+                                                  {result.report.detectedTechnologies.map((tech: string, i: number) => (
+                                                    <Badge key={i} variant="outline" className="text-xs">
+                                                      {tech}
+                                                    </Badge>
+                                                  ))}
+                                                </div>
+                                              )}
+                                            </div>
+                                          )}
+                                        </div>
+
+                                        {result.project.githubUrl && result.project.githubUrl !== 'N/A' && (
+                                          <a
+                                            href={result.project.githubUrl}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
+                                          >
+                                            <ExternalLink className="w-4 h-4" />
+                                          </a>
+                                        )}
+                                      </div>
+                                    </CardContent>
+                                  </Card>
+                                ))}
+                              </div>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+              </Tabs>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Batches Tab */}
+        <TabsContent value="batches" className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Package className="w-5 h-5 text-purple-500" />
+                Saved Eligibility Batches
+              </CardTitle>
+              <p className="text-sm text-muted-foreground">
+                View and manage your saved project batches
+              </p>
+            </CardHeader>
+            <CardContent>
+              {loadingBatches ? (
+                <div className="flex flex-col items-center justify-center py-12 space-y-4">
+                  <LoadingSpinner size="lg" />
+                  <p className="text-sm text-muted-foreground">Loading batches...</p>
+                </div>
+              ) : batches.length === 0 ? (
+                <div className="flex flex-col items-center justify-center py-12 space-y-4 text-center">
+                  <Package className="w-16 h-16 text-muted-foreground/40" />
+                  <div className="space-y-2">
+                    <h3 className="text-lg font-semibold">No Batches Yet</h3>
+                    <p className="text-sm text-muted-foreground max-w-md">
+                      You haven't saved any eligibility batches yet. Go to the Bulk Analysis tab to run eligibility checks and save batches.
+                    </p>
+                  </div>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {batches.map((batch) => (
+                    <Card key={batch.id} className="border-purple-200 bg-purple-50/50 dark:bg-purple-950/20">
+                      <CardHeader>
+                        <div className="flex items-start justify-between">
+                          <div className="space-y-1 flex-1">
+                            <CardTitle className="text-lg font-semibold text-purple-900 dark:text-purple-100 flex items-center gap-2">
+                              <Layers className="w-5 h-5" />
+                              {batch.name}
+                            </CardTitle>
+                            {batch.description && (
+                              <p className="text-sm text-muted-foreground">
+                                {batch.description}
+                              </p>
+                            )}
+                          </div>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => deleteBatch(batch.id)}
+                            className="text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950/20"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="flex flex-wrap gap-4 text-sm">
+                          <div className="flex items-center gap-2">
+                            <FolderOpen className="w-4 h-4 text-purple-600" />
+                            <span className="font-semibold text-purple-700 dark:text-purple-400">
+                              {batch.totalProjects} Projects
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-2 text-muted-foreground">
+                            <Calendar className="w-4 h-4" />
+                            {new Date(batch.createdAt).toLocaleDateString('en-US', {
+                              year: 'numeric',
+                              month: 'short',
+                              day: 'numeric',
+                              hour: '2-digit',
+                              minute: '2-digit'
+                            })}
+                          </div>
+                        </div>
+
+                        {batch.criteria && Object.keys(batch.criteria).length > 0 && (
+                          <div className="mt-4 p-3 bg-white dark:bg-gray-900 rounded-lg border">
+                            <div className="text-xs font-medium text-muted-foreground mb-2">
+                              Eligibility Criteria
+                            </div>
+                            <div className="flex flex-wrap gap-2">
+                              {batch.criteria.githubExists && (
+                                <Badge variant="outline" className="text-xs">
+                                  GitHub URL exists
+                                </Badge>
+                              )}
+                              {batch.criteria.isPublic && (
+                                <Badge variant="outline" className="text-xs">
+                                  Public repository
+                                </Badge>
+                              )}
+                            </div>
+                          </div>
+                        )}
+
+                        <div className="mt-4">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => viewBatchDetails(batch.id)}
+                            className="w-full bg-purple-100 hover:bg-purple-200 border-purple-300 text-purple-700 dark:bg-purple-950/40 dark:hover:bg-purple-950/60 dark:text-purple-300"
+                          >
+                            <Eye className="w-4 h-4 mr-2" />
+                            View Projects ({batch.totalProjects})
+                          </Button>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
       </Tabs>
 
       {/* Project Detail Modal */}
@@ -1132,6 +3172,202 @@ export default function HackathonProjectsPage() {
               toast.error('Coherence analysis cancelled by user');
             }}
           />
+        </DialogContent>
+      </Dialog>
+
+      {/* Batch Details Modal */}
+      <Dialog open={!!selectedBatch} onOpenChange={(open) => !open && setSelectedBatch(null)}>
+        <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Package className="w-5 h-5 text-purple-600" />
+              {selectedBatch?.name}
+            </DialogTitle>
+            {selectedBatch?.description && (
+              <p className="text-sm text-muted-foreground">
+                {selectedBatch.description}
+              </p>
+            )}
+          </DialogHeader>
+
+          {selectedBatch && (
+            <div className="space-y-4">
+              {/* Batch Info */}
+              <div className="flex flex-wrap gap-4 p-4 bg-purple-50 dark:bg-purple-950/20 rounded-lg">
+                <div className="flex items-center gap-2">
+                  <FolderOpen className="w-4 h-4 text-purple-600" />
+                  <span className="text-sm font-semibold text-purple-700 dark:text-purple-400">
+                    {selectedBatch.totalProjects} Projects
+                  </span>
+                </div>
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <Calendar className="w-4 h-4" />
+                  Created {new Date(selectedBatch.createdAt).toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: 'short',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                  })}
+                </div>
+              </div>
+
+              {/* Criteria */}
+              {selectedBatch.criteria && Object.keys(selectedBatch.criteria).length > 0 && (
+                <div className="p-4 bg-blue-50 dark:bg-blue-950/20 rounded-lg border border-blue-200">
+                  <div className="text-sm font-medium text-blue-900 dark:text-blue-100 mb-2">
+                    Eligibility Criteria Applied
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    {selectedBatch.criteria.githubExists && (
+                      <Badge variant="outline" className="text-xs">
+                        GitHub URL exists
+                      </Badge>
+                    )}
+                    {selectedBatch.criteria.isPublic && (
+                      <Badge variant="outline" className="text-xs">
+                        Public repository
+                      </Badge>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* Projects List */}
+              <div className="space-y-2">
+                <h3 className="text-sm font-semibold">Projects in this batch:</h3>
+                <div className="space-y-2 max-h-[400px] overflow-y-auto">
+                  {selectedBatch.batchProjects?.map((bp: any) => (
+                    <Card key={bp.id} className="hover:bg-accent/50 transition-colors">
+                      <CardContent className="p-4">
+                        <div className="flex items-start justify-between gap-4">
+                          <div className="flex-1 space-y-1">
+                            <div className="font-medium">{bp.project.name}</div>
+                            {bp.project.teamName && (
+                              <div className="text-sm text-muted-foreground">
+                                Team: {bp.project.teamName}
+                              </div>
+                            )}
+                            {bp.project.track && (
+                              <Badge variant="secondary" className="text-xs">
+                                {bp.project.track.name}
+                              </Badge>
+                            )}
+                          </div>
+                          {bp.project.githubUrl && bp.project.githubUrl !== 'N/A' && (
+                            <a
+                              href={bp.project.githubUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
+                            >
+                              <ExternalLink className="w-4 h-4" />
+                            </a>
+                          )}
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+
+          <div className="flex justify-end">
+            <Button
+              variant="outline"
+              onClick={() => setSelectedBatch(null)}
+            >
+              Close
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Save Batch Modal */}
+      <Dialog open={showSaveBatchModal} onOpenChange={setShowSaveBatchModal}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Save className="w-5 h-5 text-green-600" />
+              Save Eligibility Batch
+            </DialogTitle>
+            <p className="text-sm text-muted-foreground">
+              Save {getEligibleProjects().length} eligible projects as a named batch for Layer 2 analysis
+            </p>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <label htmlFor="batchName" className="text-sm font-medium">
+                Batch Name *
+              </label>
+              <Input
+                id="batchName"
+                placeholder="e.g., Layer 1 - Valid Repos"
+                value={batchName}
+                onChange={(e) => setBatchName(e.target.value)}
+                disabled={savingBatch}
+              />
+            </div>
+            <div className="space-y-2">
+              <label htmlFor="batchDescription" className="text-sm font-medium">
+                Description (Optional)
+              </label>
+              <textarea
+                id="batchDescription"
+                placeholder="Add notes about this batch..."
+                value={batchDescription}
+                onChange={(e) => setBatchDescription(e.target.value)}
+                disabled={savingBatch}
+                className="w-full min-h-[80px] px-3 py-2 text-sm rounded-md border border-input bg-background"
+              />
+            </div>
+            <Card className="bg-blue-50 dark:bg-blue-950/20 border-blue-200">
+              <CardContent className="pt-4">
+                <div className="text-sm space-y-1">
+                  <div className="font-medium text-blue-900 dark:text-blue-100">Batch Summary</div>
+                  <div className="text-muted-foreground">
+                    {getEligibleProjects().length} projects will be saved
+                  </div>
+                  <div className="text-xs text-muted-foreground mt-2">
+                    Criteria: {eligibilityCriteria.githubExists && 'GitHub URL exists'}
+                    {eligibilityCriteria.githubExists && eligibilityCriteria.isPublic && ' + '}
+                    {eligibilityCriteria.isPublic && 'Public repository'}
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+          <div className="flex justify-end gap-2">
+            <Button
+              variant="outline"
+              onClick={() => {
+                setShowSaveBatchModal(false);
+                setBatchName('');
+                setBatchDescription('');
+              }}
+              disabled={savingBatch}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={saveBatch}
+              disabled={savingBatch || !batchName.trim()}
+              className="bg-green-600 hover:bg-green-700"
+            >
+              {savingBatch ? (
+                <>
+                  <LoadingSpinner className="mr-2" />
+                  Saving...
+                </>
+              ) : (
+                <>
+                  <Save className="w-4 h-4 mr-2" />
+                  Save Batch
+                </>
+              )}
+            </Button>
+          </div>
         </DialogContent>
       </Dialog>
     </div>

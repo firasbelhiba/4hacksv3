@@ -22,8 +22,8 @@ export declare class TracksService {
         createdAt: Date;
         updatedAt: Date;
         hackathonId: string;
-        prize: string | null;
         order: number;
+        prize: string | null;
         eligibilityCriteria: import("@prisma/client/runtime/library").JsonValue | null;
     })[]>;
     create(hackathonId: string, userId: string, trackDto: TrackDto): Promise<{
@@ -37,8 +37,8 @@ export declare class TracksService {
         createdAt: Date;
         updatedAt: Date;
         hackathonId: string;
-        prize: string | null;
         order: number;
+        prize: string | null;
         eligibilityCriteria: import("@prisma/client/runtime/library").JsonValue | null;
     }>;
     batchUpdate(hackathonId: string, userId: string, tracks: TrackDto[]): Promise<({
@@ -52,8 +52,8 @@ export declare class TracksService {
         createdAt: Date;
         updatedAt: Date;
         hackathonId: string;
-        prize: string | null;
         order: number;
+        prize: string | null;
         eligibilityCriteria: import("@prisma/client/runtime/library").JsonValue | null;
     })[]>;
 }

@@ -9,6 +9,8 @@ import { CodeQualityController } from './code-quality.controller';
 import { CodeQualityProcessor } from './processors/code-quality.processor';
 import { EligibilityService } from './services/eligibility.service';
 import { EligibilityController } from './eligibility.controller';
+import { HederaService } from './services/hedera.service';
+import { HederaController } from './hedera.controller';
 import { AiAgentsModule } from '../ai-agents/ai-agents.module';
 
 @Module({
@@ -24,6 +26,7 @@ import { AiAgentsModule } from '../ai-agents/ai-agents.module';
     BatchReviewsController,
     CodeQualityController,
     EligibilityController,
+    HederaController,
   ],
   providers: [
     ProjectsService,
@@ -31,12 +34,14 @@ import { AiAgentsModule } from '../ai-agents/ai-agents.module';
     CodeQualityService,
     CodeQualityProcessor,
     EligibilityService,
+    HederaService,
   ],
   exports: [
     ProjectsService,
     ReviewsService,
     CodeQualityService,
     EligibilityService,
+    HederaService,
   ],
 })
 export class ProjectsModule {}

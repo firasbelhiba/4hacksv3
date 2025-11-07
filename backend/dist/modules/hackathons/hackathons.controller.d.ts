@@ -114,8 +114,8 @@ export declare class HackathonsController {
                 createdAt: Date;
                 updatedAt: Date;
                 hackathonId: string;
-                prize: string | null;
                 order: number;
+                prize: string | null;
                 eligibilityCriteria: import("@prisma/client/runtime/library").JsonValue | null;
             })[];
             _count: {
@@ -152,8 +152,8 @@ export declare class HackathonsController {
                 createdAt: Date;
                 updatedAt: Date;
                 hackathonId: string;
-                prize: string | null;
                 order: number;
+                prize: string | null;
                 eligibilityCriteria: import("@prisma/client/runtime/library").JsonValue | null;
             }[];
             description: string;
@@ -182,8 +182,8 @@ export declare class HackathonsController {
                 createdAt: Date;
                 updatedAt: Date;
                 hackathonId: string;
-                prize: string | null;
                 order: number;
+                prize: string | null;
                 eligibilityCriteria: import("@prisma/client/runtime/library").JsonValue | null;
             }[];
         } & {

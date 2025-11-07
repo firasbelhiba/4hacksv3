@@ -11,6 +11,7 @@ import { AIJuryModule } from './modules/ai-jury/ai-jury.module';
 import { ScoringModule } from './modules/scoring/scoring.module';
 import { NotificationsModule } from './modules/notifications/notifications.module';
 import { EventsModule } from './modules/events/events.module';
+import { EligibilityBatchesModule } from './modules/eligibility-batches/eligibility-batches.module';
 import { JwtAuthGuard } from './modules/auth/guards/jwt-auth.guard';
 
 @Module({
@@ -45,6 +46,7 @@ import { JwtAuthGuard } from './modules/auth/guards/jwt-auth.guard';
     ScoringModule,
     NotificationsModule,
     EventsModule,
+    EligibilityBatchesModule,
   ],
   controllers: [],
   providers: [

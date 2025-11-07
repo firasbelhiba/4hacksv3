@@ -1,12 +1,16 @@
 import { Injectable, NotFoundException, ForbiddenException, Logger } from '@nestjs/common';
 import { PrismaService } from '@/database/prisma.service';
 import { CreateProjectDto, UpdateProjectDto } from './dto';
+import { GitHubService } from '../ai-agents/services/github.service';
 
 @Injectable()
 export class ProjectsService {
   private readonly logger = new Logger(ProjectsService.name);
 
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private githubService: GitHubService,
+  ) {}
 
   private slugify(text: string): string {
     return text
@@ -308,5 +312,106 @@ export class ProjectsService {
         hasPreviousPage: page > 1,
       },
     };
+  }
+
+  // Check repository accessibility for multiple projects
+  async checkRepositoriesAccessibility(
+    hackathonId: string,
+    userId: string,
+    projectIds: string[],
+  ) {
+    // Verify hackathon access
+    const hackathon = await this.prisma.hackathons.findFirst({
+      where: {
+        id: hackathonId,
+        createdById: userId,
+      },
+    });
+
+    if (!hackathon) {
+      throw new ForbiddenException('Hackathon not found or access denied');
+    }
+
+    // Fetch projects
+    const projects = await this.prisma.projects.findMany({
+      where: {
+        id: { in: projectIds },
+        hackathonId,
+      },
+      select: {
+        id: true,
+        name: true,
+        githubUrl: true,
+      },
+    });
+
+    this.logger.log(`Checking repository accessibility for ${projects.length} projects`);
+
+    // Check each repository with rate limiting
+    const results = [];
+    for (const project of projects) {
+      try {
+        // Skip if no GitHub URL or N/A
+        if (!project.githubUrl || project.githubUrl === 'N/A') {
+          results.push({
+            projectId: project.id,
+            projectName: project.name,
+            githubUrl: project.githubUrl,
+            accessible: false,
+            isPublic: false,
+            error: 'No GitHub URL provided',
+          });
+          continue;
+        }
+
+        // Parse GitHub URL
+        const repoInfo = this.githubService.parseGitHubUrl(project.githubUrl);
+
+        if (!repoInfo) {
+          results.push({
+            projectId: project.id,
+            projectName: project.name,
+            githubUrl: project.githubUrl,
+            accessible: false,
+            isPublic: false,
+            error: 'Invalid GitHub URL format',
+          });
+          continue;
+        }
+
+        // Check repository accessibility
+        const check = await this.githubService.checkRepositoryAccessibility(
+          repoInfo.owner,
+          repoInfo.repo,
+        );
+
+        results.push({
+          projectId: project.id,
+          projectName: project.name,
+          githubUrl: project.githubUrl,
+          accessible: check.accessible,
+          isPublic: check.isPublic,
+          error: check.error,
+        });
+
+        // Add delay to respect GitHub API rate limits (1 req/sec)
+        await new Promise(resolve => setTimeout(resolve, 1000));
+
+      } catch (error) {
+        this.logger.error(`Error checking repository for project ${project.id}: ${error.message}`);
+        results.push({
+          projectId: project.id,
+          projectName: project.name,
+          githubUrl: project.githubUrl,
+          accessible: false,
+          isPublic: false,
+          error: error.message,
+        });
+      }
+    }
+
+    this.logger.log(`Repository accessibility check completed for ${results.length} projects`);
+
+    return results;
   }
 }

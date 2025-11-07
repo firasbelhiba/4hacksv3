@@ -13,9 +13,11 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.ProjectsService = void 0;
 const common_1 = require("@nestjs/common");
 const prisma_service_1 = require("../../database/prisma.service");
+const github_service_1 = require("../ai-agents/services/github.service");
 let ProjectsService = ProjectsService_1 = class ProjectsService {
-    constructor(prisma) {
+    constructor(prisma, githubService) {
         this.prisma = prisma;
+        this.githubService = githubService;
         this.logger = new common_1.Logger(ProjectsService_1.name);
     }
     slugify(text) {
@@ -271,10 +273,85 @@ let ProjectsService = ProjectsService_1 = class ProjectsService {
             },
         };
     }
+    async checkRepositoriesAccessibility(hackathonId, userId, projectIds) {
+        const hackathon = await this.prisma.hackathons.findFirst({
+            where: {
+                id: hackathonId,
+                createdById: userId,
+            },
+        });
+        if (!hackathon) {
+            throw new common_1.ForbiddenException('Hackathon not found or access denied');
+        }
+        const projects = await this.prisma.projects.findMany({
+            where: {
+                id: { in: projectIds },
+                hackathonId,
+            },
+            select: {
+                id: true,
+                name: true,
+                githubUrl: true,
+            },
+        });
+        this.logger.log(`Checking repository accessibility for ${projects.length} projects`);
+        const results = [];
+        for (const project of projects) {
+            try {
+                if (!project.githubUrl || project.githubUrl === 'N/A') {
+                    results.push({
+                        projectId: project.id,
+                        projectName: project.name,
+                        githubUrl: project.githubUrl,
+                        accessible: false,
+                        isPublic: false,
+                        error: 'No GitHub URL provided',
+                    });
+                    continue;
+                }
+                const repoInfo = this.githubService.parseGitHubUrl(project.githubUrl);
+                if (!repoInfo) {
+                    results.push({
+                        projectId: project.id,
+                        projectName: project.name,
+                        githubUrl: project.githubUrl,
+                        accessible: false,
+                        isPublic: false,
+                        error: 'Invalid GitHub URL format',
+                    });
+                    continue;
+                }
+                const check = await this.githubService.checkRepositoryAccessibility(repoInfo.owner, repoInfo.repo);
+                results.push({
+                    projectId: project.id,
+                    projectName: project.name,
+                    githubUrl: project.githubUrl,
+                    accessible: check.accessible,
+                    isPublic: check.isPublic,
+                    error: check.error,
+                });
+                await new Promise(resolve => setTimeout(resolve, 1000));
+            }
+            catch (error) {
+                this.logger.error(`Error checking repository for project ${project.id}: ${error.message}`);
+                results.push({
+                    projectId: project.id,
+                    projectName: project.name,
+                    githubUrl: project.githubUrl,
+                    accessible: false,
+                    isPublic: false,
+                    error: error.message,
+                });
+            }
+        }
+        this.logger.log(`Repository accessibility check completed for ${results.length} projects`);
+        return results;
+    }
 };
 exports.ProjectsService = ProjectsService;
 exports.ProjectsService = ProjectsService = ProjectsService_1 = __decorate([
     (0, common_1.Injectable)(),
-    __metadata("design:paramtypes", [prisma_service_1.PrismaService])
+    __metadata("design:paramtypes", [prisma_service_1.PrismaService,
+        github_service_1.GitHubService])
 ], ProjectsService);
 //# sourceMappingURL=projects.service.js.map

@@ -20,6 +20,7 @@ const ai_jury_module_1 = require("./modules/ai-jury/ai-jury.module");
 const scoring_module_1 = require("./modules/scoring/scoring.module");
 const notifications_module_1 = require("./modules/notifications/notifications.module");
 const events_module_1 = require("./modules/events/events.module");
+const eligibility_batches_module_1 = require("./modules/eligibility-batches/eligibility-batches.module");
 const jwt_auth_guard_1 = require("./modules/auth/guards/jwt-auth.guard");
 let AppModule = class AppModule {
 };
@@ -50,6 +51,7 @@ exports.AppModule = AppModule = __decorate([
             scoring_module_1.ScoringModule,
             notifications_module_1.NotificationsModule,
             events_module_1.EventsModule,
+            eligibility_batches_module_1.EligibilityBatchesModule,
         ],
         controllers: [],
         providers: [

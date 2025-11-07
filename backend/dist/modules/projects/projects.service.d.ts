@@ -1,9 +1,11 @@
 import { PrismaService } from '@/database/prisma.service';
 import { CreateProjectDto, UpdateProjectDto } from './dto';
+import { GitHubService } from '../ai-agents/services/github.service';
 export declare class ProjectsService {
     private prisma;
+    private githubService;
     private readonly logger;
-    constructor(prisma: PrismaService);
+    constructor(prisma: PrismaService, githubService: GitHubService);
     private slugify;
     private verifyProjectAccess;
     findAll(userId: string): Promise<{
@@ -184,4 +186,5 @@ export declare class ProjectsService {
             hasPreviousPage: boolean;
         };
     }>;
+    checkRepositoriesAccessibility(hackathonId: string, userId: string, projectIds: string[]): Promise<any[]>;
 }

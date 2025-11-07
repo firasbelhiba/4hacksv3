@@ -1,4 +1,4 @@
-import { Controller, Get, Param, Query, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Query, UseGuards } from '@nestjs/common';
 import { ProjectsService } from '../projects/projects.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
@@ -21,6 +21,23 @@ export class HackathonProjectsController {
     return {
       success: true,
       ...result,
+    };
+  }
+
+  @Post('check-repositories')
+  async checkRepositories(
+    @Param('hackathonId') hackathonId: string,
+    @CurrentUser('id') userId: string,
+    @Body('projectIds') projectIds: string[],
+  ) {
+    const results = await this.projectsService.checkRepositoriesAccessibility(
+      hackathonId,
+      userId,
+      projectIds,
+    );
+    return {
+      success: true,
+      results,
     };
   }
 }

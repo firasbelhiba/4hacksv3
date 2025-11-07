@@ -151,6 +151,24 @@ let GitHubService = GitHubService_1 = class GitHubService {
             };
         }
     }
+    async searchCode(owner, repo, query) {
+        try {
+            const searchQuery = `${query} repo:${owner}/${repo}`;
+            const { data } = await this.octokit.search.code({
+                q: searchQuery,
+                per_page: 5,
+            });
+            return data.items.map((item) => item.path);
+        }
+        catch (error) {
+            if (error.status === 403 || error.status === 422) {
+                this.logger.debug(`Code search rate limited or restricted for query: ${query}`);
+                return [];
+            }
+            this.logger.error(`Error searching code: ${error.message}`);
+            return [];
+        }
+    }
 };
 exports.GitHubService = GitHubService;
 exports.GitHubService = GitHubService = GitHubService_1 = __decorate([

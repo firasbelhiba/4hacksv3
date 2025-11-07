@@ -87,6 +87,7 @@ model hackathons {
   tournament       tournaments?
   tracks           tracks[]
   aiJurySessions   ai_jury_sessions[]
+  eligibilityBatches eligibility_batches[]
 
   @@index([slug])
   @@index([createdById])
@@ -140,6 +141,7 @@ model projects {
   project1Matches    tournament_matches[]   @relation("Project1")
   project2Matches    tournament_matches[]   @relation("Project2")
   wonMatches         tournament_matches[]   @relation("Winner")
+  batchMemberships   eligibility_batch_projects[]
 
   @@unique([hackathonId, slug])
   @@index([hackathonId])
@@ -494,6 +496,38 @@ model ai_jury_layer_results {
   @@index([projectId])
   @@index([eliminated])
   @@map("ai_jury_layer_results")
+}
+
+model eligibility_batches {
+  id              String   @id @default(cuid())
+  hackathonId     String
+  name            String
+  description     String?
+  criteria        Json     @default("{}")
+  totalProjects   Int      @default(0)
+  createdById     String
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  hackathon       hackathons @relation(fields: [hackathonId], references: [id], onDelete: Cascade)
+  batchProjects   eligibility_batch_projects[]
+
+  @@index([hackathonId])
+  @@index([createdById])
+  @@map("eligibility_batches")
+}
+
+model eligibility_batch_projects {
+  id        String              @id @default(cuid())
+  batchId   String
+  projectId String
+  addedAt   DateTime            @default(now())
+  batch     eligibility_batches @relation(fields: [batchId], references: [id], onDelete: Cascade)
+  project   projects            @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@unique([batchId, projectId])
+  @@index([batchId])
+  @@index([projectId])
+  @@map("eligibility_batch_projects")
 }
 
 enum JurySessionStatus {

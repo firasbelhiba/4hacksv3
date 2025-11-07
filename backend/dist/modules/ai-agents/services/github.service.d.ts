@@ -31,4 +31,5 @@ export declare class GitHubService {
         error?: string;
         metadata?: any;
     }>;
+    searchCode(owner: string, repo: string, query: string): Promise<string[]>;
 }

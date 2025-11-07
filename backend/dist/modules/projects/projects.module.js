@@ -18,6 +18,8 @@ const code_quality_controller_1 = require("./code-quality.controller");
 const code_quality_processor_1 = require("./processors/code-quality.processor");
 const eligibility_service_1 = require("./services/eligibility.service");
 const eligibility_controller_1 = require("./eligibility.controller");
+const hedera_service_1 = require("./services/hedera.service");
+const hedera_controller_1 = require("./hedera.controller");
 const ai_agents_module_1 = require("../ai-agents/ai-agents.module");
 let ProjectsModule = class ProjectsModule {
 };
@@ -36,6 +38,7 @@ exports.ProjectsModule = ProjectsModule = __decorate([
             reviews_controller_1.BatchReviewsController,
             code_quality_controller_1.CodeQualityController,
             eligibility_controller_1.EligibilityController,
+            hedera_controller_1.HederaController,
         ],
         providers: [
             projects_service_1.ProjectsService,
@@ -43,12 +46,14 @@ exports.ProjectsModule = ProjectsModule = __decorate([
             code_quality_service_1.CodeQualityService,
             code_quality_processor_1.CodeQualityProcessor,
             eligibility_service_1.EligibilityService,
+            hedera_service_1.HederaService,
         ],
         exports: [
             projects_service_1.ProjectsService,
             reviews_service_1.ReviewsService,
             code_quality_service_1.CodeQualityService,
             eligibility_service_1.EligibilityService,
+            hedera_service_1.HederaService,
         ],
     })
 ], ProjectsModule);

@@ -61,4 +61,8 @@ export declare class HackathonProjectsController {
         };
         success: boolean;
     }>;
+    checkRepositories(hackathonId: string, userId: string, projectIds: string[]): Promise<{
+        success: boolean;
+        results: any[];
+    }>;
 }

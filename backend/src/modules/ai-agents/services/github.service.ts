@@ -178,4 +178,33 @@ export class GitHubService {
       };
     }
   }
+
+  /**
+   * Search for code patterns in a repository
+   * Returns array of matching snippets
+   */
+  async searchCode(
+    owner: string,
+    repo: string,
+    query: string,
+  ): Promise<string[]> {
+    try {
+      const searchQuery = `${query} repo:${owner}/${repo}`;
+      const { data } = await this.octokit.search.code({
+        q: searchQuery,
+        per_page: 5,
+      });
+
+      return data.items.map((item: any) => item.path);
+    } catch (error: any) {
+      // GitHub search API has rate limits and restrictions
+      if (error.status === 403 || error.status === 422) {
+        this.logger.debug(`Code search rate limited or restricted for query: ${query}`);
+        return [];
+      }
+
+      this.logger.error(`Error searching code: ${error.message}`);
+      return [];
+    }
+  }
 }

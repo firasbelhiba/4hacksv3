@@ -30,6 +30,13 @@ let HackathonProjectsController = class HackathonProjectsController {
             ...result,
         };
     }
+    async checkRepositories(hackathonId, userId, projectIds) {
+        const results = await this.projectsService.checkRepositoriesAccessibility(hackathonId, userId, projectIds);
+        return {
+            success: true,
+            results,
+        };
+    }
 };
 exports.HackathonProjectsController = HackathonProjectsController;
 __decorate([
@@ -42,6 +49,15 @@ __decorate([
     __metadata("design:paramtypes", [String, String, Number, Number]),
     __metadata("design:returntype", Promise)
 ], HackathonProjectsController.prototype, "findAll", null);
+__decorate([
+    (0, common_1.Post)('check-repositories'),
+    __param(0, (0, common_1.Param)('hackathonId')),
+    __param(1, (0, current_user_decorator_1.CurrentUser)('id')),
+    __param(2, (0, common_1.Body)('projectIds')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, String, Array]),
+    __metadata("design:returntype", Promise)
+], HackathonProjectsController.prototype, "checkRepositories", null);
 exports.HackathonProjectsController = HackathonProjectsController = __decorate([
     (0, common_1.Controller)('hackathons/:hackathonId/projects'),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
